@@ -1,17 +1,18 @@
 package common.rich.collections
 
-import common.rich.collections.RichTraversable._
+import common.AuxSpecs
+import common.rich.collections.RichTraversableOnce._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
 
-class RichTraversableTest extends FlatSpec with Matchers {
-  "getUniquePairs" should "have size of n choose 2" in {
-    List.fill(10)("bla").getUniquePairs.size should be === 45
+class RichTraversableTest extends FlatSpec with Matchers with AuxSpecs {
+  "unorderedPairs" should "have size of n choose 2" in {
+    List.fill(10)("bla").unorderedPairs.size should be === 45
   }
 
   it should "return all unique pairs" in {
-    List(1, 2, 3).getUniquePairs.toSet should be === Set((1, 2), (1, 3), (2, 3))
+    List(1, 2, 3).unorderedPairs.toSet should be === Set((1, 2), (1, 3), (2, 3))
   }
 
   "joinWhere" should "return an empty traversable if one of the traversables is empty" in {
@@ -60,6 +61,6 @@ class RichTraversableTest extends FlatSpec with Matchers {
       case s: String => Some(s.length)
       case _ => None
     }
-    List("hi", 4, "hello", true).mapDefined(f) shouldBe List(2, 5)
+    List("hi", 4, "hello", true).map(f).flatten shouldReturn List(2, 5)
   }
 }

@@ -5,11 +5,11 @@ import common.AuxSpecs
 import common.rich.primitives.RichInt._
 import org.scalacheck.Gen
 import org.scalatest.PropSpec
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.prop.{GeneratorDrivenPropertyChecks, PropertyChecks}
 
 import scala.concurrent.duration._
 
-class RichIntPropTest extends PropSpec with PropertyChecks with AuxSpecs {
+class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
 	property("gcd should divide both numbers") {
 		forAll(maxDiscarded(100000)) { (x: Int, y: Int) =>
 			whenever(x > 0 && y > 0) {

@@ -1,7 +1,7 @@
 package common
 
 /** 
- * An immutable LRU Cache implementation 
+ * An mutable LRU Cache implementation
  * @param maxSize the maximum size of the cache.
  */
 class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {

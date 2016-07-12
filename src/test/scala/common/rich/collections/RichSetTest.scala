@@ -9,7 +9,6 @@ import org.scalatest.prop.PropertyChecks
 import scala.collection.mutable
 
 class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
-
 	implicit override val generatorDrivenConfig = PropertyCheckConfig(minSize = 10, maxSize = 1000)
 	lazy val genSet: Gen[Set[Int]] =
 		for (i <- Gen.choose(generatorDrivenConfig.minSize, generatorDrivenConfig.maxSize)) yield {

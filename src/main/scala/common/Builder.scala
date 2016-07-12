@@ -3,13 +3,12 @@ package common
 /**
  * An immutable builder class.
  * This builder aggregates all parameters in a map, so implementing classes need only implement
- * a cloning method that converts this map of parameters and values to a new object
- * This class uses the stack trace to match parameter names with updating functions
+ * a cloning method that converts a map of parameters and values to a new object.
+ * This class uses the stack trace to match parameter names with updating functions.
  * @param parameters this value should at first hold all default mappings of parameters and values
- * @param <T> This should be Builder[ImplementingClass] to allow the builder to return
- * the correct type on clone and update 
+ * @param [T] This should be Builder[ImplementingClass] to allow the builder to return the correct type on clone and update.
  */
-abstract class Builder[T](private[common] val parameters: Map[String, Any]) {
+abstract class Builder[T](parameters: Map[String, Any]) {
   /** 
    * Creates a new builder
    * @param parameters all parameters to the values of the builder   
@@ -23,7 +22,7 @@ abstract class Builder[T](private[common] val parameters: Map[String, Any]) {
    */
 	protected def update(o: Any): T = {
 		val nameOfInvokingMethod: String = Thread.currentThread().getStackTrace.apply(2).getMethodName
-		require(parameters.contains(nameOfInvokingMethod), s"No key found for $nameOfInvokingMethod. Every key should have a default value")
+		require(parameters contains nameOfInvokingMethod, s"No key found for $nameOfInvokingMethod. Every key should have a default value")
 		clone(parameters.updated(nameOfInvokingMethod, o))
 	}
   

@@ -2,7 +2,7 @@ package common.rich.collections
 
 import common.AuxSpecs
 import common.rich.collections.RichSeq.richSeq
-import common.rich.collections.RichTraversable.richTraversable
+import common.rich.collections.RichTraversableOnce.Rich
 import org.scalatest.FlatSpec
 
 class RichSeqTest extends FlatSpec with AuxSpecs {
@@ -35,11 +35,11 @@ class RichSeqTest extends FlatSpec with AuxSpecs {
   }
 
   "get pairs" should "produce no repeats" in {
-    List(1, 2).getUniquePairs.size should be === 1
+    List(1, 2).unorderedPairs.toSet.size should be === 1
   }
 
   it should "produce pairs" in {
-    List(1, 2, 3).getUniquePairs.toSet should be === Set((1, 2), (2, 3), (1, 3))
+    List(1, 2, 3).unorderedPairs.toSet should be === Set((1, 2), (2, 3), (1, 3))
   }
 
   "findIndex" should "return the first index matching the predicate" in {

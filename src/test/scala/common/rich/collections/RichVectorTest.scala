@@ -87,4 +87,18 @@ class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
 				v.cosineSimilarityTo(u) should be >= 0.0
 		}
 	}
+	//TODO(fix)
+//
+//	"magnitude" should "return the size of the vector" in {
+//		List(1, 0, 0).magnitude should be === 1
+//		List(1, 2, 3).magnitude should be === Math.sqrt(14)
+//	}
+//
+//	"unit vector" should "return a normalized vector" in {
+//		List.fill(100)(Random.nextInt).map(_.toDouble).unitVector.magnitude isRoughly 1 should be === true
+//	}
+//
+//	"percentile" should "return percentile" in {
+//		List(1, 2, 3).percentile(0.5) should be === 2
+//	}
 }

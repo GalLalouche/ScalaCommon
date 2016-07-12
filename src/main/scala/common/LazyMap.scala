@@ -4,8 +4,7 @@ import common.rich.RichT._
 
 /**
  * A LazyMap is basically a memoized function.
- * That is, if the value matching the key does not exist, the function
- * will be applied to create it.
+ * That is, if the value matching the key does not exist, the function will be applied to create it.
  * This class is immutable.
  */
 class LazyMap[K, V] private (f: K => V, currentMap: Map[K, V]) extends Function[K, V] {

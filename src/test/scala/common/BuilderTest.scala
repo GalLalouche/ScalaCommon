@@ -7,7 +7,7 @@ class BuilderTest extends FreeSpec with AuxSpecs {
 		def this() = this(Map("foo" -> "bar"))
 		override protected def clone(parameters: Map[String, Any]): TestBuilder = new TestBuilder(parameters)
 		def foo(s: String) = update(s)
-		def getFoo: String = parameters("foo").asInstanceOf[String]
+		def getFoo: String = map("foo").asInstanceOf[String]
 		//meh, asInstanceOf isn't safe anyway
 		override def asT[T](key: String): T = super.asT(key)
 	}

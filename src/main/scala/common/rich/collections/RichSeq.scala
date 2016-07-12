@@ -107,9 +107,6 @@ class RichSeq[T]($: Seq[T]) {
 		def after(index: Int) = at(index + 1)
 		def before(index: Int) = at(index - 1)
 	}
-
-	/** Zips sequence with a mapping of the sequence */
-	def zipMap[S](f: T => S) = $.map(e => e -> f(e))
 }
 
 object RichSeq {

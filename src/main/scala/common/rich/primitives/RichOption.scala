@@ -1,9 +1,9 @@
 package common.rich.primitives
 
 object RichOption {
-	def richOption[T](o: Option[T]) = new {
+	implicit class Rich[T]($: Option[T]) {
 		// throws a better detailed exception when trying to access None
-		def expect(errorMessage: String): T = o match {
+		def getOrThrow(errorMessage: String): T = $ match {
 			case None => throw new NoSuchElementException(errorMessage)
 			case Some(e) => e
 		}
