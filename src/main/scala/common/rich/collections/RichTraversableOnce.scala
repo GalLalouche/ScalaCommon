@@ -99,10 +99,10 @@ object RichTraversableOnce {
     }
 
     def join[S](other: TraversableOnce[S]) = new {
-      def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
-        for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
-      def by[U](ft: T => U, fs: S => U): TraversableOnce[(T, S)] = by(ft, fs, (x, y) => (x, y))
-      def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): TraversableOnce[W] =
+      def where(predicate: (T, S) => Boolean): Seq[(T, S)] =
+        (for (i <- $; j <- other; if predicate(i, j)) yield (i, j)).toVector
+      def by[U](ft: T => U, fs: S => U): Seq[(T, S)] = by(ft, fs, (x, y) => (x, y))
+      def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): Seq[W] =
         where((t, s) => ft(t) == fs(s)).map(e => builder(e._1, e._2))
     }
   }

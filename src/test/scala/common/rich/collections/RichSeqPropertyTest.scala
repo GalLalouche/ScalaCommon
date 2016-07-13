@@ -8,19 +8,20 @@ import org.scalatest.prop.PropertyChecks
 import scala.util.Random
 
 class RichSeqPropertyTest extends PropSpec with PropertyChecks with AuxSpecs {
-	property("shuffle is a permutation") {
-		forAll { xs: Seq[Int] =>
-			whenever(xs.nonEmpty) {
-				xs.shuffle.sorted shouldReturn xs.sorted
-			}
-		}
-	}
+  property("shuffle is a permutation") {
+    forAll { xs: Seq[Int] =>
+      whenever(xs.nonEmpty) {
+        xs.shuffle.sorted shouldReturn xs.sorted
+      }
+    }
+  }
 
-	property("sample is a subset") {
-		forAll { xs: Vector[Int] =>
-			val l = Random.nextInt(xs.length + 1)
-			for (x <- xs sample l)
-				xs.contains(x) shouldReturn true
-		}
-	}
+  property("sample is a subset") {
+    forAll { xs: Vector[Int] => whenever(xs.nonEmpty) {
+      val l = Random.nextInt(xs.length) + 1
+      val sample = xs sample l
+      sample forall xs.contains
+    }
+    }
+  }
 }

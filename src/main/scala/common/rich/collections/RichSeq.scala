@@ -22,7 +22,7 @@ class RichSeq[T]($: Seq[T]) {
 
 	/** Returns a sample of uniformly random n elements */
 	def sample(n: Int): Seq[T] = {
-		require(n < $.size, s"Can't sample $n items out of a sequence of size ${$.size}")
+		require(n <= $.size, s"Can't sample $n items out of a sequence of size ${$.size}")
 		val random = new scala.util.Random
 		def swap(v: Vector[T], a: Int, b: Int): Vector[T] = {
 			val (x, y) = v(a) -> v(b)

@@ -20,7 +20,8 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.11.7" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.11:7.2.4" level="project" />
-    <orderEntry type="library" name="Maven: org.scalacheck:scalacheck_2.11:1.13.2" level="project" />
+    <orderEntry type="library" name="Maven: org.scalacheck:scalacheck_2.11:1.12.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.scala-sbt:test-interface:1.0" level="project" />
   </component>
 </module>
