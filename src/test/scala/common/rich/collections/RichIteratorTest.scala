@@ -1,5 +1,6 @@
 package common.rich.collections
 
+import java.util
 import java.util.HashSet
 
 import common.AuxSpecs
@@ -61,12 +62,14 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
     var x: Any = null
     val serTime = time {
       list.iterator.map(e => {
-        Thread.sleep(1); e * 2
+        Thread.sleep(1);
+        e * 2
       }).toList
     }
     val parTime = time {
       x = list.iterator.par().map(e => {
-        Thread.sleep(1); e * 2
+        Thread.sleep(1);
+        e * 2
       }).toList
     }
     serTime.toDouble / parTime should be >= 2.0
@@ -74,6 +77,7 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
   }
 
   it should "work on range" in {
-    (1 to 100).iterator.par().foreach(println)
+    val set = new util.HashSet[Int]()
+    (1 to 100).iterator.par().foreach(set.synchronized(set.add(_)))
   }
 }
