@@ -2,14 +2,9 @@ package common.rich.collections
 
 import common.AuxSpecs
 import common.rich.collections.RichSeq.richSeq
-import common.rich.collections.RichTraversableOnce.Rich
 import org.scalatest.FlatSpec
 
 class RichSeqTest extends FlatSpec with AuxSpecs {
-  "percentage satisfying" should "pass a simple example" in {
-    List(2, 4, 5, 6).percentageSatisfying(_ % 2 == 0) should be === 0.75
-  }
-
   "shift" should "do nothing for n = 0" in {
     List(1, 2, 3).shift(0) should be === List(1, 2, 3)
   }
@@ -32,14 +27,6 @@ class RichSeqTest extends FlatSpec with AuxSpecs {
 
   it should "return an empty seq for an empty seq" in {
     List().shifts.toSeq shouldReturn Seq()
-  }
-
-  "get pairs" should "produce no repeats" in {
-    List(1, 2).unorderedPairs.toSet.size should be === 1
-  }
-
-  it should "produce pairs" in {
-    List(1, 2, 3).unorderedPairs.toSet should be === Set((1, 2), (2, 3), (1, 3))
   }
 
   "findIndex" should "return the first index matching the predicate" in {
@@ -135,22 +122,5 @@ class RichSeqTest extends FlatSpec with AuxSpecs {
 
   "::" should "prepend to a non-empty list" in {
     1 :: Seq(2) shouldBe Seq(1, 2)
-  }
-
-  "hasSameValues" should "return true when there are the same values" in {
-    List((1, "Hi"), (1, "Hello"), (1, "Goodbye")).hasSameValues(_._1) should be === true
-  }
-  it should "return false when there are different values" in {
-    List((1, "Hi"), (1, "Hello"), (2, "Goodbye")).hasSameValues(_._1) should be === false
-  }
-
-  "Entropy" should "work for this example that I copied off the net cause I'm a lazy bugger" in {
-    Math.round("1223334444".map(_.toInt).entropy * 100000) * 0.00001 should be === 1.84644
-  }
-
-  "allUnique" should "work" in {
-    List(1, 2).allUnique shouldBe true
-    List(1, 1).allUnique shouldBe false
-    List(1).allUnique shouldBe true
   }
 }

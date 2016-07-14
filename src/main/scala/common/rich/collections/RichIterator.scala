@@ -1,18 +1,31 @@
 package common.rich.collections
 
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.parallel.ParSeq
+
 object RichIterator {
 	private class ParIterator[T]($: Iterator[T], windowSize: Int) extends Iterator[T] {
 		override val seq = $
 		override def hasNext = $.hasNext
 		override def next() = $.next()
 
+		// Some iterators implement take() in a side-effect-less free way, so this method explicitly calls next().
+		private def take(): ParSeq[T] = {
+			val v = new ArrayBuffer[T](windowSize)
+			var i = 0
+			while (hasNext && i < windowSize) {
+				v.add(next())
+				i += 1
+			}
+			v.toVector.par
+		}
 		override def map[U](f: T => U): Iterator[U] =
-			($.take(windowSize).toVector.par map f).iterator ++
-				(if ($.hasNext) new ParIterator($, windowSize) map f else Iterator.empty)
+			(take() map f).iterator ++ (if (hasNext) new ParIterator($, windowSize) map f else Iterator.empty)
 
 		override def foreach[U](f: T => U) {
-			while (hasNext)
-				$.take(windowSize).toVector.par foreach f
+			while ($.hasNext)
+				take() foreach f
 		}
 	}
 

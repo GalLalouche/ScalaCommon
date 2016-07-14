@@ -5,13 +5,19 @@ import java.util.HashSet
 import common.AuxSpecs
 import common.rich.collections.RichIterator._
 import org.scalatest.FlatSpec
+import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.matchers.ShouldMatchers
 
 import scala.util.Random
+import org.scalatest.time.SpanSugar._
 
-class RichIteratorTest extends FlatSpec with AuxSpecs {
+class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
+  val timeLimit = 1 second
+
   "verifyForAll" should "throw an exception if f is not satisfied" in {
-    an[Exception] should be thrownBy { List(1, 2, 3).iterator.verify(_ < 3).toVector }
+    an[Exception] should be thrownBy {
+      List(1, 2, 3).iterator.verify(_ < 3).toVector
+    }
   }
 
   it should "not throw an exception if all passes" in {
@@ -25,7 +31,7 @@ class RichIteratorTest extends FlatSpec with AuxSpecs {
   "par" should "create threads to run a map request" in {
     val set = new HashSet[Object]()
     val r = new Random()
-    List.fill(50)(r.nextDouble).iterator.par().foreach(e => set.synchronized {
+    List.fill(50)(r.nextDouble).toIterator.par().foreach(e => set.synchronized {
       set.add(Thread.currentThread())
     })
     set.size should be > 1
@@ -41,17 +47,33 @@ class RichIteratorTest extends FlatSpec with AuxSpecs {
 
   it should "run work in parallel and be faster than a serialize execution" in {
     val list = (1 to 50).toList
-    val serTime = time { list.iterator.foreach(e => Thread.sleep(1)) }
-    val parTime = time { list.iterator.par().foreach(e => Thread.sleep(1)) }
+    val serTime = time {
+      list.iterator.foreach(e => Thread.sleep(1))
+    }
+    val parTime = time {
+      list.iterator.par().foreach(e => Thread.sleep(1))
+    }
     serTime.toDouble / parTime should be >= 2.0
   }
 
   it should "run maps in parallel" in {
     val list = (1 to 50).toList
     var x: Any = null
-    val serTime = time { list.iterator.map(e => { Thread.sleep(1); e * 2 }).toList }
-    val parTime = time { x = list.iterator.par().map(e => { Thread.sleep(1); e * 2 }).toList }
+    val serTime = time {
+      list.iterator.map(e => {
+        Thread.sleep(1); e * 2
+      }).toList
+    }
+    val parTime = time {
+      x = list.iterator.par().map(e => {
+        Thread.sleep(1); e * 2
+      }).toList
+    }
     serTime.toDouble / parTime should be >= 2.0
     x shouldReturn (list map (_ * 2))
+  }
+
+  it should "work on range" in {
+    (1 to 100).iterator.par().foreach(println)
   }
 }

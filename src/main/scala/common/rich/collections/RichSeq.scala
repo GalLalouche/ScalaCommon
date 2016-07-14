@@ -56,16 +56,14 @@ class RichSeq[T]($: Seq[T]) {
 
 	/**
 	 * Cyclicly shifts the sequence
-   * @param shiftSize the number of elements to shift by. It can be either negative or positive
+   * @param shiftSize the number of elements to shift by. It can be either negative or positive.
 	 */
 	def shift(shiftSize: Int): Seq[T] = $ splitAt shiftSize mapTo (e => e._2 ++ e._1)
 
-	/**
-	 * All shifts iterator
-	 */
+	/** All shifts iterators. */
 	def shifts: Iterator[Seq[T]] = Iterator.range(0, $.size) map shift
 
-	/* Removes the element at index i. O(n) complexity */
+	/** Removes the element at index i. O(n) complexity */
 	def removeAt(i: Int): Seq[T] = {
 		require(i >= 0)
 		if ($.size <= i)
@@ -74,14 +72,14 @@ class RichSeq[T]($: Seq[T]) {
 			$.splitAt(i).mapTo(e => e._1.to[ListBuffer] ++ e._2.drop(1))
 	}
 
-	/** Appends an element at the end of the sequence. O(n) complexity */
+	/** Appends an element at the end of the sequence. O(n) complexity. */
 	def +(e: T): Seq[T] = $.to[ListBuffer] += e
 
-	/** Prepends an element to the sequence. Unless the underlying sequence is a list, the complexity is O(n) */
+	/** Prepends an element to the sequence. Unless the underlying sequence is a list, the complexity is O(n). */
 	def ::[U >: T](e: U): Seq[U] = e :: $.toList
 
 	/**
-	 * Inserts the element at the index
+	 * Inserts the element at the index. O(n) complexity.
 	 * @param e the element to insert
 	 * @param index the index to insert at
 	 * @throws IndexOutOfBoundsException
@@ -114,7 +112,7 @@ object RichSeq {
 
 	implicit def richSeqTuplesDouble[T, S]($: Seq[(T, S)]) = new {
 		def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))
-		/** Creates a map view from T to S. Map has linear search time, but on the other hand it keeps the same sequence as the original */
+		/** Creates a map view from T to S. The map has linear search time, but on the other hand it keeps the same sequence as the original */
 		def asMap: Map[T, S] = new Map[T, S]() {
 			override def +[B1 >: S](kv: (T, B1)): Map[T, B1] = ???
 			override def get(key: T): Option[S] = $.find(_._1 == key).map(_._2)
