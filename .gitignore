@@ -1,3 +1,5 @@
 QuickMain.scala
 target/**
 *.iml
+project/**
+*.jar
