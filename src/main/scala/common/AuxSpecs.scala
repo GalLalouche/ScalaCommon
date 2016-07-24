@@ -1,10 +1,11 @@
 package common
 
-import java.util.concurrent._
+import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 
-import org.scalatest._
+import org.scalatest.exceptions.TestFailedException
+import org.scalatest.{Matchers, Suite}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.Duration
 
 /** Several helping methods and fixtures for testing */
 trait AuxSpecs extends Matchers {
@@ -15,7 +16,7 @@ trait AuxSpecs extends Matchers {
 			$ shouldBe t
 		}
 	}
-	
+
 	implicit class RichShouldDouble($: Double) {
 		def shouldBeApproximately(t: Double) {
 			($.leftSideValue - t) < 0.000001 shouldBe true
@@ -35,7 +36,7 @@ trait AuxSpecs extends Matchers {
 		val start = System.currentTimeMillis
 		try {
 			t.get(2 * maxTime.toMillis, TimeUnit.MILLISECONDS)
-			Some(System.currentTimeMillis - start).map(_.milliseconds)
+			Some(System.currentTimeMillis - start).map(Duration(_, TimeUnit.MILLISECONDS))
 		} catch {
 			case e: TimeoutException => None
 		} finally t.cancel(true)

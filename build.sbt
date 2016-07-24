@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
 	.settings(
     name := "scalacommon",
 		libraryDependencies ++= Seq(
-      "org.scalatest" % "scalatest_2.11" % "2.2.6" % "test",
-		  "org.scalaz" % "scalaz-core_2.11" % "7.2.4",
-		  "org.scalacheck" % "scalacheck_2.11" % "1.12.1" % "test"))
+      "org.scalatest" %% "scalatest" % "2.2.6",
+		  "org.scalaz" %% "scalaz-core" % "7.2.4",
+		  "org.scalacheck" %% "scalacheck" % "1.12.1"))
 	
