@@ -6,7 +6,7 @@ import scalaz.Semigroup
 import scalaz.std.AllInstances._
 
 object RichTraversableOnce {
-  implicit class Rich[T]($: TraversableOnce[T]) {
+  implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value) =
       $.foldLeft(Map[Key, Value]()) { (m, next) =>
         val key = toKey(next)
@@ -104,6 +104,14 @@ object RichTraversableOnce {
       def by[U](ft: T => U, fs: S => U): Seq[(T, S)] = by(ft, fs, (x, y) => (x, y))
       def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): Seq[W] =
         where((t, s) => ft(t) == fs(s)).map(e => builder(e._1, e._2))
+    }
+
+    def single: T = {
+      var result: Option[T] = None
+      $.foreach { t =>
+        if (result == None) result = Some(t)
+        else throw new UnsupportedOperationException("Traversable contained more than a single element") }
+      result.get
     }
   }
 }

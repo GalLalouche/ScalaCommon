@@ -24,7 +24,7 @@ object RichAll {
   implicit def richT[T]($: T) = RichT.richT($)
   implicit def richTraversableDouble($: Traversable[Double]) = RichTraversableDouble.richTraversableDouble($)
   implicit def richTraversableInt($: Traversable[Int]) = RichTraversableDouble.richInt($)
-  implicit def richTraversableOnce($: TraversableOnce[Int]) = RichTraversableOnce.Rich($)
+  implicit def richTraversableOnce($: TraversableOnce[Int]) = RichTraversableOnce.richTraversableOnce($)
   implicit def richTuple[T]($: (T, T)) = RichTuple.richTuple($)
   implicit def richTupleSeqs[T, S]($: (Seq[T], Seq[S])) = RichTuple.richTupleSeqs($)
   implicit def richSet[T]($: Set[T]) = RichSet.Rich($)

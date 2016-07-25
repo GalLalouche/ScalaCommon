@@ -36,14 +36,14 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
 
   "joinBy" should "join two items whose extractor returns the same value" in {
     List(Person("gal", 1), Person("noam", 2)) join List(Grade(1, 100), Grade(2, 0)) by(_.id, _.id) shouldBe
-      List((Person("gal", 1), Grade(1, 100)), (Person("noam", 2), Grade(2, 0)))
+        List((Person("gal", 1), Grade(1, 100)), (Person("noam", 2), Grade(2, 0)))
   }
 
   it should "create a new object if such a builder is provided " in {
     List(Person("gal", 1), Person("noam", 2))
-      .join(List(Grade(1, 100), Grade(2, 0)))
-      .by(_.id, _.id, (p, g) => PersonWithGrade(p.name, p.id, g.grade))
-      .toSet shouldBe Set(PersonWithGrade("gal", 1, 100), PersonWithGrade("noam", 2, 0))
+        .join(List(Grade(1, 100), Grade(2, 0)))
+        .by(_.id, _.id, (p, g) => PersonWithGrade(p.name, p.id, g.grade))
+        .toSet shouldBe Set(PersonWithGrade("gal", 1, 100), PersonWithGrade("noam", 2, 0))
   }
 
   "foreachWithInBetween" should "Perform the selectedActionInBetween each foreach" in {
@@ -85,4 +85,13 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
     List(2, 4, 5, 6).percentageSatisfying(_ % 2 == 0) should be === 0.75
   }
 
+  "single" should "return the single element when one exists" in {
+    List(1).single shouldReturn 1
+  }
+  it should "throw an exception on empty traversable" in {
+    a[NoSuchElementException] should be thrownBy Nil.single
+  }
+  it should "throw an exception on a traversable with more than 1 element" in {
+    a[UnsupportedOperationException] should be thrownBy List(1, 2).single
+  }
 }
