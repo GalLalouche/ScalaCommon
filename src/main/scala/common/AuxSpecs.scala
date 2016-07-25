@@ -1,5 +1,6 @@
 package common
 
+import java.io.File
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 
 import org.scalatest.exceptions.TestFailedException
@@ -61,4 +62,6 @@ trait AuxSpecs extends Matchers {
 		f
 		System.currentTimeMillis - start
 	}
+
+	def getResourceFile(name: String): File = new File(getClass.getResource(name).getFile)
 }
