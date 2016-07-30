@@ -42,5 +42,7 @@ object RichT {
     def safeCast[C](implicit m: Manifest[C]): Option[C] = {
       if (m.runtimeClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
+    
+    def const: Any => T = e => $
   }
 }
