@@ -15,6 +15,7 @@ object RichAll {
   implicit def richSeqArray[T]($: Seq[Seq[T]])(implicit m: ClassTag[T]) = RichArray.richSeqArray($)
   implicit def richDouble[T]($: Double) = RichDouble.Rich($)
   implicit def richInt[T]($: Int) = RichInt.Rich($)
+  implicit def richBoolean[T]($: Boolean) = RichBoolean.richBoolean($)
   implicit def richSeq[T]($: Seq[T]) = RichSeq.richSeq($)
   implicit def richIterator[T]($: Iterator[T]) = RichIterator.Rich($)
   implicit def richSeqTuples2[T, U]($: Seq[(T, U)]) = RichSeq.richSeqTuplesDouble($)
