@@ -2,8 +2,8 @@ package common.rich.primitives
 
 import java.io.{ByteArrayInputStream, File}
 
-import common.rich.path.RichFile.richFile
 import common.rich.RichT.richT
+import common.rich.path.RichFile.richFile
 
 import scala.util.matching.Regex
 
@@ -39,5 +39,4 @@ object RichString {
     def toInputStream = new ByteArrayInputStream($.getBytes)
     def capitalize: String = $.head.toUpper + $.tail.toLowerCase
   }
-
 }
