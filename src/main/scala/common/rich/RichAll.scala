@@ -3,11 +3,12 @@ package common.rich
 import java.io.File
 
 import common.rich.collections._
+import common.rich.func.{RichFoldable, RichMonadPlus}
 import common.rich.path.RichFile
-import common.rich.path.RichFile._
 import common.rich.primitives._
 
 import scala.reflect.ClassTag
+import scalaz.{Foldable, MonadPlus}
 
 /** Convenience object for all rich implicits. */
 object RichAll {
@@ -30,7 +31,7 @@ object RichAll {
   implicit def richTupleSeqs[T, S]($: (Seq[T], Seq[S])) = RichTuple.richTupleSeqs($)
   implicit def richSet[T]($: Set[T]) = RichSet.Rich($)
   implicit def richOption[T]($: Option[T]) = RichOption.Rich($)
-  implicit def richVector[T]($: Vector[Double]) = RichVector.Rich($)
+  implicit def richVector($: Vector[Double]) = RichVector.Rich($)
   implicit def richFile($: File) = RichFile.richFile($)
   implicit def poorFile($: RichFile) = RichFile.richFile($)
 }
