@@ -5,7 +5,10 @@ import scalaz.Foldable
 object RichFoldable {
   implicit class richFoldable[A, F[A] : Foldable]($: F[A]) {
     def doForEach(f: A => Unit): F[A] = {
-      implicitly[Foldable[F]].any($){e => f(e); false}
+      // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
+      var list: List[A] = Nil
+      implicitly[Foldable[F]].any($) { e => list = e :: list; false }
+      list foreach f
       $
     }
     def printPerLine(): F[A] = doForEach(println)
