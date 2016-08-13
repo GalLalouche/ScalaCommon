@@ -1,6 +1,5 @@
 package common.rich.collections
 
-import scala.collection.mutable
 import scala.math.log10
 import scalaz.Semigroup
 import scalaz.std.AllInstances._
@@ -14,25 +13,21 @@ object RichTraversableOnce {
         m + (key -> m.get(key).map(implicitly[Semigroup[Value]].append(_, value)).getOrElse(value))
       }
 
-    def mapBy[S](f: T => S): Map[S, T] = {
-      val map = new mutable.HashMap[S, T]
-      for (t <- $) {
-        val key = f(t)
+    def mapBy[S](f: T => S): Map[S, T] =
+      $.foldLeft(Map[S, T]())((map, nextValue) => {
+        val key = f(nextValue)
         if (map.contains(key))
           throw new UnsupportedOperationException(
-            s"key <$key> is already used for value <${map(key)}>, but is also requested as a key for value <$t>")
-        map += key -> t
-      }
-      map.toMap
-    }
+            s"key <$key> is already used for value <${map(key)}>, but is also requested as a key for value <$nextValue>")
+        map + (key -> nextValue)
+      })
 
     /**
-      * Performs a foreach iteration, running a function between each two items.
-      * Can be thought of as a side-effect-full alternative to mkString.
-      *
-      * @param f       the function to apply to the elements
-      * @param between the function to apply between elements
-      */
+     * Performs a foreach iteration, running a function between each two items.
+     * Can be thought of as a side-effect-full alternative to mkString.
+     * @param f       the function to apply to the elements
+     * @param between the function to apply between elements
+     */
     def foreachWithBetween(f: T => Unit, between: () => Unit) {
       val iterator = $.toIterator
       while (iterator.hasNext) {
@@ -74,20 +69,14 @@ object RichTraversableOnce {
 
     /** Finds the percentage of elements satisfying the predicate */
     def percentageSatisfying(p: T => Boolean): Double = {
-      var satisfy = 0
-      var total = 0
-      for (t <- $) {
-        total += 1
-        if (p(t))
-          satisfy += 1
-      }
+      val (total, satisfy) = $.foldLeft((0, 0)) { (agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0)) }
       satisfy.toDouble / total
     }
 
     /**
-      * Returns the Cartesian product of both sequences.
-      * @param xs the other traversable
-      */
+     * Returns the Cartesian product of both sequences.
+     * @param xs the other traversable
+     */
     def *[S](xs: TraversableOnce[S]): TraversableOnce[(T, S)] = for (x <- $; y <- xs) yield (x, y)
 
     /** Selects a representative from each equivalence set */
@@ -107,11 +96,11 @@ object RichTraversableOnce {
     }
 
     def single: T = {
-      var result: Option[T] = None
-      $.foreach { t =>
-        if (result == None) result = Some(t)
-        else throw new UnsupportedOperationException("Traversable contained more than a single element") }
-      result.get
+      val i = $.toIterator
+      val next = i.next()
+      if (i.hasNext)
+        throw new UnsupportedOperationException("Traversable contained more than a single element")
+      next
     }
   }
 }
