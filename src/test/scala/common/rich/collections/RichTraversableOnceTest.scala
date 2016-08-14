@@ -1,7 +1,5 @@
 package common.rich.collections
 
-import java.lang
-
 import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
 import org.scalatest.{FlatSpec, Matchers}
@@ -102,5 +100,12 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   }
   it should "throw on repeats" in {
     an[UnsupportedOperationException] should be thrownBy List(1, 2).mapBy(_.toString.length)
+  }
+
+  "toMultimap" should "create a multimap" in {
+    List("one", "two", "three").toMultiMap(_.length) shouldReturn Map(3 -> Seq("one", "two"), 5 -> Seq("three"))
+  }
+  it should "extract the value when passed" in {
+    List("one", "two", "three").toMultiMap(_.length, _.toUpperCase) shouldReturn Map(3 -> Seq("ONE", "TWO"), 5 -> Seq("THREE"))
   }
 }

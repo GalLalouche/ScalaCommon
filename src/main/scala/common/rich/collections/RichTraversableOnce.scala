@@ -37,7 +37,9 @@ object RichTraversableOnce {
       }
     }
 
-    def toMultiMap[S](f: T => S): Map[S, Seq[T]] = aggregateMap(f, _ :: Nil)
+    def toMultiMap[S](f: T => S): Map[S, Seq[T]] = toMultiMap(f, identity)
+    def toMultiMap[S, U](toKey: T => S, toValue: T => U): Map[S, Seq[U]] =
+      aggregateMap(toKey, toValue(_) :: Nil)
 
     /** The number of occurrences of each element */
     def frequencies: Map[T, Int] = aggregateMap(e => e, e => 1)
