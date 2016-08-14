@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import java.lang
+
 import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
 import org.scalatest.{FlatSpec, Matchers}
@@ -93,5 +95,12 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   }
   it should "throw an exception on a traversable with more than 1 element" in {
     a[UnsupportedOperationException] should be thrownBy List(1, 2).single
+  }
+
+  "mapBy" should "map by the function" in {
+    List("Hello", "world!").mapBy(_.length) shouldReturn Map(5 -> "Hello", 6 -> "world!")
+  }
+  it should "throw on repeats" in {
+    an[UnsupportedOperationException] should be thrownBy List(1, 2).mapBy(_.toString.length)
   }
 }
