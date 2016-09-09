@@ -31,6 +31,7 @@ object RichAll {
   implicit def richTupleSeqs[T, S]($: (Seq[T], Seq[S])) = RichTuple.richTupleSeqs($)
   implicit def richSet[T]($: Set[T]) = RichSet.Rich($)
   implicit def richOption[T]($: Option[T]) = RichOption.Rich($)
+  implicit def richEither[T, S]($: Either[T, S]) = RichEither.richEither($)
   implicit def richVector($: Vector[Double]) = RichVector.Rich($)
   implicit def richFile($: File) = RichFile.richFile($)
   implicit def poorFile($: RichFile) = RichFile.richFile($)

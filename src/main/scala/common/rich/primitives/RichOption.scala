@@ -7,5 +7,6 @@ object RichOption {
 			case None => throw new NoSuchElementException(errorMessage)
 			case Some(e) => e
 		}
+		def either[S](b: => S): Either[T, S] = Either.cond($.isDefined, b, $.get)
 	}
 }
