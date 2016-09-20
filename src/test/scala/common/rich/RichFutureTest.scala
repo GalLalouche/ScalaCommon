@@ -97,23 +97,6 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         }
       }
     }
-    "onEnd" - {
-      "success" in {
-        success.onEnd(Future successful 10).get shouldReturn 10
-      }
-      "failure" - {
-        val f: Future[Int] = failure.onEnd(Future successful 10)
-        an[Exception] should be thrownBy f.get
-      }
-      "in order" in {
-        val list = new ListBuffer[Int]
-        def add(i: Int) = {
-          Future(list.+=(i))
-        }
-        add(0).onEnd(add(1)).onEnd(add(2)).get
-        list.toList shouldReturn List(0, 1, 2)
-      }
-    }
   }
   "RichOptionFuture" - {
     val success: Future[Option[Int]] = Future successful Some(1)

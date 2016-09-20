@@ -33,7 +33,6 @@ object RichFuture {
     def orElse(t: => T): Future[T] = $.recover { case e => t }
     // implicits suck with overloads it seems
     def orElseTry(t: => Future[T]): Future[T] = $.recoverWith { case e => t }
-    def onEnd[S](f: => Future[S]): Future[S] = $.flatMap(e => f)
   }
   implicit class richOptionFuture[T]($: Future[Option[T]])(implicit ec: ExecutionContext) {
     def ifNone(t: => T): Future[T] = $.map(_ getOrElse t)
