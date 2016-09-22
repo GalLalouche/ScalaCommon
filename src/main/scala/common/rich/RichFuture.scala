@@ -4,6 +4,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 import RichT._
+import scala.util.{Failure, Success, Try}
 
 object RichFuture {
   implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {

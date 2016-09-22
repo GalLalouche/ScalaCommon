@@ -148,4 +148,12 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
       }
     }
   }
+  "toTry" - {
+    "success" in {
+      success.toTry.get.get shouldReturn 1
+    }
+    "failure" in {
+      failure.toTry.get.isFailure shouldReturn true
+    }
+  }
 }
