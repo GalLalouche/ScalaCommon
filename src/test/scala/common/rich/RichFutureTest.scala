@@ -128,5 +128,24 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         shouldFail(failure.ifNoneTry(Future successful 10))
       }
     }
+    "filterFuture" - {
+      "some" - {
+        "true" in {
+          success.filterFuture(Future(_) map (_ > 0)).get.get shouldReturn 1
+        }
+        "false" in {
+          success.filterFuture(Future(_) map (_ < 0)).get shouldReturn None
+        }
+      }
+      "none" - {
+        val p: Any => Nothing = e => ???
+        "true" in {
+          none.filterFuture(p).get shouldReturn None
+        }
+        "false" in {
+          none.filterFuture(p).get shouldReturn None
+        }
+      }
+    }
   }
 }

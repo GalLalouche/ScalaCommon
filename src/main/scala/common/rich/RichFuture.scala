@@ -3,6 +3,7 @@ package common.rich
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
+import RichT._
 
 object RichFuture {
   implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
@@ -37,5 +38,9 @@ object RichFuture {
   implicit class richOptionFuture[T]($: Future[Option[T]])(implicit ec: ExecutionContext) {
     def ifNone(t: => T): Future[T] = $.map(_ getOrElse t)
     def ifNoneTry(t: => Future[T]): Future[T] = $.flatMap(_ map Future.successful getOrElse t)
+    def filterFuture(p: T => Future[Boolean]): Future[Option[T]] = $.flatMap {
+      case None => Future successful None
+      case o@Some(e) => p(e).map(_.const |> o.filter)
+    }
   }
 }
