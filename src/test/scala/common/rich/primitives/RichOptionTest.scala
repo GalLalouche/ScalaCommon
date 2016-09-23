@@ -1,16 +1,26 @@
 package common.rich.primitives
 
 import common.AuxSpecs
-import common.rich.primitives.RichOption._
 import org.scalatest.FreeSpec
+import RichOption._
 
 class RichOptionTest extends FreeSpec with AuxSpecs {
-  "either" - {
-    "None" in {
-      None either 1 shouldReturn Left(1)
+  "getOrThrow" - {
+    "with exception" - {
+      "when Some" in {
+        lazy val t: Throwable = ???
+        Option(1).getOrThrow(t) shouldReturn 1
+      }
+      "when None" in {
+        an[IndexOutOfBoundsException] should be thrownBy None.getOrThrow(new IndexOutOfBoundsException)
+      }
     }
-    "Some" in {
-      Some(1) either ??? shouldReturn Right(1)
+    "with message" in {
+      val message = "foobar"
+      val caught = intercept[NoSuchElementException] {
+        None.getOrThrow("foobar")
+      }
+      caught.getMessage shouldReturn "foobar"
     }
   }
 }
