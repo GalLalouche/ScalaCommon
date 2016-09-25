@@ -16,7 +16,6 @@ class RichOptionTest extends FreeSpec with AuxSpecs {
       }
     }
     "with message" in {
-      val message = "foobar"
       val caught = intercept[NoSuchElementException] {
         None.getOrThrow("foobar")
       }
