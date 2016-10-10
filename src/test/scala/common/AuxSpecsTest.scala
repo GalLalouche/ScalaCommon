@@ -36,7 +36,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
     "error" in {
       val e = throws(2 + 2 shouldReturn 5)
       verifyStackDepth(e)
-      verifyMessage(e, "4 was not equal to 5.")
+      verifyMessage(e, "4 was not equal to 5")
     }
   }
   "shouldContain" - {
