@@ -1,9 +1,8 @@
-package common.path
+package common.rich.path
 
 import java.io.File
 
 import common.DirectorySpecs
-import common.rich.path.Directory
 import common.rich.path.RichFile._
 import common.rich.path.RichPath.poorPath
 import org.scalatest.{BeforeAndAfter, FreeSpec, OneInstancePerTest}
@@ -17,7 +16,7 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
 				an[IllegalArgumentException] should be thrownBy {Directory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")}
 			}
 			"if file isn't a directory" in {
-				val f = tempDir.addFile("file");
+				val f = tempDir.addFile("file")
 				an[IllegalArgumentException] should be thrownBy {Directory(f)}
 			}
 		}
@@ -28,11 +27,11 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
 		"add" - {
 			"file" in {
 				$.addFile("foo.bar")
-				(new File($.dir, "foo.bar")) should exist
+				new File($.dir, "foo.bar") should exist
 			}
 			"directory" in {
 				$.addSubDir("foobar")
-				(new File($.dir, "foobar")).isDirectory shouldReturn true
+				new File($.dir, "foobar").isDirectory shouldReturn true
 			}
 		}
 		"list files" - {
@@ -78,26 +77,26 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
 		}
 		"clear" - {
 			"not delete self" in {
-				$.clear
+				$.clear()
 				$.dir should exist
 			}
 			"delete all" - {
 				"only files" in {
 					$.addFile("foo.bar")
 					$.addFile("bar.foo")
-					$.clear
+					$.clear()
 					$.files.isEmpty shouldReturn true
 				}
 				"only dirs" in {
 					$.addSubDir("foobar")
 					$.addSubDir("barfoo")
-					$.clear
+					$.clear()
 					$.files.isEmpty shouldReturn true
 				}
 				"recursive" in {
 					$.addFile("foo.bar")
 					$.addSubDir("foobar").addFile("bar.foo")
-					$.clear
+					$.clear()
 					$.files.isEmpty shouldReturn true
 				}
 			}
@@ -105,18 +104,18 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
 		"delete should delete self" in {
 			$.addFile("foo.bar")
 			$.addSubDir("foobar").addFile("bar.foo")
-			$.deleteAll
+			$.deleteAll()
 			$.dir should not(exist)
 		}
 		"parent" - {
 			"return all parent dirs" in {
-				val c = tempDir.addSubDir("a").addSubDir("b").addSubDir("c");
+				val c = tempDir.addSubDir("a").addSubDir("b").addSubDir("c")
 				c.parent === (tempDir / "a" / "b" /)
 				c.parent.parent === (tempDir / "a" /)
-				c.parent.parent.parent === (tempDir)
+				c.parent.parent.parent === tempDir
 			}
 			"throw exception on root" in {
-				an[UnsupportedOperationException] should be thrownBy {Directory("C:/").parent}
+				an[UnsupportedOperationException] should be thrownBy {File.listRoots()(0).parent}
 			}
 		}
 		"Clone dir" - {
