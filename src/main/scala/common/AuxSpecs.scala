@@ -13,12 +13,19 @@ import scala.concurrent.duration.Duration
 trait AuxSpecs extends Matchers {
   self: Suite =>
 
+  // since the parameter means jack shit it seems
+  private def throwProperDepthException(message: String, depth: Int): Unit = {
+    val e = new TestFailedException(message, 0)
+    e.setStackTrace(Thread.currentThread.getStackTrace.drop(depth + 1))
+    throw e
+  }
+  // More information on errors
   implicit class RichShouldTraversable[T]($: Traversable[T]) {
     def shouldContain(first: T, last: T*) {
       val expected = first :: last.toList
       val missing = expected.filterNot(e => $.exists(_ == e))
       if (missing.nonEmpty)
-        throw new TestFailedException(s"${$} doesn't contain $missing", 2)
+        throwProperDepthException(s"${$} doesn't contain $missing.", 2)
     }
 
     def shouldSetEqual(other: Traversable[T]) {
@@ -27,13 +34,16 @@ trait AuxSpecs extends Matchers {
       val extra = actualSet \ otherSet
       val missing = otherSet \ actualSet
       if (extra ++ missing nonEmpty)
-        throw new TestFailedException(
-          s"${$} doesn't isn't the same set as $other.\n It is missing $missing.\n And has extra items: $extra.", 2)
+        throwProperDepthException(
+          s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.", 2)
     }
   }
+
+  // typesafe equality checking
   implicit class RichShould[T]($: T) {
     def shouldReturn(t: T) {
-      $ shouldBe t
+      if ($ != t)
+        throwProperDepthException(s"${$} was not equal to $t.", 2)
     }
   }
 
@@ -62,16 +72,18 @@ trait AuxSpecs extends Matchers {
     } finally t.cancel(true)
   }
 
+  // usage: { block } shouldFinish in lessThan 2.seconds
   implicit def richBlock(f: => Any) = new {
     def shouldFinish(matcher: NewMatchers) = new {
       def lessThan(maxTime: Duration) = new {
+        val depth = 7
         getExecutionTime({
           f
         }, maxTime) match {
           case None =>
-            throw new TestFailedException("Code failed to finish in allotted time (timed out)", 6)
+            throwProperDepthException("Code failed to finish in allotted time (timed out).", depth)
           case Some(actualTime) if actualTime > maxTime =>
-            throw new TestFailedException(s"Code failed to finish in allotted time ($actualTime vs $maxTime)", 6)
+            throwProperDepthException(s"Code failed to finish in allotted time ($actualTime vs. $maxTime).", depth)
           case _ => ()
         }
       }

@@ -80,7 +80,7 @@ class RichFile(val f: File) extends RichPath(f) {
     *
     * @param f The file to compare with
     */
-  def hasSameContentAs(f: File) = bytes == new RichFile(f).bytes
+  def hasSameContentAs(f: File) = bytes sameElements new RichFile(f).bytes
 
   /**
     * Returns a backup file of this file

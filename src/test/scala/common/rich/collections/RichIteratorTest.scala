@@ -54,7 +54,7 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
     val parTime = time {
       list.iterator.par().foreach(e => Thread.sleep(1))
     }
-    serTime.toDouble / parTime should be >= 2.0
+    serTime.toDouble / parTime should be >= 1.5
   }
 
   it should "run maps in parallel" in {
@@ -62,17 +62,17 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
     var x: Any = null
     val serTime = time {
       list.iterator.map(e => {
-        Thread.sleep(1);
+        Thread sleep 1
         e * 2
       }).toList
     }
     val parTime = time {
       x = list.iterator.par().map(e => {
-        Thread.sleep(1);
+        Thread sleep 1
         e * 2
       }).toList
     }
-    serTime.toDouble / parTime should be >= 2.0
+    serTime.toDouble / parTime should be >= 1.5
     x shouldReturn (list map (_ * 2))
   }
 

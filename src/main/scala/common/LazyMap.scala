@@ -25,7 +25,7 @@ class LazyMap[K, V] private (f: K => V, currentMap: Map[K, V]) extends Function[
   }
 
   /**
-   * Gets the correct value for the map. unlike {@link common.LazyMap#update(K)}, this method
+   * Gets the correct value for the map. unlike [[LazyMap.update(K)]], this method
    * does not update the map. Therefore, if the map does not hold a matching value
    * for the key, it will not be memoized.
    */
