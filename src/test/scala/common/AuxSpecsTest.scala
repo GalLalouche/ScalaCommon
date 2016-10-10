@@ -64,7 +64,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
     "finished in time" in {
       {
         1 + 1
-      } shouldFinish in lessThan 10.millis
+      } shouldFinish in lessThan 1.second
     }
     "timing out just by a bit" in {
       val e = throws({
