@@ -1,10 +1,14 @@
 package common.rich.collections
 
+import common.rich.RichT._
+
 import scala.math.log10
 import scalaz.Semigroup
-import scalaz.std.AllInstances._
+import scalaz.std.{AnyValInstances, ListInstances, VectorInstances}
+import scalaz.syntax.ToFunctorOps
 
-object RichTraversableOnce {
+object RichTraversableOnce
+    extends VectorInstances with ListInstances with AnyValInstances with ToFunctorOps {
   implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value) =
       $.foldLeft(Map[Key, Value]()) { (m, next) =>
@@ -49,9 +53,9 @@ object RichTraversableOnce {
       val f = frequencies
       val size = f.values.sum
       frequencies.values
-        .map(_.toDouble / size)
-        .map(p => -p * log10(p) / log10(2))
-        .sum
+          .map(_.toDouble / size)
+          .map(p => -p * log10(p) / log10(2))
+          .sum
     }
 
     /** Retrieves all <i>N choose 2<\i> pairs */
@@ -103,6 +107,15 @@ object RichTraversableOnce {
       if (i.hasNext)
         throw new UnsupportedOperationException("Traversable contained more than a single element")
       next
+    }
+
+    def filterAndSortBy[S](f: T => S, order: Seq[S]): Seq[T] = {
+      val orderMap = order.zipWithIndex.toMap
+      $.toVector
+          .fproduct(f)
+          .filter(_._2 |> orderMap.contains)
+          .sortBy(_._2 |> orderMap)
+          .map(_._1)
     }
   }
 }

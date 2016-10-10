@@ -108,4 +108,11 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   it should "extract the value when passed" in {
     List("one", "two", "three").toMultiMap(_.length, _.toUpperCase) shouldReturn Map(3 -> Seq("ONE", "TWO"), 5 -> Seq("THREE"))
   }
+
+  "filterAndSortBy" should "return an empty seq on empty" in {
+    Seq(1, 2, 3).filterAndSortBy(identity, Nil) shouldReturn Nil
+  }
+  it should "filter and sort by" in {
+    Seq("one", "four", "three").filterAndSortBy(_.length, List(5, 3)) shouldReturn List("three", "one")
+  }
 }
