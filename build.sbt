@@ -4,7 +4,7 @@ lazy val commonSettings = Seq(
   isSnapshot := true,
   scalaVersion := "2.11.8")
 
-lazy val root = (project in file("."))
+lazy val scalaCommon = (project in file("."))
     .settings(commonSettings: _*)
     .settings(
       name := "scalacommon",
