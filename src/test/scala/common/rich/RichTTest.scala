@@ -18,13 +18,28 @@ class RichTTest extends FreeSpec with AuxSpecs {
 		"string" in {"foobar".onlyIf(false) shouldReturn ""}
 	}
 	"safe cast" - {
-		"correct" in {
-			val x: Any = "Foobar"
-			x.safeCast[String].get shouldReturn "Foobar"
-		}
-		"None" in {
-			val x: Any = 17
-			x.safeCast[String] shouldReturn None
+		"primitives" - {
+			"Any" in {
+				3.safeCast[Any] shouldReturn Some(3)
+			}
+			"Int" in {
+				3.safeCast[Int] shouldReturn Some(3)
+			}
+			"Double" in {
+				3.0.safeCast[Double] shouldReturn Some(3.0)
+			}
+			"String" in {
+				"foo".safeCast[String] shouldReturn Some("foo")
+			}
+			"Boolean" in {
+				true.safeCast[Boolean] shouldReturn Some(true)
+			}
+			"Incorrect type" in {
+        true.safeCast[Int] shouldReturn None
+			}
+			"Nothing" in {
+        3.safeCast[Nothing] shouldReturn None
+			}
 		}
 	}
 }
