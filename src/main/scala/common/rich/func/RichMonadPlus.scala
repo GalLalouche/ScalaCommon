@@ -12,6 +12,8 @@ object RichMonadPlus extends ToMonadPlusOps {
       $.map(e => Try(f(e)))
           .filter(_.isSuccess)
           .map(_.get)
+    // because flatMap only works on collections
+    def oMap[B](f: A => Option[B]): F[B] = $.map(f).filter(_.isDefined).map(_.get)
     def select[B <: A : Manifest]: F[B] =
       // ToMonadOps isn't working, possible because there are two implicits in scope?
       implicitly[MonadPlus[F]].map($)(_.safeCast[B])
