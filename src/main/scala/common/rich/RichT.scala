@@ -52,7 +52,7 @@ object RichT {
     def simpleName = $.getClass.getSimpleName.replaceAll("\\$", "")
 
     /** If this is of type C, returns Some(T), else None */
-    def safeCast[C](implicit m: Manifest[C]): Option[C] = {
+    def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {
       val rtc = m.runtimeClass
       // Due to scala's own "primitives", e.g., Int vs int, there is a mismatch between the Manifest[B] and
       // the actual type of RichT. Therefore, we map the primitive classes to their boxed types.
