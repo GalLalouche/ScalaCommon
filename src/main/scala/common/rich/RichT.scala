@@ -1,6 +1,16 @@
 package common.rich
 
 object RichT {
+  private val primitiveMappings: Map[Class[_], Class[_]] = Map(
+    java.lang.Integer.TYPE -> classOf[java.lang.Integer],
+    java.lang.Long.TYPE -> classOf[java.lang.Long],
+    java.lang.Double.TYPE -> classOf[java.lang.Double],
+    java.lang.Float.TYPE -> classOf[java.lang.Float],
+    java.lang.Boolean.TYPE -> classOf[java.lang.Boolean],
+    java.lang.Character.TYPE -> classOf[java.lang.Character],
+    java.lang.Byte.TYPE -> classOf[java.lang.Byte],
+    java.lang.Void.TYPE -> classOf[java.lang.Void],
+    java.lang.Short.TYPE -> classOf[java.lang.Short])
   implicit class richT[T]($: T) {
     /**
      * Logs the given string to console and returns this.
@@ -18,31 +28,38 @@ object RichT {
 
     // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
     // This is used instead of a local class for performance.
-    class __mapper private[RichT] (e: T, p: T => Boolean) {
+    class __mapper private[RichT](e: T, p: T => Boolean) {
       def to(f: T => T): T = if (p(e)) f(e) else e
     }
 
     /** Returns this if the condition is true; if not, returns the default value */
     def onlyIf(b: Boolean): T = (
-      if (b) $
-      else $ match {
-        case _: Int    => 0
-        case _: Double => 0.0
-        case _: String => ""
-      }).asInstanceOf[T]
+        if (b) $
+        else $ match {
+          case _: Int => 0
+          case _: Double => 0.0
+          case _: String => ""
+        }).asInstanceOf[T]
     def onlyIfNot(b: Boolean): T = onlyIf(!b)
 
     /** Apply some function to this and returns this. Side effects galore! */
-    def applyAndReturn(f: T => Any): T = { f($); $ }
+    def applyAndReturn(f: T => Any): T = {
+      f($);
+      $
+    }
 
     /** the simple class name, without $ and stuff */
     def simpleName = $.getClass.getSimpleName.replaceAll("\\$", "")
 
     /** If this is of type C, returns Some(T), else None */
-    def safeCast[C](implicit m: Manifest[C]): Option[C] = {
-      if (m.runtimeClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
+    def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {
+      val rtc = m.runtimeClass
+      // Due to scala's own "primitives", e.g., Int vs int, there is a mismatch between the Manifest[B] and
+      // the actual type of RichT. Therefore, we map the primitive classes to their boxed types.
+      val referenceClass = primitiveMappings.getOrElse(rtc, rtc)
+      if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
-    
+
     def const: Any => T = e => $
   }
 }

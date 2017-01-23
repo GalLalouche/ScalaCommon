@@ -38,21 +38,18 @@ class RichMonadPlusTest extends FreeSpec with AuxSpecs with ListInstances {
       class Child1 extends Parent
       class Child2 extends Parent
       class Child12 extends Child1
-      val child1 = new Child1
-      val child2 = new Child2
-      val child12 = new Child12
-      val list = List[Parent](child1, child2, child12)
+      val list = List[Parent](new Child1, new Child2, new Child12)
       "Parent" in {
         list.select[Parent] shouldReturn list
       }
       "Child1" in {
-        list.select[Child1] shouldReturn List(child1, child12)
+        list.select[Child1] shouldReturn List(list(0), list(2)).asInstanceOf[List[Child1]]
       }
       "Child2" in {
-        list.select[Child2] shouldReturn List(child2)
+        list.select[Child2] shouldReturn List(list(1)).asInstanceOf[List[Child2]]
       }
       "Child12" in {
-        list.select[Child12] shouldReturn List(child12)
+        list.select[Child12] shouldReturn List(list(2)).asInstanceOf[List[Child12]]
       }
     }
   }
