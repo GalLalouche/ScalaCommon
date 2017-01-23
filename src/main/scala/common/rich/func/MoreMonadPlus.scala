@@ -1,6 +1,7 @@
 package common.rich.func
 
 import scalaz.MonadPlus
+import rx.lang.scala.Observable
 
 object MoreMonadPlus {
   implicit object SeqMonadPlus extends MonadPlus[Seq] {
@@ -26,5 +27,11 @@ object MoreMonadPlus {
     override def plus[A](a: Set[A], b: => Set[A]): Set[A] = a ++ b
     override def point[A](a: => A): Set[A] = Set(a)
     override def empty[A]: Set[A] = Set()
+  }
+  implicit object ObservableMonadPlus extends MonadPlus[Observable] {
+    override def bind[A, B](fa: Observable[A])(f: A => Observable[B]): Observable[B] = fa flatMap f
+    override def plus[A](a: Observable[A], b: => Observable[A]): Observable[A] = a ++ b
+    override def point[A](a: => A): Observable[A] = Observable.just(a)
+    override def empty[A]: Observable[A] = Observable.empty
   }
 }

@@ -11,7 +11,9 @@ lazy val scalaCommon = (project in file("."))
       libraryDependencies ++= Seq(
         "org.scalatest" %% "scalatest" % "2.2.6",
         "org.scalaz" %% "scalaz-core" % "7.2.4",
-        "org.scalacheck" %% "scalacheck" % "1.12.1"))
+        "org.scalacheck" %% "scalacheck" % "1.12.1",
+        "io.reactivex" %% "rxscala" % "0.26.4"
+      ))
     .settings(scalacOptions in(Compile, doc) ++= Seq(
       "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
     ))
