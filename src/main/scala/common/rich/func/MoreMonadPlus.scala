@@ -21,4 +21,10 @@ object MoreMonadPlus {
     override def point[A](a: => A): Iterable[A] = Iterable(a)
     override def empty[A]: Iterable[A] = Iterable()
   }
+  implicit object SetMonadPlus extends MonadPlus[Set] {
+    override def bind[A, B](fa: Set[A])(f: A => Set[B]): Set[B] = fa flatMap f
+    override def plus[A](a: Set[A], b: => Set[A]): Set[A] = a ++ b
+    override def point[A](a: => A): Set[A] = Set(a)
+    override def empty[A]: Set[A] = Set()
+  }
 }
