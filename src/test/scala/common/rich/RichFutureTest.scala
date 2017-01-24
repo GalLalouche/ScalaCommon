@@ -97,6 +97,13 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         }
       }
     }
+    "consume" - {
+      "success" in {
+        val list = new ListBuffer[Int]
+        val value = success.consume(list.+=).get
+        list shouldReturn ListBuffer(value)
+      }
+    }
   }
   "RichOptionFuture" - {
     val success: Future[Option[Int]] = Future successful Some(1)
@@ -138,7 +145,7 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         }
       }
       "none" - {
-        val p: Any => Nothing = e => ???
+        val p: Any => Nothing = _ => ???
         "true" in {
           none.filterFuture(p).get shouldReturn None
         }

@@ -1,10 +1,10 @@
 package common.rich
 
+import common.rich.RichT._
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
-import RichT._
-import scala.util.{Failure, Success, Try}
 
 object RichFuture {
   implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
@@ -28,13 +28,14 @@ object RichFuture {
       try {
         triedT.failed.get
       } catch {
-        case e: UnsupportedOperationException => throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
+        case _: UnsupportedOperationException => throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
       }
     }
+    def consume(c: T => Any): Future[T] = $.map(e => {c(e); e})
     // like recover, but doesn't care about the failure
-    def orElse(t: => T): Future[T] = $.recover { case e => t }
+    def orElse(t: => T): Future[T] = $.recover { case _ => t }
     // implicits suck with overloads it seems
-    def orElseTry(t: => Future[T]): Future[T] = $.recoverWith { case e => t }
+    def orElseTry(t: => Future[T]): Future[T] = $.recoverWith { case _ => t }
   }
   implicit class richOptionFuture[T]($: Future[Option[T]])(implicit ec: ExecutionContext) {
     def ifNone(t: => T): Future[T] = $.map(_ getOrElse t)
