@@ -10,12 +10,27 @@ class RichTTest extends FreeSpec with AuxSpecs {
       val x: Any = null
       x.opt shouldReturn None
     }
-    "Some" in { 5.opt shouldReturn Some(5) }
+    "Some" in {
+      5.opt shouldReturn Some(5)
+    }
   }
   "only if" - {
-    "int" in { 5.onlyIf(false) shouldReturn 0 }
-    "double" in { 5.0.onlyIf(false) shouldReturn 0.0 }
-    "string" in { "foobar".onlyIf(false) shouldReturn "" }
+    "int" - {
+      "false" in { 5.onlyIf(false) shouldReturn 0 }
+      "true" in { 5.onlyIf(true) shouldReturn 5 }
+    }
+    "double" - {
+      "false" in { 5.0.onlyIf(false) shouldReturn 0.0 }
+      "true" in { 5.0.onlyIf(true) shouldReturn 5.0 }
+    }
+    "string" - {
+      "false" in { "foobar".onlyIf(false) shouldReturn "" }
+      "true" in { "foobar".onlyIf(true) shouldReturn "foobar" }
+    }
+    "classes" - {
+      "false" in { List(1, 2, 3).onlyIf(false) shouldReturn null }
+      "true" in { List(1, 2, 3).onlyIf(true) shouldReturn List(1, 2, 3) }
+    }
   }
   "safe cast" - {
     "primitives" - {
@@ -37,6 +52,23 @@ class RichTTest extends FreeSpec with AuxSpecs {
       }
       "Nothing" in {
         3.safeCast[Nothing] shouldReturn None
+      }
+    }
+    "type errors" - {
+      "types don't match" in {
+        "true.safeCast[Int]" shouldNot typeCheck
+      }
+      "safeCast to parent" in {
+        // Safe casting to a parent isn't needed. If C <: P, then C is already a P.
+        "3.safeCast[AnyVal]" shouldNot typeCheck
+      }
+    }
+    "classes" - {
+      "inheritance" in {
+        class A
+        class B extends A
+        val b: A = new B
+        b.safeCast[B] should be === Some(b)
       }
     }
   }

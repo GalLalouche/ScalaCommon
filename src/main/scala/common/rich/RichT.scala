@@ -11,6 +11,7 @@ object RichT {
     java.lang.Byte.TYPE -> classOf[java.lang.Byte],
     java.lang.Void.TYPE -> classOf[java.lang.Void],
     java.lang.Short.TYPE -> classOf[java.lang.Short])
+
   implicit class richT[T]($: T) {
     /**
      * Logs the given string to console and returns this.
@@ -37,14 +38,17 @@ object RichT {
         if (b) $
         else $ match {
           case _: Int => 0
+          case _: Long => 0L
           case _: Double => 0.0
+          case _: Float => 0.0f
           case _: String => ""
+          case _: Any => null
         }).asInstanceOf[T]
     def onlyIfNot(b: Boolean): T = onlyIf(!b)
 
     /** Apply some function to this and returns this. Side effects galore! */
     def applyAndReturn(f: T => Any): T = {
-      f($);
+      f($)
       $
     }
 
