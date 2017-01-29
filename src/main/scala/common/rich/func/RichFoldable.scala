@@ -3,7 +3,7 @@ package common.rich.func
 import scalaz.Foldable
 
 object RichFoldable {
-  implicit class richFoldable[A, F[A] : Foldable]($: F[A]) {
+  implicit class richFoldable[A, F[_] : Foldable]($: F[A]) {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
       var list: List[A] = Nil
