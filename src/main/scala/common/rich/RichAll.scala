@@ -24,6 +24,7 @@ object RichAll {
   implicit def richSeqTuples4[T, U, S, W]($: Seq[(T, U, S, W)]) = RichSeq.richSeqTuplesQuadruplets($)
   implicit def richString($: String) = RichString.richString($)
   implicit def richT[T]($: T) = RichT.richT($)
+  implicit def lazyT[T]($: T) = RichT.lazyT($)
   implicit def richTraversableDouble($: Traversable[Double]) = RichTraversableDouble.richTraversableDouble($)
   implicit def richTraversableInt($: Traversable[Int]) = RichTraversableDouble.richInt($)
   implicit def richTraversableOnce($: TraversableOnce[Int]) = RichTraversableOnce.richTraversableOnce($)

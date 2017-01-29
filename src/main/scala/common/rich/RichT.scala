@@ -59,7 +59,9 @@ object RichT {
       val referenceClass = primitiveMappings.getOrElse(rtc, rtc)
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
+  }
 
-    def const: Any => T = e => $
+  implicit class lazyT[T]($: => T) {
+    def const[S]: S => T = _ => $
   }
 }

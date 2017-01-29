@@ -40,4 +40,13 @@ class RichTTest extends FreeSpec with AuxSpecs {
       }
     }
   }
+  "const" - {
+    "returns t" in {
+      5.const.apply("foobar") shouldReturn 5
+    }
+    "is lazy" in {
+      def foo: Int = ???
+      None.map(foo.const) shouldReturn None
+    }
+  }
 }
