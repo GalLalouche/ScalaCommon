@@ -7,11 +7,12 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
 object RichFuture {
+  class FilteredException(reason: String) extends Exception(reason)
   implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
     // gives better error message when the filter fails
-    def filterWith(p: T => Boolean, message: String): Future[T] = filterWithMessage(p, e => message)
+    def filterWith(p: T => Boolean, message: String): Future[T] = filterWithMessage(p, _ => message)
     def filterWithStacktrace(p: T => Boolean, message: String = "Failed filter") = {
-      val ex = new NoSuchElementException(message)
+      val ex = new FilteredException(message)
       ex.setStackTrace(ex.getStackTrace drop 1)
       $.flatMap(e => if (p(e)) $ else Future failed ex)
     }
@@ -20,7 +21,7 @@ object RichFuture {
       if (p(e))
         $
       else
-        Future failed new NoSuchElementException(message(e)))
+        Future failed new FilteredException(message(e)))
     def get: T = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)

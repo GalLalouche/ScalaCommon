@@ -12,7 +12,7 @@ import scala.util.Try
 
 class RichFutureTest extends FreeSpec with AuxSpecs {
   val success: Future[Int] = Future successful 1
-  val failure: Future[Int] = Future failed new Exception("Derp")
+  val failure: Future[Int] = Future failed new FilteredException("Derp")
   def shouldFail(f: Future[Any]) = {
     Await.ready(f, Duration.Inf)
     val t = f.value.get
@@ -56,7 +56,9 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
       "failure" in {
         val f = success.filterWith(_ < 0, "Failure message")
         shouldFail(f)
-        f.value.get.failed.get.getMessage shouldReturn "Failure message"
+        val ex = f.failed.get
+        ex.getMessage shouldReturn "Failure message"
+        ex shouldBe an[RichFuture.FilteredException]
       }
       "stacktrace" in {
         def foo: Future[Any] = {
