@@ -1,20 +1,22 @@
 package common.rich.path
 
 import java.io.{File, PrintStream}
+import java.nio.file.FileAlreadyExistsException
 import java.util.Scanner
 
 import common.DirectorySpecs
 import org.scalatest._
 
+// TODO refactor to FreeSpec
 class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneInstancePerTest {
-  val f = tempFile
+  private val f = tempFile
 
   def managed[T <: AutoCloseable](t: T)(f: T => Unit): Unit = {
     try f(t)
     finally t.close()
   }
 
-  private def checkClosed(f: File) {
+  private def checkClosedAndDelete(f: File) {
     managed(new PrintStream(f)) {
       _.print("foobar2")
     }
@@ -30,7 +32,7 @@ class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneIn
     f.extension shouldBe ""
   }
 
-  val $ = f
+  private val $ = f
   "appendLine" should "append lines" in {
     $ appendLine "foobar"
     managed(new Scanner($)) { scanner =>
@@ -68,7 +70,7 @@ class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneIn
   it should "close" in {
     $.f.exists shouldBe true
     $.readAll
-    checkClosed($)
+    checkClosedAndDelete($)
   }
 
   "lines" should "return the lines in the file" in {
@@ -80,11 +82,11 @@ class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneIn
   it should "foobar" in {
     f.appendLine("foobar")
     f.lines
-    checkClosed(f)
+    checkClosedAndDelete(f)
   }
 
-  val bytes1 = Array[Byte](1, 2, 3)
-  val bytes2 = Array[Byte](4, 5, 6)
+  private val bytes1 = Array[Byte](1, 2, 3)
+  private val bytes2 = Array[Byte](4, 5, 6)
   "hasSameContent" should "true for equals" in {
     val f1 = tempDir.addFile()
     val f2 = tempDir.addFile()
@@ -106,17 +108,26 @@ class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneIn
     f1.write(bytes1)
     f2.write(bytes2)
     f1.hasSameContentAs(f2)
-    checkClosed(f1)
-    checkClosed(f2)
+    checkClosedAndDelete(f1)
+    checkClosedAndDelete(f2)
   }
 
-  "copyTo" should "close both" in {
-    val f1 = tempDir.addFile()
-    val f2 = tempDir.addFile()
-    f1.write("Hello world!")
-    f1.copyTo(f2)
-    checkClosed(f1)
-    checkClosed(f2)
+  "copyTo" should "copy the file" in {
+    val f1 = tempDir.addFile().write("foo")
+    val newFile = f1.copyTo(tempDir, "new_file")
+    newFile.name shouldBe "new_file"
+    newFile.readAll shouldBe "foo"
+    checkClosedAndDelete(f1)
+    checkClosedAndDelete(newFile)
+  }
+
+  it should "throw an exception if the file already exists" in {
+    val f1 = tempDir.addFile().write("foo")
+    val f2 = tempDir.addFile("bar.txt").write("bar")
+    an[FileAlreadyExistsException] should be thrownBy f1.copyTo(tempDir, "bar.txt")
+    f2.readAll shouldBe "bar"
+    checkClosedAndDelete(f1)
+    checkClosedAndDelete(f2)
   }
 
   "path" should "be canonical" in {

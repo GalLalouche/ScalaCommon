@@ -2,7 +2,7 @@ package common.rich.path
 
 import java.io._
 import java.nio.channels.FileChannel
-import java.nio.file.Files
+import java.nio.file.{FileAlreadyExistsException, Files}
 
 import common.rich.RichT._
 
@@ -31,7 +31,7 @@ class RichFile(val f: File) extends RichPath(f) {
   /**
     * Returns true iff the file is *totally* empty (i.e., not even blank lines)
     */
-  def isEmpty = lines.isEmpty
+  def isEmpty: Boolean = lines.isEmpty
 
   /**
     * Removes all data from the file
@@ -54,7 +54,7 @@ class RichFile(val f: File) extends RichPath(f) {
   def write(bytes: Array[Byte]): RichFile = {
     val fos = new FileOutputStream(f)
     try fos write bytes
-    finally fos.close
+    finally fos.close()
     this
   }
 
@@ -80,7 +80,7 @@ class RichFile(val f: File) extends RichPath(f) {
     *
     * @param f The file to compare with
     */
-  def hasSameContentAs(f: File) = bytes sameElements new RichFile(f).bytes
+  def hasSameContentAs(f: File): Boolean = bytes sameElements new RichFile(f).bytes
 
   /**
     * Returns a backup file of this file
@@ -88,18 +88,19 @@ class RichFile(val f: File) extends RichPath(f) {
   def backup = new BackupFile(f)
 
   /**
-    * Copies this file to another location
-    *
-    * @param newFile The file to copy to
-    */
-  def copyTo(newFile: File) = {
-    val src = f
-    val dest = newFile
-    val is: FileInputStream = new FileInputStream(src)
-    val os: FileChannel = new FileOutputStream(dest).getChannel
-    os.transferFrom(is.getChannel, 0, Long.MaxValue)
-    is.close()
-    os.close()
+   * Copies this file to another location with the same name.
+   * @throws FileAlreadyExistsException if the file already exists
+   */
+  def copyTo(dir: Directory): RichFile = copyTo(dir, name)
+  /**
+   * Copies this file to another location with the same name.
+   * @throws FileAlreadyExistsException if the file already exists
+   */
+  def copyTo(dir: Directory, newName: String): RichFile = {
+    val newFile = dir \ newName
+    if (newFile.exists)
+      throw new FileAlreadyExistsException(newFile.getPath)
+    Files.copy(f.toPath, newFile.toPath)
     newFile
   }
 }
