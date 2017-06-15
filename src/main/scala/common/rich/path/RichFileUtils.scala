@@ -36,15 +36,14 @@ object RichFileUtils {
    *                                    same name as *any* file (directory or actual) in the source dir.
    */
   def moveContents(src: Directory, dst: Directory): Unit = {
-    val dstFileNamesToFullPaths: Map[String, String] = dst.paths.map(e => e.name -> e.path).toMap
+    val dstFileNamesToFullPaths: Map[String, String] = dst.listFiles.map(e => e.name -> e.path).toMap
 
-    for (srcPath <- src.paths)
+    for (srcPath <- src.listFiles)
       for (dstPathWithSameName <- dstFileNamesToFullPaths.get(srcPath.name))
         throw new FileAlreadyExistsException(srcPath.path, dstPathWithSameName, "File with same name already exists")
 
-    src.paths.foreach {
-      case d: Directory => move(d, dst)
-      case f: RichFile => move(f, dst)
+    src.listFiles.foreach { f =>
+      if (f.isDirectory) move(Directory(f), dst) else move(f, dst)
     }
   }
 }

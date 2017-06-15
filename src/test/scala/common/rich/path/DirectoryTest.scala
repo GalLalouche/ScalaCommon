@@ -75,7 +75,7 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
     }
     "list deep paths both deep and shallow" in {
       $.addSubDir("foobar").addFile("bar.foo")
-      $.deepPaths.map(_.p).toSet === Set(new File(tempDir, "foobar"), new File((tempDir / "foobar" / "bar.foo").path))
+      $.deepPaths.map(_.f).toSet === Set(new File(tempDir, "foobar"), new File((tempDir / "foobar" / "bar.foo").path))
     }
     "clear" - {
       "not delete self" in {
@@ -139,7 +139,7 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
       "add recursive files and dirs" in {
         subDir addSubDir "foo" addFile "bar"
         val c = subDir.cloneDir()
-        (c / "foo" / "bar").p should exist
+        (c / "foo" / "bar").f should exist
       }
       "overwrite existing directory" in {
         subDir.cloneDir() addFile "foo"
@@ -150,7 +150,6 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
       // TODO merge with cloneDir tests
       // TODO figure a way to remove duplication with RichFileUtilsTests
       val srcDir: Directory = TempDirectory()
-      val dirName = srcDir.name
       srcDir.addFile("foo.txt").write("some stuff")
       srcDir.addSubDir("bar").addFile("bar.txt").write("some other stuff")
 
@@ -173,7 +172,9 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
       }
 
       "copy the entire directory" in {
-        val newDir = srcDir.copyTo(tempDir)
+        val dstDir = tempDir.addSubDir("moo").addSubDir("oom")
+        val newDir = srcDir.copyTo(dstDir)
+        newDir.parent shouldReturn dstDir
         verifyStructure(newDir)
       }
     }

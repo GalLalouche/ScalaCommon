@@ -8,19 +8,18 @@ import common.rich.RichT._
 
 import scala.io.Source
 
-class RichFile(val f: File) extends RichPath(f) {
+class RichFile(f: File) extends RichPath[RichFile](f) {
   // this is required - if a RichFile is created for a file that is a directory, it is considered a programming bug
+  // Why is this commented out??
   //	require(f.isDirectory == false, s"Rich file $f cannot be a directory")
   lazy val extension: String = {
-    val i = p.getName.lastIndexOf('.')
-    if (i == -1) "" else p.getName.substring(i + 1).toLowerCase
+    val i = f.getName.lastIndexOf('.')
+    if (i == -1) "" else f.getName.substring(i + 1).toLowerCase
   }
 
   lazy val nameWithoutExtension: String = name substring(0, name.length - extension.length - 1)
 
-  /**
-    * Appends a line to the end of the file
-    */
+  /** Appends a line to the end of the file */
   def appendLine(s: String): RichFile = {
     val fw = new FileWriter(f, true)
     try fw.write(s + "\n")
@@ -28,29 +27,25 @@ class RichFile(val f: File) extends RichPath(f) {
     this
   }
 
-  /**
-    * Returns true iff the file is *totally* empty (i.e., not even blank lines)
-    */
+  /** Returns true iff the file is *totally* empty (i.e., not even blank lines) */
   def isEmpty: Boolean = lines.isEmpty
 
-  /**
-    * Removes all data from the file
-    */
+  /** Removes all data from the file */
   def clear(): RichFile = {
     write(Array[Byte]())
     this
   }
 
   /**
-    * Writes the string to the file.
-    * This deletes all previous data in the file.
-    */
+   * Writes the string to the file.
+   * This deletes all previous data in the file.
+   */
   def write(s: String): RichFile = write(s.getBytes)
 
   /**
-    * Writes the byte array to the file.
-    * This deletes all previous data in the file.
-    */
+   * Writes the byte array to the file.
+   * This deletes all previous data in the file.
+   */
   def write(bytes: Array[Byte]): RichFile = {
     val fos = new FileOutputStream(f)
     try fos write bytes
@@ -58,9 +53,7 @@ class RichFile(val f: File) extends RichPath(f) {
     this
   }
 
-  /**
-    * Reads the entire content of the file as a single string
-    */
+  /** Reads the entire content of the file as a single string */
   def readAll: String = lines.mkString("\n")
 
   /** Returns the lines of the file */
@@ -70,38 +63,22 @@ class RichFile(val f: File) extends RichPath(f) {
     Source.fromBytes(bytes mapTo removeByteOrderMarkIfPresent).getLines().toVector
   }
 
-  /**
-    * Gets all bytes in the file
-    */
+  /** Gets all bytes in the file */
   def bytes: Array[Byte] = Files.readAllBytes(f.toPath)
 
   /**
-    * Checks if this file has the same contents as another file
-    *
-    * @param f The file to compare with
-    */
+   * Checks if this file has the same contents as another file
+   *
+   * @param f The file to compare with
+   */
   def hasSameContentAs(f: File): Boolean = bytes sameElements new RichFile(f).bytes
 
-  /**
-    * Returns a backup file of this file
-    */
+  /** Returns a backup file of this file */
   def backup = new BackupFile(f)
 
-  /**
-   * Copies this file to another location with the same name.
-   * @throws FileAlreadyExistsException if the file already exists
-   */
-  def copyTo(dir: Directory): RichFile = copyTo(dir, name)
-  /**
-   * Copies this file to another location with the same name.
-   * @throws FileAlreadyExistsException if the file already exists
-   */
-  def copyTo(dir: Directory, newName: String): RichFile = {
-    val newFile = dir \ newName
-    if (newFile.exists)
-      throw new FileAlreadyExistsException(newFile.getPath)
-    Files.copy(f.toPath, newFile.toPath)
-    newFile
+  override protected def internalCopyTo(dstFile: File): RichFile = {
+    Files.copy(this.toPath, dstFile.toPath)
+    new RichFile(dstFile)
   }
 }
 
@@ -113,13 +90,5 @@ object RichFile {
   def apply(f: File) = new RichFile(f)
 
   def apply(s: String): RichFile = new RichFile(new File(s))
-//
-//  def create(name: String, extension: String): RichFile = {
-//    val $ = new File(name
-//      .mapIf(name.endsWith(extension) == false)
-//      .to(_ => name + "." + extension))
-//    $.createNewFile()
-//    this ($)
-//  }
 }
 

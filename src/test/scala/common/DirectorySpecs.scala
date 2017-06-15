@@ -8,7 +8,10 @@ import org.scalatest.{BeforeAndAfter, Suite}
  */
 trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
   self: Suite =>
-  after { tempDir.clear }
+  after {
+    if (tempDir.exists())
+      tempDir.clear()
+  }
   val tempDir = TempDirectory()
   lazy val tempFile = tempDir.addFile("tempFile")
 }
