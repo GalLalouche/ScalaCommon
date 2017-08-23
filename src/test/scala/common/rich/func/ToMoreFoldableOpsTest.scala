@@ -4,10 +4,9 @@ import java.io.ByteArrayOutputStream
 
 import common.AuxSpecs
 import common.rich.func.MoreFoldable._
-import common.rich.func.RichFoldable._
 import org.scalatest.FreeSpec
 
-class RichFoldableTest extends FreeSpec with AuxSpecs {
+class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs with ToMoreFoldableOps {
   "doForEach is left oriented" in {
     var s = ""
     Seq(1, 2, 3).doForEach(s += _)

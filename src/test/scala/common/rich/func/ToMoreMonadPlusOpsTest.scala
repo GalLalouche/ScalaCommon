@@ -1,12 +1,11 @@
 package common.rich.func
 
 import common.AuxSpecs
-import common.rich.func.RichMonadPlus._
 import org.scalatest.FreeSpec
 
 import scalaz.std.ListInstances
 
-class RichMonadPlusTest extends FreeSpec with AuxSpecs with ListInstances {
+class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs with ListInstances with ToMoreMonadPlusOps {
   "select" - {
     "Primitives" - {
       val list = List(3, "Foo", true, 4, 5.0)

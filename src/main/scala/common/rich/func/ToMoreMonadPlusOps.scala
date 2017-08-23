@@ -6,7 +6,7 @@ import scala.util.Try
 import scalaz.MonadPlus
 import scalaz.syntax.ToMonadPlusOps
 
-object RichMonadPlus extends ToMonadPlusOps {
+trait ToMoreMonadPlusOps extends ToMonadPlusOps {
   implicit class richMonadPlus[A, F[_] : MonadPlus]($: F[A]) {
     def tryMap[B](f: A => B): F[B] =
       $.map(e => Try(f(e)))
