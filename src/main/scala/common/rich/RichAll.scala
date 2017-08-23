@@ -3,12 +3,10 @@ package common.rich
 import java.io.File
 
 import common.rich.collections._
-import common.rich.func.{RichFoldable, RichMonadPlus}
 import common.rich.path.RichFile
 import common.rich.primitives._
 
 import scala.reflect.ClassTag
-import scalaz.{Foldable, MonadPlus}
 
 /** Convenience object for all rich implicits. */
 object RichAll {
