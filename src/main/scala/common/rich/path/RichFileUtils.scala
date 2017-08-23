@@ -17,6 +17,10 @@ object RichFileUtils {
   def move(src: File, dst: Directory, newName: String): RichFile = {
     Files.move(src.toPath, (dst \ newName).toPath).toFile
   }
+
+  /** Moves file within the same directory. */
+  def move(src: File, newName: String): RichFile = move(src, src.parent, newName)
+
   /**
    * Moves a directory (including itself) to a parent directory, returning the new directory. This method does not
    * perform merging of any sort.

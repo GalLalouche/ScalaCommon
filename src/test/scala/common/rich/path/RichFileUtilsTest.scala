@@ -10,12 +10,20 @@ import org.scalatest.{FreeSpec, OneInstancePerTest}
 class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
   lazy val dir2 = TempDirectory()
   "move file" - {
-    tempFile.write("foobar")
+    tempFile write "foobar"
     val tempFileName = tempFile.name
+    val otherFile = tempDir addFile "other_file"
+    otherFile write "bazz"
     def verifyFile(f: RichFile, name: String = tempFileName): Unit = {
       f.exists shouldReturn true
       f.readAll shouldReturn "foobar"
       f.name shouldReturn name
+    }
+    def verifyNoChange(): Unit = {
+      verifyFile(tempFile, tempFileName)
+      otherFile.exists shouldReturn true
+      otherFile.name shouldReturn "other_file"
+      otherFile.readAll shouldReturn "bazz"
     }
     "default to same name" in {
       val newFile = RichFileUtils.move(tempFile, dir2)
@@ -30,8 +38,23 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
     }
     "Existing file with same name throws" in {
       dir2.addFile("new_name.txt")
-      an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(tempFile, dir2, "new_name.txt")
-      verifyFile(tempFile)
+      a[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(tempFile, dir2, "new_name.txt")
+      verifyNoChange()
+    }
+    "within same directory" - {
+      "happy path" in {
+        val newFile = RichFileUtils.move(tempFile, tempFileName + "foo")
+        tempFile.exists shouldReturn false
+        verifyFile(newFile, tempFileName + "foo")
+      }
+      "same name" in {
+        RichFileUtils.move(tempFile, tempFileName)
+        verifyNoChange()
+      }
+      "file with name already exists" in {
+        a[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(tempFile, otherFile.name)
+        verifyNoChange()
+      }
     }
   }
   "directory movers" - {
