@@ -1,19 +1,19 @@
 package common.rich.collections
 
 import java.util
-import java.util.HashSet
 
 import common.AuxSpecs
 import common.rich.collections.RichIterator._
 import org.scalatest.FlatSpec
 import org.scalatest.concurrent.TimeLimitedTests
-import org.scalatest.matchers.ShouldMatchers
-
-import scala.util.Random
 import org.scalatest.time.SpanSugar._
 
+import scala.collection.mutable
+import scala.language.postfixOps
+import scala.util.Random
+
 class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
-  val timeLimit = 1 second
+  val timeLimit = 2 seconds
 
   "verifyForAll" should "throw an exception if f is not satisfied" in {
     an[Exception] should be thrownBy {
@@ -30,9 +30,9 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
   }
 
   "par" should "create threads to run a map request" in {
-    val set = new HashSet[Object]()
+    val set = new mutable.HashSet[Object]()
     val r = new Random()
-    List.fill(50)(r.nextDouble).toIterator.par().foreach(e => set.synchronized {
+    List.fill(100)(r.nextDouble).toIterator.par().foreach(_ => set.synchronized {
       set.add(Thread.currentThread())
     })
     set.size should be > 1
@@ -47,18 +47,18 @@ class RichIteratorTest extends FlatSpec with AuxSpecs with TimeLimitedTests {
   }
 
   it should "run work in parallel and be faster than a serialize execution" in {
-    val list = (1 to 50).toList
+    val list = (1 to 100).toList
     val serTime = time {
-      list.iterator.foreach(e => Thread.sleep(1))
+      list.iterator.foreach(_ => Thread.sleep(1))
     }
     val parTime = time {
-      list.iterator.par().foreach(e => Thread.sleep(1))
+      list.iterator.par().foreach(_ => Thread.sleep(1))
     }
     serTime.toDouble / parTime should be >= 1.5
   }
 
   it should "run maps in parallel" in {
-    val list = (1 to 50).toList
+    val list = (1 to 100).toList
     var x: Any = null
     val serTime = time {
       list.iterator.map(e => {
