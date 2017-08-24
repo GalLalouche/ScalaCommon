@@ -2,6 +2,7 @@ package common.rich.func
 
 import common.rich.RichT._
 
+import scala.language.higherKinds
 import scala.util.Try
 import scalaz.MonadPlus
 import scalaz.syntax.ToMonadPlusOps

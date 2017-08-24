@@ -1,18 +1,33 @@
 package common.rich.func
 
-import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 
 import common.AuxSpecs
-import common.rich.func.MoreFoldable._
 import org.scalatest.FreeSpec
 
-class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs with ToMoreFoldableOps {
-  "doForEach is left oriented" in {
+import scala.language.higherKinds
+import scalaz.Foldable
+import scalaz.std.{ListInstances, VectorInstances}
+
+class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
+    with MoreSeqInstances with ToMoreFoldableOps with MoreTraversableInstances with ListInstances
+    with MoreIterableInstances with MoreSetInstances with VectorInstances {
+  "doForEach acts on left indices first" in {
     var s = ""
     Seq(1, 2, 3).doForEach(s += _)
     s shouldReturn "123"
   }
-  "printPerLine should not overflow" in {
-    Console.withOut(new ByteArrayOutputStream()){Seq.fill(100000)(1).printPerLine()}
+  "printPerLine should not overflow" - {
+    def test[F[_]: Foldable](f: Int => F[Int]): Unit = {
+      Console.withOut(new OutputStream {
+        override def write(b: Int) = ()
+      }) { f(10000).printPerLine() }
+    }
+    "Seq" in test(Seq.fill(_)(1))
+    "List" in test(List.fill(_)(1))
+    "Set" in test(e => (1 to e).toSet)
+    "Traversable" in test(Traversable.fill(_)(1))
+    "Iterable" in test(Iterable.fill(_)(1))
+    "Vector" in test(Vector.fill(_)(1))
   }
 }

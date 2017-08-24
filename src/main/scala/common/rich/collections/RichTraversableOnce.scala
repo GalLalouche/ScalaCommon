@@ -14,7 +14,7 @@ object RichTraversableOnce
       $.foldLeft(Map[Key, Value]()) { (m, next) =>
         val key = toKey(next)
         val value = toValue(next)
-        m + (key -> m.get(key).map(implicitly[Semigroup[Value]].append(_, value)).getOrElse(value))
+        m + (key -> m.get(key).map(Semigroup[Value].append(_, value)).getOrElse(value))
       }
 
     def mapBy[S](f: T => S): Map[S, T] =
