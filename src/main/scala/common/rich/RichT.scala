@@ -67,5 +67,6 @@ object RichT {
 
   implicit class lazyT[T]($: => T) {
     def const[S]: S => T = _ => $
+    def partialConst[S]: PartialFunction[S, T] = { case _ => $ }
   }
 }

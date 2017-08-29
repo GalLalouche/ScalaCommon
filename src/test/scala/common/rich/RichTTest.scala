@@ -16,20 +16,36 @@ class RichTTest extends FreeSpec with AuxSpecs {
   }
   "only if" - {
     "int" - {
-      "false" in { 5.onlyIf(false) shouldReturn 0 }
-      "true" in { 5.onlyIf(true) shouldReturn 5 }
+      "false" in {
+        5.onlyIf(false) shouldReturn 0
+      }
+      "true" in {
+        5.onlyIf(true) shouldReturn 5
+      }
     }
     "double" - {
-      "false" in { 5.0.onlyIf(false) shouldReturn 0.0 }
-      "true" in { 5.0.onlyIf(true) shouldReturn 5.0 }
+      "false" in {
+        5.0.onlyIf(false) shouldReturn 0.0
+      }
+      "true" in {
+        5.0.onlyIf(true) shouldReturn 5.0
+      }
     }
     "string" - {
-      "false" in { "foobar".onlyIf(false) shouldReturn "" }
-      "true" in { "foobar".onlyIf(true) shouldReturn "foobar" }
+      "false" in {
+        "foobar".onlyIf(false) shouldReturn ""
+      }
+      "true" in {
+        "foobar".onlyIf(true) shouldReturn "foobar"
+      }
     }
     "classes" - {
-      "false" in { List(1, 2, 3).onlyIf(false) shouldReturn null }
-      "true" in { List(1, 2, 3).onlyIf(true) shouldReturn List(1, 2, 3) }
+      "false" in {
+        List(1, 2, 3).onlyIf(false) shouldReturn null
+      }
+      "true" in {
+        List(1, 2, 3).onlyIf(true) shouldReturn List(1, 2, 3)
+      }
     }
   }
   "safe cast" - {
@@ -72,13 +88,25 @@ class RichTTest extends FreeSpec with AuxSpecs {
       }
     }
   }
-  "const" - {
-    "returns t" in {
-      5.const.apply("foobar") shouldReturn 5
+  "lazyT" - {
+    "const" - {
+      "returns t" in {
+        5.const.apply("foobar") shouldReturn 5
+      }
+      "is lazy" in {
+        def foo: Int = ???
+        None.map(foo.const) shouldReturn None
+      }
     }
-    "is lazy" in {
-      def foo: Int = ???
-      None.map(foo.const) shouldReturn None
+    "partialConst" - {
+      "returns t" in {
+        5.partialConst.apply("foobar") shouldReturn 5
+      }
+      "is lazy" in {
+        def foo: Int = ???
+        None.map(foo.partialConst) shouldReturn None
+      }
+
     }
   }
 }
