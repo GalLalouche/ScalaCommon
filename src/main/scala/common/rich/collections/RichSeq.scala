@@ -88,7 +88,7 @@ class RichSeq[T]($: Seq[T]) {
 
 	/**
 	 * Syntactic sugar, so one can write <code>insert e at i</code> or
-   * <code>insert e after i</code> or <code>insert e before i</code> 
+   * <code>insert e after i</code> or <code>insert e before i</code>
    * @param e the element to insert
 	 */
 	def insert(e: T) = new {
@@ -120,6 +120,7 @@ object RichSeq {
 			override def -(key: T): Map[T, S] = ???
 			override def toSeq = $
 		}
+    def toMultiMap: Map[T, Seq[S]] = RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
 	}
 
 	implicit def richSeqTuplesTriplets[T, S, U]($: Seq[(T, S, U)]) = new {
