@@ -2,7 +2,7 @@ lazy val commonSettings = Seq(
   organization := "org.me",
   version := "1.0",
   isSnapshot := true,
-  scalaVersion := "2.11.8"
+  crossScalaVersions := Seq("2.11.11", "2.12.3")
 )
 
 lazy val scalaCommon = (project in file("."))
