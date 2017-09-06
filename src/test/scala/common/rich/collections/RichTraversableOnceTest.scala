@@ -8,11 +8,11 @@ import scala.collection.mutable
 
 class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   "unorderedPairs" should "have size of n choose 2" in {
-    List.fill(10)("bla").unorderedPairs.size should be === 45
+    List.fill(10)("bla").unorderedPairs.size shouldReturn 45
   }
 
   it should "return all unique pairs" in {
-    List(1, 2, 3).unorderedPairs.toSet should be === Set((1, 2), (1, 3), (2, 3))
+    List(1, 2, 3).unorderedPairs.toSet shouldReturn Set((1, 2), (1, 3), (2, 3))
   }
 
   "joinWhere" should "return an empty traversable if one of the traversables is empty" in {
@@ -63,26 +63,26 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   }
 
   "hasSameValues" should "return true when there are the same values" in {
-    List((1, "Hi"), (1, "Hello"), (1, "Goodbye")).hasSameValues(_._1) should be === true
+    List((1, "Hi"), (1, "Hello"), (1, "Goodbye")).hasSameValues(_._1) shouldReturn true
   }
   it should "return false when there are different values" in {
-    List((1, "Hi"), (1, "Hello"), (2, "Goodbye")).hasSameValues(_._1) should be === false
+    List((1, "Hi"), (1, "Hello"), (2, "Goodbye")).hasSameValues(_._1) shouldReturn false
   }
 
   "Entropy" should "work for this example that I copied off the net cause I'm a lazy bugger" in {
-    Math.round("1223334444".map(_.toInt).entropy * 100000) * 0.00001 should be === 1.84644
+    Math.round("1223334444".map(_.toInt).entropy * 100000) * 0.00001 shouldReturn 1.84644
   }
 
   "get pairs" should "produce no repeats" in {
-    List(1, 2).unorderedPairs.toSet.size should be === 1
+    List(1, 2).unorderedPairs.toSet.size shouldReturn 1
   }
 
   it should "produce pairs" in {
-    List(1, 2, 3).unorderedPairs.toSet should be === Set((1, 2), (2, 3), (1, 3))
+    List(1, 2, 3).unorderedPairs.toSet shouldReturn Set((1, 2), (2, 3), (1, 3))
   }
 
   "percentage satisfying" should "pass a simple example" in {
-    List(2, 4, 5, 6).percentageSatisfying(_ % 2 == 0) should be === 0.75
+    List(2, 4, 5, 6).percentageSatisfying(_ % 2 == 0) shouldReturn 0.75
   }
 
   "single" should "return the single element when one exists" in {

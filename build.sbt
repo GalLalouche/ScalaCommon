@@ -2,7 +2,8 @@ lazy val commonSettings = Seq(
   organization := "org.me",
   version := "1.0",
   isSnapshot := true,
-  scalaVersion := "2.11.8")
+  scalaVersion := "2.11.8"
+)
 
 lazy val scalaCommon = (project in file("."))
     .settings(commonSettings: _*)
@@ -18,4 +19,4 @@ lazy val scalaCommon = (project in file("."))
     .settings(scalacOptions in(Compile, doc) ++= Seq(
       "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
     ))
-	
+

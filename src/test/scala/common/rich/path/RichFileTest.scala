@@ -133,6 +133,6 @@ class RichFileTest extends FlatSpec with Matchers with DirectorySpecs with OneIn
   "path" should "be canonical" in {
     val f1 = tempDir addFile "f1"
     val f2 = tempDir / "./f1"
-    f1.path should be === f2.path
+    f1.path shouldReturn f2.path
   }
 }
