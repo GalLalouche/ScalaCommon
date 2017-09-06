@@ -92,41 +92,41 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
 		forAll(Gen.choose(1, 100000)) { n: Int =>
 			val actual = n.eulersTotient
 			val expected = (1 to n).map(RichInt.gcd(_, n)).filter(_ == 1).size
-			actual should be === expected
+			actual shouldReturn expected
 		}
 	}
 
 	property("any number choose 0 is 1") {
 		forAll { n: Int => whenever(n >= 0) {
-			n choose 0 should be === 1
+			n choose 0 shouldReturn 1
 		}
 		}
 	}
 
 	property("any number choose 1 should is itself") {
 		forAll { n: Int => whenever(n >= 0) {
-			n choose 1 should be === n
+			n choose 1 shouldReturn n
 		}
 		}
 	}
 
 	property("any number choose itself is 1") {
 		forAll { n: Int => whenever(n >= 0) {
-			n choose n should be === 1
+			n choose n shouldReturn 1
 		}
 		}
 	}
 
 	property("any number perm itself is itself factorized") {
 		forAll(Gen.choose(1, 1000)) { n: Int =>
-			n perm n should be === n.factorial
+			n perm n shouldReturn n.factorial
 		}
 	}
 
 	property("any number perm 0 is 1") {
 		forAll {
 			n: Int => whenever(n >= 0) {
-				n perm 0 should be === 1
+				n perm 0 shouldReturn 1
 			}
 		}
 	}
@@ -134,7 +134,7 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
 	property("any number perm 1 is itself") {
 		forAll {
 			n: Int => whenever(n >= 0) {
-				n perm 1 should be === n
+				n perm 1 shouldReturn n
 			}
 		}
 	}

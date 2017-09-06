@@ -4,11 +4,11 @@ import org.scalatest.FlatSpec
 
 class LRUCacheTest extends FlatSpec with AuxSpecs {
   "C'tor" should "throw except for negative maxSize" in {
-    evaluating(new LRUCache(-1)) should produce[IllegalArgumentException]
+    an[IllegalArgumentException] should be thrownBy new LRUCache(-1)
   }
 
   it should "throw except for 0 maxSize" in {
-    evaluating(new LRUCache(0)) should produce[IllegalArgumentException]
+    an[IllegalArgumentException] should be thrownBy new LRUCache(0)
   }
   "size" should "should remain 1 at most when 1, 1 time" in {
     val $ = new LRUCache[Int, Int](1)
@@ -47,7 +47,7 @@ class LRUCacheTest extends FlatSpec with AuxSpecs {
     for (i <- 0 to 4)
       $(i) = 2 * i
     for (i <- 0 to 4)
-      $(i) should be === 2 * i
+      $(i) shouldReturn 2 * i
   }
   it should "should remain 2 at most when 2" in {
     val $ = new LRUCache[Int, Int](2)
@@ -63,16 +63,16 @@ class LRUCacheTest extends FlatSpec with AuxSpecs {
     $(2) = 1
     $ contains 1
     $(3) = 1
-    $.contains(1) should be === true
-    $.contains(2) should be === false
+    $.contains(1) shouldReturn true
+    $.contains(2) shouldReturn false
   }
 
   "update" should "remove old key" in {
     val $ = new LRUCache[Int, Int](2)
     $(1) = 2
     $(1) = 3
-    $.size should be === 1
-    $(1) should be === 3
+    $.size shouldReturn 1
+    $(1) shouldReturn 3
   }
 
   it should "remove the last used key" in {
@@ -80,9 +80,9 @@ class LRUCacheTest extends FlatSpec with AuxSpecs {
     $(1) = 1
     $(2) = 2
     $(3) = 3
-    $.contains(1) should be === false
-    $.contains(2) should be === true
-    $.contains(3) should be === true
+    $.contains(1) shouldReturn false
+    $.contains(2) shouldReturn true
+    $.contains(3) shouldReturn true
   }
 
   it should "not memory leak" in {

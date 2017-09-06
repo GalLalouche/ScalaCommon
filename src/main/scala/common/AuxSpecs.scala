@@ -42,7 +42,7 @@ trait AuxSpecs extends Matchers {
   // typesafe equality checking
   implicit class RichShould[T]($: T) {
     def shouldReturn(t: T) {
-      try $ should be === t
+      try $ should === (t)
       catch { case e: TestFailedException => throwProperDepthException(e.getMessage, 2) }
     }
   }
