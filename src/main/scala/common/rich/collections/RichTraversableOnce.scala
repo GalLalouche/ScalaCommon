@@ -3,12 +3,11 @@ package common.rich.collections
 import common.rich.RichT._
 
 import scala.math.log10
-import scalaz.Semigroup
 import scalaz.std.{AnyValInstances, ListInstances, VectorInstances}
-import scalaz.syntax.ToFunctorOps
+import scalaz.{Functor, Semigroup}
 
 object RichTraversableOnce
-    extends VectorInstances with ListInstances with AnyValInstances with ToFunctorOps {
+    extends VectorInstances with ListInstances with AnyValInstances {
   implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value) =
       $.foldLeft(Map[Key, Value]()) { (m, next) =>
@@ -22,13 +21,15 @@ object RichTraversableOnce
         val key = f(nextValue)
         if (map.contains(key))
           throw new UnsupportedOperationException(
-            s"key <$key> is already used for value <${map(key)}>, but is also requested as a key for value <$nextValue>")
+            s"key <$key> is already used for value <${map(key)}>, " +
+                s"but is also requested as a key for value <$nextValue>")
         map + (key -> nextValue)
       })
 
     /**
      * Performs a foreach iteration, running a function between each two items.
      * Can be thought of as a side-effect-full alternative to mkString.
+     *
      * @param f       the function to apply to the elements
      * @param between the function to apply between elements
      */
@@ -81,6 +82,7 @@ object RichTraversableOnce
 
     /**
      * Returns the Cartesian product of both sequences.
+     *
      * @param xs the other traversable
      */
     def *[S](xs: TraversableOnce[S]): TraversableOnce[(T, S)] = for (x <- $; y <- xs) yield (x, y)
@@ -111,8 +113,7 @@ object RichTraversableOnce
 
     def filterAndSortBy[S](f: T => S, order: Seq[S]): Seq[T] = {
       val orderMap = order.zipWithIndex.toMap
-      $.toVector
-          .fproduct(f)
+      Functor[Vector].fproduct($.toVector)(f)
           .filter(_._2 |> orderMap.contains)
           .sortBy(_._2 |> orderMap)
           .map(_._1)

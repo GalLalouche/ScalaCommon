@@ -6,14 +6,14 @@ import scalaz.syntax.ToApplicativeOps
 import scalaz.{Applicative, MonadPlus, Monoid, Traverse}
 
 trait MoreSetInstances extends SetInstances {
-  implicit object SetMonadPlus extends MonadPlus[Set] { // Kinda
+  implicit object SetMonadPlus extends MonadPlus[Set]/*Kinda*/ with Traverse[Set]
+      with ToApplicativeOps {
     override def bind[A, B](fa: Set[A])(f: A => Set[B]) = fa flatMap f
     override def point[A](a: => A) = Set(a)
     override def empty[A] = Set.empty
     override def plus[A](a: Set[A], b: => Set[A]) = a ++ b
-  }
-  // TODO handle code duplication
-  implicit object SetTraverse extends Traverse[Set] with ToApplicativeOps {
+
+    // TODO handle code duplication
     override def traverseImpl[G[_]: Applicative, A, B](fa: Set[A])(f: A => G[B]): G[Set[B]] = {
       fa.foldLeft(Applicative[G].point(fa.genericBuilder[B])) {
         (builder, element) => Applicative[G].apply2(builder, f(element))(_ += _)

@@ -1,7 +1,8 @@
 package common.rich.func
 
-import scalaz.{Applicative, MonadPlus, Traverse}
+import scala.language.higherKinds
 import scalaz.syntax.ToTraverseOps
+import scalaz.{Applicative, MonadPlus, Traverse}
 
 trait ToTraverseMonadPlusOps extends ToTraverseOps with ToMoreMonadPlusOps {
   implicit class richTraverseMonadPlusOps[F[_]: MonadPlus: Traverse, A](f: F[A]) {

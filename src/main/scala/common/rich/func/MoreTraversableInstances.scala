@@ -5,14 +5,14 @@ import scalaz.syntax.ToApplicativeOps
 import scalaz.{Applicative, MonadPlus, Monoid, Traverse}
 
 trait MoreTraversableInstances {
-  implicit object TraversableMonadPlus extends MonadPlus[Traversable] {
+  implicit object TraversableMonadPlus extends MonadPlus[Traversable] with Traverse[Traversable]
+      with ToApplicativeOps {
     override def bind[A, B](fa: Traversable[A])(f: A => Traversable[B]) = fa flatMap f
     override def point[A](a: => A) = Traversable(a)
     override def empty[A] = Traversable.empty
     override def plus[A](a: Traversable[A], b: => Traversable[A]) = a ++ b
-  }
-  // TODO handle code duplication
-  implicit object TraversableTraverse extends Traverse[Traversable] with ToApplicativeOps {
+
+    // TODO handle code duplication
     override def traverseImpl[G[_]: Applicative, A, B](fa: Traversable[A])(f: A => G[B]): G[Traversable[B]] = {
       fa.foldLeft(Applicative[G].point(fa.genericBuilder[B])) {
         (builder, element) => Applicative[G].apply2(builder, f(element))(_ += _)
