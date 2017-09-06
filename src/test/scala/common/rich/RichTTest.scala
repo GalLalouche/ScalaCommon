@@ -84,7 +84,7 @@ class RichTTest extends FreeSpec with AuxSpecs {
         class A
         class B extends A
         val b: A = new B
-        b.safeCast[B] should be === Some(b)
+        b.safeCast[B] should === (Some(b))
       }
     }
   }

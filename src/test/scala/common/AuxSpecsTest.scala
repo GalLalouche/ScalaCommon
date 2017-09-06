@@ -36,7 +36,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
     "error" in {
       val e = throws(2 + 2 shouldReturn 5)
       verifyStackDepth(e)
-      verifyMessage(e, "4 was not equal to 5")
+      verifyMessage(e, "4 did not equal 5")
     }
   }
   "shouldContain" - {
@@ -60,7 +60,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
         "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\nIt is missing Set(4).\nAnd has extra items: Set(3).")
     }
   }
-  "shouldFinish" - {
+  "shouldFinish" ignore {
     "finished in time" in {
       {
         1 + 1
