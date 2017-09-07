@@ -30,8 +30,13 @@ object RichFileUtils {
   def move(src: Directory, parentDirectory: Directory): Directory = move(src, parentDirectory, src.name)
 
   def move(src: Directory, parentDirectory: Directory, newName: String): Directory = {
-    Files.move(src.toPath, (parentDirectory \ newName).toPath)
-    parentDirectory / src.name /
+    if ((parentDirectory \ newName).exists)
+      throw new FileAlreadyExistsException(parentDirectory.path + "/" + newName)
+    val targetDir = parentDirectory.addSubDir(newName)
+    moveContents(src, targetDir)
+    assert(src.listFiles.isEmpty)
+    src.deleteAll()
+    targetDir
   }
   /**
    * Moves the contents of a directory (but not the directory itself) to another directory. This method does not perform
