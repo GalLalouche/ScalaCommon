@@ -9,10 +9,11 @@ lazy val scalaCommon = (project in file("."))
     .settings(
       name := "scalacommon",
       libraryDependencies ++= Seq(
-        "org.scalatest" %% "scalatest" % "2.2.6",
-        "org.scalaz" %% "scalaz-core" % "7.2.4",
-        "org.scalacheck" %% "scalacheck" % "1.12.1",
-        "io.reactivex" %% "rxscala" % "0.26.4"
+        "com.typesafe.slick" %% "slick" % "3.2.1",
+        "io.reactivex" %% "rxscala" % "0.26.4",
+        "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
+        "org.scalatest" %% "scalatest" % "3.0.4",
+        "org.scalaz" %% "scalaz-core" % "7.2.15"
       ))
     .settings(scalacOptions in(Compile, doc) ++= Seq(
       "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
