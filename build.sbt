@@ -1,14 +1,11 @@
-lazy val commonSettings = Seq(
-  organization := "org.me",
-  version := "1.0",
-  isSnapshot := true,
-  crossScalaVersions := Seq("2.11.11", "2.12.3")
-)
-
 lazy val scalaCommon = (project in file("."))
-    .settings(commonSettings: _*)
     .settings(
+      organization := "org.me",
+      version := "1.0",
+      isSnapshot := true,
       name := "scalacommon",
+      scalaVersion := "2.11.11", // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
+      crossScalaVersions := Seq("2.11.11", "2.12.3"),
       libraryDependencies ++= Seq(
         "com.typesafe.slick" %% "slick" % "3.2.1",
         "io.reactivex" %% "rxscala" % "0.26.4",
