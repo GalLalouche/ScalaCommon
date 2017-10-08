@@ -3,8 +3,10 @@ package common.os
 import java.io.File
 
 import common.rich.RichAll._
+import common.rich.path.Directory
 
 import scala.sys.process.Process
+import scala.sys.process._
 
 object RichWindows extends RichOs {
   override def getAssociation(file: File): String = {
@@ -39,5 +41,8 @@ object RichWindows extends RichOs {
   }
   override def kill(pid: Int) {
     Runtime.getRuntime.exec("taskkill /F /PID " + pid)
+  }
+  override def unzip(file: File, dir: Directory): Unit = {
+    Seq("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.path).!!
   }
 }

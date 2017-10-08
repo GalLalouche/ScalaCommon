@@ -4,3 +4,4 @@ target/**
 project/**
 *.jar
 .idea/**
+sbt.sh

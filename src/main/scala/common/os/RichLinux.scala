@@ -2,6 +2,8 @@ package common.os
 
 import java.io.File
 
+import common.rich.path.Directory
+
 import scala.sys.process.Process
 
 object RichLinux extends RichOs {
@@ -43,4 +45,5 @@ object RichLinux extends RichOs {
   }
   
   override def kill(pid: Int) { Process("kill " + pid) }
+  override def unzip(file: File, dir: Directory): Unit = ???
 }
