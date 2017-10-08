@@ -96,11 +96,16 @@ object RichTraversableOnce
     }
 
     def join[S](other: TraversableOnce[S]) = new {
-      def where(predicate: (T, S) => Boolean): Seq[(T, S)] =
-        (for (i <- $; j <- other; if predicate(i, j)) yield (i, j)).toVector
-      def by[U](ft: T => U, fs: S => U): Seq[(T, S)] = by(ft, fs, (x, y) => (x, y))
-      def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): Seq[W] =
-        where((t, s) => ft(t) == fs(s)).map(e => builder(e._1, e._2))
+      def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
+        for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
+
+      def by[U](ft: T => U, fs: S => U): TraversableOnce[(T, S)] = by(ft, fs, (x, y) => (x, y))
+
+      def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): TraversableOnce[W] = {
+        val tMap = $.map(e => ft(e) -> e).toMap
+        val sMap = other.map(e => fs(e) -> e).toMap
+        tMap.keys.filter(sMap.contains).map(k => builder(tMap(k), sMap(k)))
+      }
     }
 
     def single: T = {

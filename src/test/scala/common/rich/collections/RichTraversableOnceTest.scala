@@ -16,8 +16,8 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   }
 
   "joinWhere" should "return an empty traversable if one of the traversables is empty" in {
-    List(1, 2, 3).join(List[String]()).where((e, f) => true) shouldBe Traversable()
-    List().join(List[String]("1", "2", "3")).where((e, f) => true) shouldBe Traversable()
+    List(1, 2, 3).join(List[String]()).where((e, f) => true).toList shouldBe 'empty
+    List().join(List[String]("1", "2", "3")).where((e, f) => true).toList shouldBe 'empty
   }
 
   it should "return a cartesian product if the 'where' function is true" in {
@@ -35,7 +35,7 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   private case class PersonWithGrade(name: String, id: Long, grade: Int)
 
   "joinBy" should "join two items whose extractor returns the same value" in {
-    List(Person("gal", 1), Person("noam", 2)) join List(Grade(1, 100), Grade(2, 0)) by(_.id, _.id) shouldBe
+    List(Person("gal", 1), Person("noam", 2)).join(List(Grade(1, 100), Grade(2, 0))).by(_.id, _.id).toList shouldBe
         List((Person("gal", 1), Grade(1, 100)), (Person("noam", 2), Grade(2, 0)))
   }
 
