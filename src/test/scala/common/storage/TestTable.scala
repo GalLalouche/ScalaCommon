@@ -5,12 +5,9 @@ import slick.jdbc.H2Profile
 
 import scala.concurrent.ExecutionContext
 
-private class TestTable(implicit ec: ExecutionContext) extends SlickStorageTemplate[Int, String] {
-  override protected val profile = H2Profile
+private class TestTable(implicit ec: ExecutionContext) extends SlickStorageTemplate[Int, String] with StorageSpecs {
   import profile.api._
 
-  override implicit lazy val db: profile.backend.DatabaseDef = profile.api.Database.forURL(
-    s"jdbc:h2:mem:test${System.identityHashCode(this)};DB_CLOSE_DELAY=-1", driver="org.h2.Driver")
   override protected type Id = Int
   override protected implicit def btt: BaseTypedType[Int] = ScalaBaseType.intType
   override protected type Entity = (Int, String)
