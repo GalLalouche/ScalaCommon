@@ -91,7 +91,7 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
 	property("euler's totient function should return the number of coprimes integers") {
 		forAll(Gen.choose(1, 100000)) { n: Int =>
 			val actual = n.eulersTotient
-			val expected = (1 to n).map(RichInt.gcd(_, n)).filter(_ == 1).size
+			val expected = (1 to n).map(RichInt.gcd(_, n)).count(_ == 1)
 			actual shouldReturn expected
 		}
 	}

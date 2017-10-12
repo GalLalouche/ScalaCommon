@@ -47,7 +47,7 @@ object RichTraversableOnce
       aggregateMap(toKey, toValue(_) :: Nil)
 
     /** The number of occurrences of each element */
-    def frequencies: Map[T, Int] = aggregateMap(e => e, e => 1)
+    def frequencies: Map[T, Int] = aggregateMap(e => e, 1.const)
 
     /** The entropy value of this traversable */
     def entropy: Double = {

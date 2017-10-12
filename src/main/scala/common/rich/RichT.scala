@@ -31,6 +31,7 @@ object RichT {
     // This is used instead of a local class for performance.
     class __mapper private[RichT](e: T, p: T => Boolean) {
       def to(f: T => T): T = if (p(e)) f(e) else e
+      def to(t: => T): T = if (p(e)) t else e
     }
 
     /** Returns this if the condition is true; if not, returns the default value */

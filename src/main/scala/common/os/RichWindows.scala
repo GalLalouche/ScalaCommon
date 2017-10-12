@@ -13,7 +13,7 @@ object RichWindows extends RichOs {
     val extension = file.extension
     val assoc = Process("cmd /c assoc ." + extension).!!.split("=")(1)
     val macroedPath = Process("cmd /c ftype " + assoc).!!.split("=")(1).trim.captureWith( """.*?"?([^"]+)"?.*""".r)
-    val actualPath: String = macroedPath.substring(0, macroedPath.indexOf("%1").mapIf(_ < 0).to(e => macroedPath.length + 1) - 1)
+    val actualPath: String = macroedPath.substring(0, macroedPath.indexOf("%1").mapIf(_ < 0).to(macroedPath.length + 1) - 1)
     Process("cmd /c dir \"" + actualPath + "\"").!!
       .split("\r?\n")
       .map(_.trim)

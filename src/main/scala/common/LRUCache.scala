@@ -1,6 +1,6 @@
 package common
 
-/** 
+/**
  * An mutable LRU Cache implementation
  * @param maxSize the maximum size of the cache.
  */
@@ -8,12 +8,12 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
   require(maxSize > 0)
   private val keyToIndex = collection.mutable.LinkedHashMap[K, V]()
 
-  private def verifyConsistency() {
+  private def verifyConsistency: Unit = {
     assert(keyToIndex.size == size)
     assert(keyToIndex.size <= maxSize, s"size was ${keyToIndex.size} when maxSize is $maxSize")
   }
 
-  private def checkMemory() {
+  private def checkMemory: Unit = {
     if (keyToIndex.size > maxSize)
       this -= keyToIndex.head._1
     verifyConsistency
@@ -34,9 +34,9 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
 
   override def contains(key: K) = {
     if (keyToIndex contains key) {
-      val value = this(key)
+      val value = this (key)
       this -= key
-      this(key) = value
+      this (key) = value
       true
     } else
       false

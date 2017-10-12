@@ -48,7 +48,7 @@ class StorageTemplateTest extends FreeSpec with OneInstancePerTest with AuxSpecs
   }
   "mapStore" - {
     "has no existing value uses default" in {
-      $.mapStore(1, e => ???, 2).get shouldReturn None
+      $.mapStore(1, _ => ???, 2).get shouldReturn None
       existingValues(1) shouldReturn 2
     }
     "maps existing value if present" in {

@@ -33,7 +33,7 @@ trait AuxSpecs extends Matchers {
       val actualSet = $.toSet
       val extra = actualSet \ otherSet
       val missing = otherSet \ actualSet
-      if (extra ++ missing nonEmpty)
+      if (extra.++(missing).nonEmpty)
         throwProperDepthException(
           s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.", 2)
     }
@@ -68,7 +68,7 @@ trait AuxSpecs extends Matchers {
       t.get(2 * maxTime.toMillis, TimeUnit.MILLISECONDS)
       Some(System.currentTimeMillis - start).map(Duration(_, TimeUnit.MILLISECONDS))
     } catch {
-      case e: TimeoutException => None
+      case _: TimeoutException => None
     } finally t.cancel(true)
   }
 

@@ -87,7 +87,7 @@ object Directory {
   /** Creates all directories along the path as needed */
   def makeDir(f: File): Directory = {
     if (false == (f.exists && f.isDirectory))
-      require(f mkdirs, "Could not create directories path " + f)
+      require(f.mkdirs(), "Could not create directories path " + f)
     Directory(f)
   }
 
