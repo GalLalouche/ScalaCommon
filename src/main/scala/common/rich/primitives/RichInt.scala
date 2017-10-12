@@ -19,7 +19,7 @@ object RichInt {
         case (0, _) => 1
         case (_, 0) => 1
         case (x, 1) => x
-        case (x, y) if (x == y) => 1
+        case (x, y) if x == y => 1
         case (x, y) => factorial / (new Rich(y).factorial * new Rich(x - y).factorial)
       }
       if (k > n / 2)
@@ -58,8 +58,7 @@ object RichInt {
     def exp(other: Int): BigInt = {
       require(n != 0 || other != 0)
       var $ = BigInt(1)
-      for (i <- 1 to other)
-        $ *= n
+      (1 to other).foreach(_ => $ *= n)
       $
     }
   }

@@ -11,8 +11,8 @@ class LazyMapTests extends FreeSpec with AuxSpecs with OneInstancePerTest {
 
 	"applications" - {
 		val f = new Function[Int, Int] {
-			var count = 0;
-			override def apply(v1: Int): Int = {
+			var count = 0
+      override def apply(v1: Int): Int = {
 				count += 1
 				v1 * 2
 			}

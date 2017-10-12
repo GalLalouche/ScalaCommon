@@ -7,14 +7,14 @@ class BackupFileTest extends FlatSpec with Matchers with DirectorySpecs with One
   val f = tempFile.appendLine("Foobar")
   val backup = f.backup
   "restore" should "override any changes" in {
-    f.clear.appendLine("Barfoo")
+    f.clear().appendLine("Barfoo")
     f.readAll shouldBe "Barfoo"
     backup.restore()
     f.readAll shouldBe "Foobar"
   }
 
   it should "work with cleared files" in {
-    f.clear
+    f.clear()
     backup.restore()
     f.readAll shouldBe "Foobar"
   }

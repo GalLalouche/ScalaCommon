@@ -31,10 +31,9 @@ class RichSeq[T]($: Seq[T]) {
 		@tailrec
 		def aux(n: Int, v: Vector[T], result: List[T]): Seq[T] = n match {
 			case 0 => result
-			case i => {
+			case _ =>
 				val swapped = swap(v, 0, random.nextInt(v.size))
 				aux(n - 1, swapped drop 1, swapped.head :: result)
-			}
 		}
 		aux(n, $.toVector, Nil)
 	}
