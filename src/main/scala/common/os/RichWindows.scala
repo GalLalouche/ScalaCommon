@@ -4,6 +4,9 @@ import java.io.File
 import common.rich.path.Directory
 
 import scala.sys.process.Process
+import common.rich.primitives.RichString._
+import common.rich.path.RichFile._
+import common.rich.RichT._
 import scala.sys.process._
 
 object RichWindows extends RichOs {

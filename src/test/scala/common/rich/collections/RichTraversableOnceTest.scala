@@ -2,6 +2,7 @@ package common.rich.collections
 
 import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
+import common.rich.RichT._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
@@ -16,8 +17,8 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
   }
 
   "joinWhere" should "return an empty traversable if one of the traversables is empty" in {
-    List(1, 2, 3).join(List[String]()).where((_, _) => true).toList shouldBe 'empty
-    List().join(List[String]("1", "2", "3")).where((_, _) => true).toList shouldBe 'empty
+    List(1, 2, 3).join(List[String]()).where(true.const2).toList shouldBe 'empty
+    List().join(List[String]("1", "2", "3")).where(true.const2).toList shouldBe 'empty
   }
 
   it should "return a cartesian product if the 'where' function is true" in {
