@@ -29,7 +29,7 @@ object RichIterator {
 		}
 	}
 
-	implicit class Rich[T]($: Iterator[T]) {
+	implicit class richIterator[T]($: Iterator[T]) {
 		/** Returns an iterator that throws an exception on the first item that does not satisfy f */
 		def verify(f: T ⇒ Boolean,
 							 exceptionMessage: (T, Int) ⇒ String = (e, i) ⇒ s"Item $e @ $i failed f"): Iterator[T] =
@@ -48,7 +48,7 @@ object RichIterator {
 			* If the None, nothing will be printed.
 			* Otherwise, f(e) will be printed, where e is the current element being processed.
 			*/
-		def withCounter(f: Int => Option[String]) = new Iterator[T] {
+		def withCounter(f: Int => Option[String]): Iterator[T] = new Iterator[T] {
 			private var i = 0
 			override def hasNext = {
 				if ($.hasNext)
@@ -71,7 +71,7 @@ object RichIterator {
 			* Returns an iterator that outputs to the console its progress in percentages
 			* @param size the total number of elements in the iterator
 			*/
-		def withPercentage(size: Int) = {
+		def withPercentage(size: Int): Iterator[T] = {
 			var lastPercentage = 0
 			withCounter(i => {
 				val currentPercentage = i * 100 / size

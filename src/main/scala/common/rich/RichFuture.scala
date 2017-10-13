@@ -11,7 +11,7 @@ object RichFuture {
   implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
     // gives better error message when the filter fails
     def filterWith(p: T => Boolean, message: String): Future[T] = filterWithMessage(p, _ => message)
-    def filterWithStacktrace(p: T => Boolean, message: String = "Failed filter") = {
+    def filterWithStacktrace(p: T => Boolean, message: String = "Failed filter"): Future[T] = {
       val ex = new FilteredException(message)
       ex.setStackTrace(ex.getStackTrace drop 1)
       $.flatMap(e => if (p(e)) $ else Future failed ex)

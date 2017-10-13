@@ -1,14 +1,8 @@
 package common.rich.collections
 
-import scala.reflect.ClassTag
-
 object RichArray {
-  implicit def richArray[T]($: Array[Array[T]]) = new {
+  implicit class richNestedArray[T]($: Array[Array[T]]) {
     def deepSeq: Seq[Seq[T]] = $.toSeq.map(_.toSeq)
-    def apply(e: (Int, Int)) = $(e._1)(e._2)
-  }
-  implicit def richSeqArray[T]($: Seq[Seq[T]])(implicit m: ClassTag[T]) = new {
-    def deepArray: Array[Array[T]] = $.map(_.toArray).toArray
-    def apply(e: (Int, Int)) = $(e._1)(e._2)
+    def apply(e: (Int, Int)): T = $(e._1)(e._2)
   }
 }

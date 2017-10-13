@@ -9,8 +9,8 @@ import scalaz.{Functor, Semigroup}
 object RichTraversableOnce
     extends VectorInstances with ListInstances with AnyValInstances {
   implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
-    def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value) =
-      $.foldLeft(Map[Key, Value]()) { (m, next) =>
+    def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value): Map[Key, Value] =
+      $.foldLeft(Map[Key, Value]()) {(m, next) =>
         val key = toKey(next)
         val value = toValue(next)
         m + (key -> m.get(key).map(Semigroup[Value].append(_, value)).getOrElse(value))
@@ -76,7 +76,7 @@ object RichTraversableOnce
 
     /** Finds the percentage of elements satisfying the predicate */
     def percentageSatisfying(p: T => Boolean): Double = {
-      val (total, satisfy) = $.foldLeft((0, 0)) { (agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0)) }
+      val (total, satisfy) = $.foldLeft((0, 0)) {(agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0))}
       satisfy.toDouble / total
     }
 
@@ -89,13 +89,13 @@ object RichTraversableOnce
 
     /** Selects a representative from each equivalence set */
     def selectRepresentative[U](f: T => U): TraversableOnce[T] = {
-      implicit val semigroupFirst = new Semigroup[T] {
+      implicit val semigroupFirst: Semigroup[T] = new Semigroup[T] {
         override def append(f1: T, f2: => T): T = f1
       }
       aggregateMap(f, e => e).values
     }
 
-    def join[S](other: TraversableOnce[S]) = new {
+    class _joiner[S](other: TraversableOnce[S]) {
       def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
         for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
 
@@ -107,6 +107,8 @@ object RichTraversableOnce
         tMap.keys.filter(sMap.contains).map(k => builder(tMap(k), sMap(k)))
       }
     }
+
+    def join[S](other: TraversableOnce[S]) = new _joiner(other)
 
     def single: T = {
       val i = $.toIterator

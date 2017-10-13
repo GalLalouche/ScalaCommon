@@ -39,5 +39,4 @@ object RichString {
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
     def capitalize: String = $.head.toUpper + $.tail.toLowerCase
   }
-
 }
