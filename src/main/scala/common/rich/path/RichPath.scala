@@ -10,8 +10,8 @@ import scala.language.implicitConversions
 abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
   require(f.getAbsoluteFile.exists, f.getAbsolutePath + " doesn't exist")
 
-  val path = f.getCanonicalPath.replaceAll("\\\\", "/")
-  val name = f.getName // including its extension
+  val path: String = f.getCanonicalPath.replaceAll("\\\\", "/")
+  val name: String = f.getName // including its extension
 
   def /(s: String): RichPath[_] = {
     val f = new File(path + "/" + s)

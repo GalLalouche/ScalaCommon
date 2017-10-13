@@ -17,7 +17,7 @@ object RichT {
      * Logs the given string to console and returns this.
      * @param f An optional stringifier to use; by default, .toString is used
      */
-    def log(f: T => Any = x => x.toString): T = applyAndReturn { e => println(f(e)) }
+    def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
     /** Converts this into an Option; this also works for null, beautifully enough :D */
     def opt = Option($)
     /** When you really want a fluent API. */
@@ -54,7 +54,7 @@ object RichT {
     }
 
     /** the simple class name, without $ and stuff */
-    def simpleName = $.getClass.getSimpleName.replaceAll("\\$", "")
+    def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
 
     /** If this is of type C, returns Some(T), else None */
     def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {
@@ -64,10 +64,12 @@ object RichT {
       val referenceClass = primitiveMappings.getOrElse(rtc, rtc)
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
+
+    def toTuple[A, B](f: T => A, g: T => B): (A, B) = f($) -> g($)
   }
 
   implicit class lazyT[T]($: => T) {
     def const[S]: S => T = _ => $
-    def partialConst[S]: PartialFunction[S, T] = { case _ => $ }
+    def partialConst[S]: PartialFunction[S, T] = {case _ => $}
   }
 }

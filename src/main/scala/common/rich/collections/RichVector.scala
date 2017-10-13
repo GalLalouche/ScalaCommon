@@ -22,9 +22,9 @@ object RichVector {
     def -(other: Vektor): Vektor = operatorMap(other, _ - _)
 
     /**
-      * Calculates the vector that is the difference between this vector and its projection on another vector.
-      * The resulting vector is orthogonal to the other vector.
-      */
+     * Calculates the vector that is the difference between this vector and its projection on another vector.
+     * The resulting vector is orthogonal to the other vector.
+     */
     def antiVector(other: Vektor): Vektor = this.-(projectionOn(other))
 
     /** The unit vector, i.e., same direction, but has magnitude of 1.0 */

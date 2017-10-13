@@ -3,7 +3,7 @@ package common.rich.primitives
 import scala.util.{Failure, Success, Try}
 
 object RichOption {
-  implicit class Rich[T]($: Option[T]) {
+  implicit class richOption[T]($: Option[T]) {
     // throws a better detailed exception when trying to access None
     def getOrThrow(errorMessage: String): T = getOrThrow(new NoSuchElementException(errorMessage))
     def getOrThrow(t: => Throwable): T = toTry(t).get

@@ -17,6 +17,6 @@ object RichMap {
   implicit class richPlusMap[K, V[_] : Plus, A]($: Map[K, V[A]]) {
     private val asSemigroup = richSemigroupMap($)(Plus[V].semigroup)
     def merge(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup merge other
-    def mergeIntersecting(other: Map[K, V[A]]) = asSemigroup mergeIntersecting other
+    def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup mergeIntersecting other
   }
 }

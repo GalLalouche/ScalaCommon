@@ -1,13 +1,14 @@
 package common.rich.path
 
 import java.io._
-import java.nio.channels.FileChannel
-import java.nio.file.{FileAlreadyExistsException, Files}
+import java.nio.file.Files
 
 import common.rich.RichT._
 
 import scala.io.Source
+import scala.language.implicitConversions
 
+// Not an implicit class since it is returned from some methods and it would be annoying if it was nested.
 class RichFile(f: File) extends RichPath[RichFile](f) {
   // this is required - if a RichFile is created for a file that is a directory, it is considered a programming bug
   // Why is this commented out??

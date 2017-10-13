@@ -1,8 +1,6 @@
 package common.os
 
 import java.io.File
-
-import common.rich.RichAll._
 import common.rich.path.Directory
 
 import scala.sys.process.Process

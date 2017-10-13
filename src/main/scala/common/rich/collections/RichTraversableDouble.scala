@@ -61,5 +61,5 @@ object RichTraversableDouble {
     }
   }
 
-  implicit def richInt($: Traversable[Int]): richTraversableDouble = new richTraversableDouble($ map (_.toDouble))
+  implicit class richInt($: Traversable[Int]) extends richTraversableDouble($.map(_.toDouble))
 }
