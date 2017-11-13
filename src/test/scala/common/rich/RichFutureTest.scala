@@ -12,7 +12,8 @@ import scala.util.Try
 
 class RichFutureTest extends FreeSpec with AuxSpecs {
   val success: Future[Int] = Future successful 1
-  val failure: Future[Int] = Future failed new FilteredException("Derp")
+  val exception = new Exception("Derp")
+  val failure: Future[Int] = Future failed exception
   def shouldFail(f: Future[Any]) = {
     Await.ready(f, Duration.Inf)
     val t = f.value.get
@@ -33,7 +34,6 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
           throw new Exception()
         }
         an[Exception] should be thrownBy f.get
-
       }
     }
     "get exception" - {
@@ -42,11 +42,9 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         an[UnsupportedOperationException] should be thrownBy f.getFailure
       }
       "when failure should return the error" in {
-        val exception = new IndexOutOfBoundsException("Foobar")
-        val f = Future[Int]{throw exception}
-        val failure = f.getFailure
-        failure.getClass.asInstanceOf[Class[Any]] shouldReturn exception.getClass.asInstanceOf[Class[Any]]
-        failure.getMessage shouldReturn exception.getMessage
+        val f = failure
+        val e = f.getFailure
+        e shouldReturn exception
       }
     }
     "filterWith" - {
@@ -104,6 +102,20 @@ class RichFutureTest extends FreeSpec with AuxSpecs {
         val list = new ListBuffer[Int]
         val value = success.consume(list.+=).get
         list shouldReturn ListBuffer(value)
+      }
+    }
+    "consumeTry" - {
+      "success" in {
+        var succeeded = false
+        val value = success.consumeTry(e => succeeded = e.isSuccess).get
+        value shouldReturn 1
+        succeeded shouldReturn true
+      }
+      "failure" in {
+        var succeeded = true
+        val value = failure.consumeTry(e => succeeded = e.isSuccess).getFailure
+        value shouldReturn exception
+        succeeded shouldReturn false
       }
     }
   }

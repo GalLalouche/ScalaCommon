@@ -3,8 +3,8 @@ package common.rich
 import common.rich.RichT._
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success, Try}
 
 object RichFuture {
   class FilteredException(reason: String) extends Exception(reason)
@@ -33,9 +33,19 @@ object RichFuture {
       }
     }
     def consume(c: T => Any): Future[T] = $.map(e => {c(e); e})
+    def consumeTry(c: Try[T] => Any): Future[T] = toTry consume c flatMap {
+      case Success(t) => Future.successful(t)
+      case Failure(e) => Future.failed(e)
+    }
+    def toTry: Future[Try[T]] = {
+      val p = Promise[Try[T]]()
+      $ onComplete p.success
+      p.future
+    }
     // like recover, but doesn't care about the failure
     def orElse(t: => T): Future[T] = $.recover { case _ => t }
     // implicits suck with overloads it seems
+    /** Unlike fallbackTo, the future here is lazily evaluated. */
     def orElseTry(t: => Future[T]): Future[T] = $.recoverWith { case _ => t }
   }
   implicit class richOptionFuture[T]($: Future[Option[T]])(implicit ec: ExecutionContext) {
