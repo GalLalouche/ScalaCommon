@@ -95,7 +95,7 @@ object RichSeq {
         require(index >= 0)
         if ($.size < index)
           throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-        else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += e) ++ xs._2)
+        else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
       }
       def after(index: Int): Seq[T] = at(index + 1)
       def before(index: Int): Seq[T] = at(index - 1)
