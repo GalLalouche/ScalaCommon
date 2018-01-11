@@ -17,7 +17,7 @@ class RichTraversableOnceTest extends FlatSpec with Matchers with AuxSpecs {
 
   "joinWhere" should "return an empty traversable if one of the traversables is empty" in {
     List(1, 2, 3).join(List[String]()).where((_, _) => true).toList shouldBe 'empty
-    List().join(List[String]("1", "2", "3")).where((_, _) => true).toList shouldBe 'empty
+    List[Int]().join(List[String]("1", "2", "3")).where((_, _) => true).toList shouldBe 'empty
   }
 
   it should "return a cartesian product if the 'where' function is true" in {
