@@ -1,27 +1,15 @@
 package common.rich
 
-import common.rich.RichT._
+import common.rich.func.ToMoreFunctorOps
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
+import scalaz.std.FutureInstances
 
 object RichFuture {
-  class FilteredException(reason: String) extends Exception(reason)
-  implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
-    // gives better error message when the filter fails
-    def filterWith(p: T => Boolean, message: String): Future[T] = filterWithMessage(p, _ => message)
-    def filterWithStacktrace(p: T => Boolean, message: String = "Failed filter"): Future[T] = {
-      val ex = new FilteredException(message)
-      ex.setStackTrace(ex.getStackTrace drop 1)
-      $.flatMap(e => if (p(e)) $ else Future failed ex)
-    }
-    // implicits suck with overloads it seems
-    def filterWithMessage(p: T => Boolean, message: T => String): Future[T] = $.flatMap(e =>
-      if (p(e))
-        $
-      else
-        Future failed new FilteredException(message(e)))
+  implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext)
+      extends ToMoreFunctorOps with FutureInstances {
     def get: T = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)
@@ -29,11 +17,12 @@ object RichFuture {
       try {
         triedT.failed.get
       } catch {
-        case _: UnsupportedOperationException => throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
+        case _: UnsupportedOperationException =>
+          throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
       }
     }
-    def consume(c: T => Any): Future[T] = $.map(e => {c(e); e})
-    def consumeTry(c: Try[T] => Any): Future[T] = toTry consume c flatMap {
+
+    def consumeTry(c: Try[T] => Any): Future[T] = toTry listen c flatMap {
       case Success(t) => Future.successful(t)
       case Failure(e) => Future.failed(e)
     }
@@ -41,19 +30,6 @@ object RichFuture {
       val p = Promise[Try[T]]()
       $ onComplete p.success
       p.future
-    }
-    // like recover, but doesn't care about the failure
-    def orElse(t: => T): Future[T] = $.recover { case _ => t }
-    // implicits suck with overloads it seems
-    /** Unlike fallbackTo, the future here is lazily evaluated. */
-    def orElseTry(t: => Future[T]): Future[T] = $.recoverWith { case _ => t }
-  }
-  implicit class richOptionFuture[T]($: Future[Option[T]])(implicit ec: ExecutionContext) {
-    def ifNone(t: => T): Future[T] = $.map(_ getOrElse t)
-    def ifNoneTry(t: => Future[T]): Future[T] = $.flatMap(_ map Future.successful getOrElse t)
-    def filterFuture(p: T => Future[Boolean]): Future[Option[T]] = $.flatMap {
-      case None => Future successful None
-      case o@Some(e) => p(e).map(_.const |> o.filter)
     }
   }
 }
