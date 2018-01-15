@@ -2,10 +2,10 @@ package common.rich.func
 
 import scala.language.higherKinds
 import scalaz.syntax.ToFoldableOps
-import scalaz.{Foldable, PlusEmpty}
+import scalaz.{Foldable, MonadError, PlusEmpty}
 
 trait ToMoreFoldableOps extends ToFoldableOps {
-  implicit class richFoldable[A, F[_] : Foldable]($: F[A]) {
+  implicit class richFoldable[A, F[_] : Foldable]($: F[A]) extends ToMoreMonadErrorOps {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
       var list: List[A] = Nil
@@ -15,7 +15,10 @@ trait ToMoreFoldableOps extends ToFoldableOps {
     }
     def printPerLine(): F[A] = doForEach(println)
     // Why isn't this in the scalaz library? Who knows
-    def foldMapPE[M[_]: PlusEmpty, B](f: A => M[B]): M[B] = Foldable[F].foldMap($)(f)(PlusEmpty[M].monoid)
+    def foldMapPE[M[_] : PlusEmpty, B](f: A => M[B]): M[B] =
+      Foldable[F].foldMap($)(f)(PlusEmpty[M].monoid)
+    def foldLeftME[M[_], B, S](f: A => M[B], b: M[B])(implicit ev: MonadError[M, S]): M[B] =
+      Foldable[F].foldLeft($, b)(_ orElseTry f(_))
   }
 }
 
