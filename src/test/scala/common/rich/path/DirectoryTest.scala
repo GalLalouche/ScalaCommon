@@ -4,9 +4,8 @@ import java.io.File
 import java.nio.file.FileAlreadyExistsException
 
 import common.DirectorySpecs
-import RichFile._
-import common.rich.collections.RichTraversableOnce._
-import RichPath.poorPath
+import common.rich.path.RichFile._
+import common.rich.path.RichPath.poorPath
 import org.scalatest.{BeforeAndAfter, FreeSpec, OneInstancePerTest}
 
 class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest with BeforeAndAfter {
@@ -15,11 +14,15 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
   "Ctor should" - {
     "throw exception" - {
       "if file does not exist" in {
-        an[IllegalArgumentException] should be thrownBy {Directory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")}
+        an[IllegalArgumentException] should be thrownBy {
+          Directory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")
+        }
       }
       "if file isn't a directory" in {
         val f = tempDir.addFile("file")
-        an[IllegalArgumentException] should be thrownBy {Directory(f)}
+        an[IllegalArgumentException] should be thrownBy {
+          Directory(f)
+        }
       }
     }
   }
@@ -117,7 +120,9 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
         c.parent.parent.parent === tempDir
       }
       "throw exception on root" in {
-        an[UnsupportedOperationException] should be thrownBy {File.listRoots()(0).parent}
+        an[UnsupportedOperationException] should be thrownBy {
+          File.listRoots()(0).parent
+        }
       }
     }
     "Clone dir" - {
@@ -126,56 +131,27 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
         val c = subDir.cloneDir()
         c should not be tempDir
       }
-      "add files" in {
-        subDir addFile "foo"
-        val c = subDir.cloneDir()
-        c.files.map(_.name) shouldReturn Seq("foo")
-      }
-      "add subdirs" in {
-        subDir addSubDir "foo"
-        val c = subDir.cloneDir()
-        c.dirs.map(_.name) shouldReturn Seq("foo")
-      }
-      "add recursive files and dirs" in {
-        subDir addSubDir "foo" addFile "bar"
-        val c = subDir.cloneDir()
-        (c / "foo" / "bar").f should exist
-      }
-      "overwrite existing directory" in {
+      "overwrites existing directory" in {
         subDir.cloneDir() addFile "foo"
         subDir.cloneDir().files shouldBe empty
       }
+      "clones" in {
+        assertSameContents(filledDir, filledDir.cloneDir())
+      }
     }
     "copyTo" - {
-      // TODO merge with cloneDir tests
-      // TODO figure a way to remove duplication with RichFileUtilsTests
-      val srcDir: Directory = TempDirectory()
-      srcDir.addFile("foo.txt").write("some stuff")
-      srcDir.addSubDir("bar").addFile("bar.txt").write("some other stuff")
-
-      def verifyStructure(d: Directory): Unit = {
-        d.exists shouldReturn true
-        val movedFooTxtFile = d.files.single
-        movedFooTxtFile.name shouldReturn "foo.txt"
-        movedFooTxtFile.readAll shouldReturn "some stuff"
-        val movedBarDir = d.dirs.single
-        movedBarDir.name shouldReturn "bar"
-        val movedBarTxtFile = movedBarDir.files.single
-        movedBarTxtFile.name shouldReturn "bar.txt"
-        movedBarTxtFile.readAll shouldReturn "some other stuff"
-      }
-
       "throws an exception when a file already exists" in {
-        val newDir = TempDirectory()
-        a[FileAlreadyExistsException] should be thrownBy newDir.copyTo(srcDir.parent, srcDir.name)
-        verifyStructure(srcDir)
+        val originalDir = filledDir.cloneDir() // ensures the old dir wasn't deleted
+        a[FileAlreadyExistsException] should be thrownBy filledDir.copyTo(filledDir.parent, filledDir.name)
+        assertSameContents(filledDir, originalDir)
       }
 
       "copy the entire directory" in {
-        val dstDir = tempDir.addSubDir("moo").addSubDir("oom")
-        val newDir = srcDir.copyTo(dstDir)
+        val dstDir = tempDir addSubDir "moo" addSubDir "oom"
+        val newDir = filledDir copyTo dstDir
         newDir.parent shouldReturn dstDir
-        verifyStructure(newDir)
+        newDir.name shouldReturn filledDir.name
+        assertSameContents(newDir, filledDir)
       }
     }
   }

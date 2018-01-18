@@ -3,8 +3,7 @@ package common.rich.path
 import java.nio.file.FileAlreadyExistsException
 
 import common.DirectorySpecs
-import common.rich.collections.RichTraversableOnce._
-import RichFile._
+import common.rich.path.RichFile._
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
 class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
@@ -58,55 +57,47 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
     }
   }
   "directory movers" - {
-    val srcDir: Directory = TempDirectory()
-    val dirName = srcDir.name
-    srcDir.addFile("foo.txt").write("some stuff")
-    srcDir.addSubDir("bar").addFile("bar.txt").write("some other stuff")
-
-    def verifyStructure(d: Directory): Unit = {
-      d.exists shouldReturn true
-      val movedFooTxtFile = d.files.single
-      movedFooTxtFile.name shouldReturn "foo.txt"
-      movedFooTxtFile.readAll shouldReturn "some stuff"
-      val movedBarDir = d.dirs.single
-      movedBarDir.name shouldReturn "bar"
-      val movedBarTxtFile = movedBarDir.files.single
-      movedBarTxtFile.name shouldReturn "bar.txt"
-      movedBarTxtFile.readAll shouldReturn "some other stuff"
+    def assertEmptyDir(d: Directory) = {
+      d.dirs shouldBe 'empty
+      d.files shouldBe 'empty
     }
-
+    val targetDir = dir2
+    val originalCopy = filledDir.cloneDir()
+    val originalName = filledDir.name
     "move directory" - {
       "happy path" in {
-        val parentDir: Directory = TempDirectory()
-        RichFileUtils.move(srcDir, parentDir)
-        srcDir.exists shouldReturn false
-        verifyStructure(parentDir / dirName /)
+        val movedDir = RichFileUtils.move(filledDir, targetDir)
+        movedDir.parent shouldReturn targetDir
+        assert(movedDir.name == originalName)
+        filledDir.exists shouldReturn false
+        assertSameContents(originalCopy, movedDir)
       }
       "Existing directory with same name throws" in {
-        dir2.addSubDir(srcDir.name)
-        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(srcDir, dir2)
-        verifyStructure(srcDir)
+        targetDir addSubDir filledDir.name
+        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(filledDir, targetDir)
+        assertSameContents(filledDir, originalCopy)
       }
       "Can rename directory" in {
-        dir2.addSubDir(srcDir.name)
-        val newName = srcDir.name + "foo"
-        RichFileUtils.move(srcDir, dir2, newName)
-        verifyStructure(dir2 / newName /)
+        targetDir.addSubDir(filledDir.name)
+        val newName = filledDir.name + "foo"
+        val movedDir = RichFileUtils.move(filledDir, targetDir, newName)
+        filledDir.exists shouldReturn false
+        movedDir.name shouldReturn newName
+        assertSameContents(originalCopy, movedDir)
       }
     }
     "move directory's contents" - {
       "happy path" in {
-        RichFileUtils.moveContents(srcDir, dir2)
-        verifyStructure(dir2)
+        RichFileUtils.moveContents(filledDir, targetDir)
+        assertEmptyDir(filledDir)
+        assertSameContents(originalCopy, targetDir)
       }
       "a file already exists with name" in {
-        dir2.addFile("foo.txt").write("blah blah")
-        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.moveContents(srcDir, dir2)
-        verifyStructure(srcDir)
-        dir2.dirs shouldBe 'empty
-        val preExistingFile = dir2.files.single
-        preExistingFile.name shouldReturn "foo.txt"
-        preExistingFile.readAll shouldReturn "blah blah"
+        val sameFile = targetDir.addFile(filledDir.files.head.name)
+        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.moveContents(filledDir, targetDir)
+        assertSameContents(originalCopy, filledDir)
+        assert(sameFile.delete())
+        assertEmptyDir(targetDir)
       }
     }
   }
