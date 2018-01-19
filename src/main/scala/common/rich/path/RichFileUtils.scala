@@ -38,6 +38,10 @@ object RichFileUtils {
     src.deleteAll()
     targetDir
   }
+
+  /** Renames a directory. */
+  def move(src: Directory, newName: String): Directory = move(src, src.parent, newName)
+
   /**
    * Moves the contents of a directory (but not the directory itself) to another directory. This method does not perform
    * merging of any sort.

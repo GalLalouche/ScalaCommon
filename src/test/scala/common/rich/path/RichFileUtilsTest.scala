@@ -100,5 +100,17 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
         assertEmptyDir(targetDir)
       }
     }
+    "rename directory" - {
+      "happy path" in {
+        val movedDir = RichFileUtils.move(filledDir, filledDir.name + "foo")
+        movedDir.name shouldReturn (originalName + "foo")
+        assertSameContents(movedDir, originalCopy)
+      }
+      "dir with same name already exists" in {
+        filledDir.parent addSubDir "foobar"
+        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(filledDir, "foobar")
+        assertSameContents(filledDir, originalCopy)
+      }
+    }
   }
 }
