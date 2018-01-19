@@ -42,16 +42,16 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
     }
     "within same directory" - {
       "happy path" in {
-        val newFile = RichFileUtils.move(tempFile, tempFileName + "foo")
+        val newFile = RichFileUtils.rename(tempFile, tempFileName + "foo")
         tempFile.exists shouldReturn false
         verifyFile(newFile, tempFileName + "foo")
       }
       "same name" in {
-        RichFileUtils.move(tempFile, tempFileName)
+        RichFileUtils.rename(tempFile, tempFileName)
         verifyNoChange()
       }
       "file with name already exists" in {
-        a[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(tempFile, otherFile.name)
+        a[FileAlreadyExistsException] should be thrownBy RichFileUtils.rename(tempFile, otherFile.name)
         verifyNoChange()
       }
     }
@@ -102,13 +102,13 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
     }
     "rename directory" - {
       "happy path" in {
-        val movedDir = RichFileUtils.move(filledDir, filledDir.name + "foo")
+        val movedDir = RichFileUtils.rename(filledDir, filledDir.name + "foo")
         movedDir.name shouldReturn (originalName + "foo")
         assertSameContents(movedDir, originalCopy)
       }
       "dir with same name already exists" in {
         filledDir.parent addSubDir "foobar"
-        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(filledDir, "foobar")
+        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.rename(filledDir, "foobar")
         assertSameContents(filledDir, originalCopy)
       }
     }
