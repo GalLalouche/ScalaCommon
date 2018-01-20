@@ -14,11 +14,12 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
     def handleButKeepOriginal(other: S => F[A]): F[A] = $ handleError other orElseTry $
     def filterWith(p: A => Boolean, error: => S): F[A] = filterWithF(p, error.const)
     def filterWithF(p: A => Boolean, error: A => S): F[A] = mFilter(p andThen (F.pure(_)), error)
-    def mFilter(p: A => F[Boolean], error: A => S): F[A] = for (
-      e <- $;
-      predValue <- p(e);
+    def mFilter(p: A => F[Boolean], error: A => S): F[A] = for {
+      e <- $
+      predValue <- p(e)
       result <- if (predValue) F pure e else F raiseError error(e)
-    ) yield result
+    } yield result
+    def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
   }
   implicit class toMoreMonadErrorOptionalOps[F[_], A, S]($: F[Option[A]])(
       implicit ev: MonadError[F, S]) {

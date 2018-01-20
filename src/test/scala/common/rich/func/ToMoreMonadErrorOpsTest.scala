@@ -65,6 +65,7 @@ private object ToMoreMonadErrorOpsTest {
 class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
     with EitherInstances with ToMoreMonadErrorOps {
   import common.rich.func.ToMoreMonadErrorOpsTest._
+
   private lazy val unusedError: String = ???
   "toMoreMonadErrorOps" - {
     val success: BoxOrMsg[Int] = Box(42)
@@ -130,6 +131,14 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
       }
       "failure" in {
         failure.mFilter(_ => ???, _ => ???).getFailure shouldReturn "failure"
+      }
+    }
+    "mapError" - {
+      "success" in {
+        success.mapError(_ => ???).get shouldReturn 42
+      }
+      "failure" in {
+        failure.mapError(_.toUpperCase).getFailure shouldReturn "FAILURE"
       }
     }
   }
