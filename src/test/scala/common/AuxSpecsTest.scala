@@ -6,7 +6,7 @@ import org.scalatest.exceptions.TestFailedException
 import scala.concurrent.duration.DurationInt
 
 class AuxSpecsTest extends FreeSpec with AuxSpecs {
-  private def doesntThrow(f: => Unit) {
+  private def doesNotThrow(f: => Unit) {
     f
   }
   private def throws(f: => Unit): TestFailedException = {
@@ -30,7 +30,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
   }
   "shouldReturn" - {
     "ok" in {
-      doesntThrow {
+      doesNotThrow {
         1 + 1 shouldReturn 2
       }
     }
@@ -40,25 +40,38 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
       verifyMessage(e, "4 did not equal 5")
     }
   }
-  "shouldContain" - {
-    "when all is okay" in {
-      doesntThrow(List(1, 2, 3) shouldContain(1, 2, 3))
+  "RichShouldTraversable" - {
+    "shouldContain" - {
+      "when all is okay" in {
+        doesNotThrow(List(1, 2, 3) shouldContain(1, 2, 3))
+      }
+      "on error" in {
+        val e = throws(List(1, 2, 3) shouldContain(1, 2, 4))
+        verifyStackDepth(e)
+        verifyMessage(e, "List(1, 2, 3) doesn't contain List(4).")
+      }
     }
-    "on error" in {
-      val e = throws(List(1, 2, 3) shouldContain(1, 2, 4))
-      verifyStackDepth(e)
-      verifyMessage(e, "List(1, 2, 3) doesn't contain List(4).")
+    "shouldSetEqual" - {
+      "when all is okay" in {
+        doesNotThrow(List(1, 2, 3) shouldSetEqual List(1, 3, 2))
+      }
+      "on error" in {
+        val e = throws(List(1, 2, 3) shouldSetEqual List(1, 2, 4))
+        verifyStackDepth(e)
+        verifyMessage(e,
+          "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\nIt is missing Set(4).\nAnd has extra items: Set(3).")
+      }
     }
-  }
-  "shouldSetEqual" - {
-    "when all is okay" in {
-      doesntThrow(List(1, 2, 3) shouldSetEqual List(1, 3, 2))
-    }
-    "on error" in {
-      val e = throws(List(1, 2, 3) shouldSetEqual List(1, 2, 4))
-      verifyStackDepth(e)
-      verifyMessage(e,
-        "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\nIt is missing Set(4).\nAnd has extra items: Set(3).")
+    "allShouldSatisfy" - {
+      "when all is okay" in {
+        doesNotThrow(List(1, 2, 3) allShouldSatisfy (_ > 0))
+      }
+      "on error" in {
+        val e = throws(List(1, 2, 3, 4, 5) allShouldSatisfy (_ % 2 == 1))
+        verifyStackDepth(e)
+        verifyMessage(e,
+          "Expected all elements in <List(1, 2, 3, 4, 5)> to satisfy the predicate, but <List(2, 4)> don't.")
+      }
     }
   }
   "shouldFinish" ignore {

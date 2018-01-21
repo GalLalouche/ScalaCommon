@@ -3,139 +3,68 @@ package common.rich.primitives
 
 import common.AuxSpecs
 import common.rich.primitives.RichInt._
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.PropSpec
-import org.scalatest.prop.{GeneratorDrivenPropertyChecks, PropertyChecks}
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 import scala.concurrent.duration._
 
 class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
-	property("gcd should divide both numbers") {
-		forAll(maxDiscarded(100000)) { (x: Int, y: Int) =>
-			whenever(x > 0 && y > 0) {
-				val gcd = RichInt.gcd(x, y)
-				x % gcd shouldReturn 0
-				y % gcd shouldReturn 0
-			}
-		}
-	}
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 5)
+  private implicit val arbSmallPositive: Arbitrary[Int] = Arbitrary(Gen.choose(1, 1000))
+  private def nProp(propName: String, prop: Int => Unit): Unit =
+    property(propName) {
+      forAll { n: Int => prop(n) }
+    }
+  private def nkProp(propName: String, prop: (Int, Int) => Unit): Unit =
+    property(propName) {
+      forAll { (n: Int, k: Int) => prop(n, k) }
+    }
 
-	property("gcd should be the largest common divisor") {
-		val g = Gen.choose(1, 100000)
-		forAll(g, g) { (x: Int, y: Int) =>
-			val gcd = RichInt.gcd(x, y)
-			for (i <- 1 to Math.max(x, y))
-				if (x % i == y % i && x % i == 0)
-					i should be <= gcd
-		}
-	}
+  nProp("n! is divided by all numbers from 1 to n", n => {
+    val fact = n.factorial
+    1 to n allShouldSatisfy (fact % _ == 0)
+  })
 
-	property("is prime is false for perfect squares") {
-		forAll(Gen.choose(2, 10000)) { n: Int =>
-			(n * n).isPrime shouldReturn false
-		}
-	}
+  nProp("n ^ 0 is equal to 1", _ exp 0 shouldReturn 1)
+  nProp("0 ^ n is equal to 0", 0 exp _ shouldReturn 0)
 
-	property("is prime should return true if the number is prime") {
-		forAll(Gen.choose(3, 100000)) { n: Int =>
-			if (n.isPrime)
-				(2 until n) exists (n % _ == 0) shouldReturn false
-		}
-	}
+  nkProp("gcd should divide both numbers", (n, k) => {
+    val gcd = RichInt.gcd(n, k)
+    n % gcd shouldReturn 0
+    k % gcd shouldReturn 0
+  })
+  nkProp("gcd should be the largest common divisor", (n, k) => {
+    val gcd = RichInt.gcd(n, k)
+    for (i <- 1 to Math.max(n, k))
+      if (n % i == k % i && n % i == 0)
+        i should be <= gcd
+  })
 
-	property("is prime should return false if the number is not a prime") {
-		forAll(Gen.choose(1, 100000)) { n: Int =>
-			if (n.isPrime == false)
-				(2 until n) exists (n % _ == 0) shouldReturn true
-		}
-	}
+  nkProp("is prime is false for composite numbers", (n, k) => (n * k).isPrime shouldReturn false)
+  nProp("is prime should return true if the number has no dividers",
+    n => (2 until n) exists (n % _ == 0) shouldReturn !n.isPrime)
 
-	property("Primes should return a stream of primes") {
-		forAll(Gen.choose(1, 10000)) { n: Int =>
-			RichInt.primes.take(n).toList.forall(_.isPrime) shouldReturn true
-		}
-	}
+  nProp("prime factorization should return primes only",
+    _.primesFactorization.keys allShouldSatisfy (_.isPrime))
+  nProp("prime factorization should return only positive am",
+    _.primesFactorization.values allShouldSatisfy (_ > 0))
+  nProp("prime factorization product should be equal to n",
+    n => n.primesFactorization.map(e => Math.pow(e._1, e._2)).product shouldReturn n)
 
-	property("primes should return an ever increasing stream") {
-		forAll(Gen.choose(1, 10000)) { n: Int =>
-			val primes = RichInt.primes.take(n).toVector
-			for (i <- 0 until primes.size - 1)
-				primes(i) - primes(i + 1) should be < 0
-		}
-	}
+  nProp("euler's totient function should return the number of coprime integers", n => {
+    val actual = n.eulersTotient
+    val expected = (1 to n).map(RichInt.gcd(_, n)).count(_ == 1)
+    actual shouldReturn expected
+  })
 
-	property("primes factorization should return primes only") {
-		forAll(Gen.choose(1, 10000)) { n: Int =>
-			n.primesFactorization.keys.forall(_.isPrime) shouldReturn true
-		}
-	}
+  nProp("n choose 0 is 1", _ choose 0 shouldReturn 1)
+  nProp("n choose 1 should is i", n => n choose 1 shouldReturn n)
+  nProp("n choose itself is 1", n => n choose n shouldReturn 1)
+  nkProp("n choose k is equal to n choose (n - k)", (n, k) => n choose k shouldReturn (n choose (n - k)))
 
-	property("primes factorization should return only positive amounts") {
-		forAll(Gen.choose(1, 10000)) { n: Int =>
-			n.primesFactorization.values.forall(_ > 0) shouldReturn true
-		}
-	}
-
-	property("primes factorization product should be equal to n") {
-		forAll(Gen.choose(1, 10000)) { n: Int =>
-			n.primesFactorization.map(e => Math.pow(e._1, e._2)).product shouldReturn n
-		}
-	}
-	property("factorization should be QUICK (well, relatively speaking)") {
-		forAll(Gen.choose(1e5.toInt, 1e6.toInt), minSuccessful(1000)) { n: Int => {
-			n.primesFactorization
-		} shouldFinish in lessThan 1.second
-		}
-	}
-
-	property("euler's totient function should return the number of coprimes integers") {
-		forAll(Gen.choose(1, 100000)) { n: Int =>
-			val actual = n.eulersTotient
-			val expected = (1 to n).map(RichInt.gcd(_, n)).count(_ == 1)
-			actual shouldReturn expected
-		}
-	}
-
-	property("any number choose 0 is 1") {
-		forAll { n: Int => whenever(n >= 0) {
-			n choose 0 shouldReturn 1
-		}
-		}
-	}
-
-	property("any number choose 1 should is itself") {
-		forAll { n: Int => whenever(n >= 0) {
-			n choose 1 shouldReturn n
-		}
-		}
-	}
-
-	property("any number choose itself is 1") {
-		forAll { n: Int => whenever(n >= 0) {
-			n choose n shouldReturn 1
-		}
-		}
-	}
-
-	property("any number perm itself is itself factorized") {
-		forAll(Gen.choose(1, 1000)) { n: Int =>
-			n perm n shouldReturn n.factorial
-		}
-	}
-
-	property("any number perm 0 is 1") {
-		forAll {
-			n: Int => whenever(n >= 0) {
-				n perm 0 shouldReturn 1
-			}
-		}
-	}
-
-	property("any number perm 1 is itself") {
-		forAll {
-			n: Int => whenever(n >= 0) {
-				n perm 1 shouldReturn n
-			}
-		}
-	}
+  nProp("n perm itself is itself factor", n => n perm n shouldReturn n.factorial)
+  nProp("n perm 0 is 1", _ perm 0 shouldReturn 1)
+  nProp("n perm 1 is itself", n => n perm 1 shouldReturn n)
 }

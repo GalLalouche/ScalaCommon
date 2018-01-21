@@ -17,28 +17,12 @@ class RichIntTest extends FreeSpec with AuxSpecs {
   "choose" - {
     "works with small numbers" in {
       5 choose 2 shouldReturn 10
-      10 choose 1 shouldReturn 10
-      100 choose 0 shouldReturn 1
-    }
-
-    "works with binomial complement" in {
-      5 choose 5 shouldReturn 1
-      5 choose 4 shouldReturn 5
-      5 choose 3 shouldReturn 10
-    }
-
-    "works with slightly larger numbers" in {
       6 choose 3 shouldReturn 20
+      10 choose 5 shouldReturn 252
     }
   }
 
   "power" - {
-    "returns 1 when upping to zero" in {
-      4 exp 0 shouldReturn 1
-    }
-    "returns 0 when 0 is times something" in {
-      0 exp 4 shouldReturn 0
-    }
     "throws an exception for 0 ^ 0" in {
       an[IllegalArgumentException] should be thrownBy {
         0 exp 0
@@ -50,8 +34,8 @@ class RichIntTest extends FreeSpec with AuxSpecs {
     "works for negative numbers in base" in {
       -1 exp 0 shouldReturn 1
       -1 exp 1 shouldReturn -1
-      -1 exp 2 shouldReturn 1
-      -1 exp 3 shouldReturn -1
+      -2 exp 2 shouldReturn 4
+      -2 exp 3 shouldReturn -8
     }
   }
 

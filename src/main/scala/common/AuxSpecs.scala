@@ -3,15 +3,13 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 
-import common.rich.collections.RichSet._
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.{Matchers, Suite}
 
 import scala.concurrent.duration.Duration
 
 /** Several helping methods and fixtures for testing */
-trait AuxSpecs extends Matchers {
-  self: Suite =>
+trait AuxSpecs extends Matchers { self: Suite =>
 
   // since the parameter means jack shit it seems
   private def throwProperDepthException(message: String, depth: Int): Unit = {
@@ -21,29 +19,41 @@ trait AuxSpecs extends Matchers {
   }
   // More information on errors
   implicit class RichShouldTraversable[T]($: Traversable[T]) {
-    def shouldContain(first: T, last: T*) {
+    private val ProperExceptionDepth = 2
+    def shouldContain(first: T, last: T*): Unit = {
       val expected = first :: last.toList
       val missing = expected.filterNot(e => $.exists(_ == e))
       if (missing.nonEmpty)
-        throwProperDepthException(s"${$} doesn't contain $missing.", 2)
+        throwProperDepthException(s"${$} doesn't contain $missing.", ProperExceptionDepth)
     }
 
-    def shouldSetEqual(other: Traversable[T]) {
+    def shouldSetEqual(other: Traversable[T]): Unit = {
       val otherSet = other.toSet
       val actualSet = $.toSet
-      val extra = actualSet \ otherSet
-      val missing = otherSet \ actualSet
+      val extra = actualSet &~ otherSet
+      val missing = otherSet &~ actualSet
       if (extra.++(missing).nonEmpty)
         throwProperDepthException(
-          s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.", 2)
+          s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.",
+          ProperExceptionDepth)
+    }
+
+    def allShouldSatisfy(p: T => Boolean): Unit = {
+      val failingElements = $.filter(p.andThen(!_))
+      if (failingElements.nonEmpty)
+        throwProperDepthException(
+          s"Expected all elements in <${$}> to satisfy the predicate, but <$failingElements> don't.",
+          ProperExceptionDepth)
     }
   }
 
   // typesafe equality checking
   implicit class RichShould[T]($: T) {
     def shouldReturn(t: T) {
-      try $ should === (t)
-      catch { case e: TestFailedException => throwProperDepthException(e.getMessage, 2) }
+      try $ should ===(t)
+      catch {
+        case e: TestFailedException => throwProperDepthException(e.getMessage, 2)
+      }
     }
   }
 
