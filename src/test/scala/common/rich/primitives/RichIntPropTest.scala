@@ -7,8 +7,6 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.PropSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-import scala.concurrent.duration._
-
 class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 5)
