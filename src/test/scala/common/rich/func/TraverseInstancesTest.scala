@@ -8,8 +8,7 @@ import scalaz.std.OptionInstances
 import scalaz.syntax.ToTraverseOps
 
 class TraverseInstancesTest extends FreeSpec with AuxSpecs
-    with ToTraverseOps with MoreSeqInstances with MoreIterableInstances
-    with MoreTraversableInstances with MoreSetInstances with OptionInstances {
+    with MoreTraverseInstances with OptionInstances with ToTraverseOps {
   private def test[T[_] : Traverse](f: Seq[Int] => T[Int]): Unit = {
     "None" in f(List(1, 2, 3)).traverse[Option, Int](i => if (i % 2 == 0) Some(i) else None) shouldReturn None
     "Some" in f(List(1, 2, 3)).traverse[Option, Int](Some(_)) shouldReturn Some(Traversable(1, 2, 3))
