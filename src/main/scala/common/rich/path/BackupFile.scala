@@ -4,11 +4,12 @@ import java.io.File
 import java.nio.file._
 
 import common.rich.path.RichFile._
+import common.rich.primitives.RichBoolean._
 
 /** An abstraction for backing up and restoring files. By default, these files are deleted on exit regardless of their use. */
 class BackupFile(file: File, deleteOnExit: Boolean = true) {
   require(file.exists)
-  require(file.isDirectory == false)
+  require(file.isDirectory.isFalse)
   private val backupFile = {
     val $ = new File(file.getParentFile, file.getName + ".bak")
     $.createNewFile

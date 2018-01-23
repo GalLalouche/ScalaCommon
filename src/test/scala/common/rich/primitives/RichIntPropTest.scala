@@ -1,7 +1,7 @@
 package common.rich.primitives
 
-
 import common.AuxSpecs
+import common.rich.primitives.RichBoolean._
 import common.rich.primitives.RichInt._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.PropSpec
@@ -40,9 +40,11 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
         i should be <= gcd
   })
 
-  nkProp("is prime is false for composite numbers", (n, k) => (n * k).isPrime shouldReturn false)
+  nkProp("is prime is false for composite numbers", (n, k) => whenever(n > 1 && k > 1) {
+    (n * k).isPrime shouldReturn false
+  })
   nProp("is prime should return true if the number has no dividers",
-    n => (2 until n) exists (n % _ == 0) shouldReturn !n.isPrime)
+    n => (2 until n) exists (n % _ == 0) shouldReturn n.isPrime.isFalse)
 
   nProp("prime factorization should return primes only",
     _.primesFactorization.keys allShouldSatisfy (_.isPrime))

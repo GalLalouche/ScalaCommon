@@ -3,6 +3,7 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 
+import common.rich.primitives.RichBoolean._
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.{Matchers, Suite}
 
@@ -39,7 +40,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
     }
 
     def allShouldSatisfy(p: T => Boolean): Unit = {
-      val failingElements = $.filter(p.andThen(!_))
+      val failingElements = $.filter(p.andThen(_.isFalse))
       if (failingElements.nonEmpty)
         throwProperDepthException(
           s"Expected all elements in <${$}> to satisfy the predicate, but <$failingElements> don't.",

@@ -1,5 +1,7 @@
 package common.rich
 
+import common.rich.primitives.RichBoolean._
+
 object RichT {
   private val primitiveMappings: Map[Class[_], Class[_]] = Map(
     java.lang.Integer.TYPE -> classOf[java.lang.Integer],
@@ -45,7 +47,7 @@ object RichT {
           case _: String => ""
           case _: Any => null
         }).asInstanceOf[T]
-    def onlyIfNot(b: Boolean): T = onlyIf(!b)
+    def onlyIfNot(b: Boolean): T = onlyIf(b.isFalse)
 
     /** Apply some function to this and returns this. Side effects galore! */
     def applyAndReturn(f: T => Any): T = {

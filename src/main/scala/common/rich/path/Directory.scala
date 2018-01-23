@@ -1,6 +1,7 @@
 package common.rich.path
 
 import java.io.File
+import common.rich.primitives.RichBoolean._
 
 /** Helper class for Directory methods. */
 class Directory(val dir: File) extends RichPath[Directory](dir) {
@@ -39,8 +40,8 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
     def deleteAll(d: Directory) {
       System.gc()
       d.dirs.foreach(deleteAll)
-      d.files.foreach(x => {if (x.exists && x.delete == false) println("could not delete: " + x)})
-      if (d.dir.exists && d.dir.delete == false) {
+      d.files.foreach(x => {if (x.exists && x.delete.isFalse) println("could not delete: " + x)})
+      if (d.dir.exists && d.dir.delete.isFalse) {
         System.gc()
         println("could not delete: " + d.dir)
       }
@@ -86,7 +87,7 @@ object Directory {
   def apply(s: String): Directory = Directory(new File(s))
   /** Creates all directories along the path as needed */
   def makeDir(f: File): Directory = {
-    if (false == (f.exists && f.isDirectory))
+    if (f.isDirectory.isFalse)
       require(f.mkdirs(), "Could not create directories path " + f)
     Directory(f)
   }

@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import common.rich.primitives.RichBoolean._
+
 // supports containment operators
 object RichSet {
   implicit class richSet[T]($: Set[T]) {
@@ -10,6 +12,6 @@ object RichSet {
     // difference
     @deprecated("Use &~")
     def \(other: Set[T]): Set[T] = $ &~ other
-    def isDisjointTo(other: Set[T]): Boolean = false == $.exists(other.contains)
+    def isDisjointTo(other: Set[T]): Boolean = $.exists(other.contains).isFalse
   }
 }

@@ -1,6 +1,7 @@
 package common.rich.primitives
 
 import scala.annotation.tailrec
+import RichBoolean._
 
 object RichInt {
   implicit class Rich(n: Int) {
@@ -40,7 +41,7 @@ object RichInt {
       var currentN = n
       var primes = RichInt.primes
       var $ = Map[Int, Int]().withDefaultValue(0)
-      while (currentN > 1 && new Rich(currentN).isPrime == false)
+      while (currentN > 1 && new Rich(currentN).isPrime.isFalse)
         if (currentN % primes.head == 0) {
           $ = $.updated(primes.head, $(primes.head) + 1)
           currentN = currentN / primes.head

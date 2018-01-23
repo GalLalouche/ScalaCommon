@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.{FileAlreadyExistsException, Files}
 
 import common.rich.path.RichFile._
+import common.rich.primitives.RichBoolean._
 
 /**
  * Utility functions for moving files and directories. These aren't implemented as methods in
@@ -25,7 +26,7 @@ object RichFileUtils {
    *     already exists with the same name as the requested new name for the file.
    */
   def move(src: File, dst: Directory, newName: String): RichFile = {
-    require(!src.isDirectory,
+    require(src.isDirectory.isFalse,
       "Can't move directories pretending to be a File because java.nio is Stupid. Wrap with Directory first.")
     Files.move(src.toPath, (dst \ newName).toPath).toFile
   }
