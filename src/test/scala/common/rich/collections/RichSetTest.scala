@@ -54,22 +54,6 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
     }
   }
 
-  property("\\ should be of max size itself") {
-    forAll { (xs: Set[Int], ys: Set[Int]) =>
-      (xs \ ys).size should be <= xs.size
-    }
-  }
-  property("\\ should only contain members of xs") {
-    forAll { (xs: Set[Int], ys: Set[Int]) =>
-      (xs \ ys) <= xs shouldReturn true
-    }
-  }
-  property("\\ intersection with ys should be empty") {
-    forAll { (xs: Set[Int], ys: Set[Int]) =>
-      (xs \ ys).intersect(ys).isEmpty shouldReturn true
-    }
-  }
-
   property("The empty set is disjoint to all sets") {
     forAll { $: Set[Int] =>
       Set[Int]() isDisjointTo $ shouldReturn true
@@ -80,9 +64,9 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
       $ isDisjointTo $ shouldReturn $.isEmpty
     }
   }
-  property("\\ should be disjoint to ys") {
+  property("&~ should be disjoint to ys") {
     forAll { (xs: Set[Int], ys: Set[Int]) =>
-      (xs \ ys) isDisjointTo ys shouldReturn true
+      xs &~ ys isDisjointTo ys shouldReturn true
     }
   }
 }

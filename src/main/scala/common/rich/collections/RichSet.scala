@@ -9,9 +9,6 @@ object RichSet {
     def <(other: Set[T]): Boolean = <=(other) && $.size < other.size
     def >=(other: Set[T]): Boolean = new richSet(other) <= $
     def >(other: Set[T]): Boolean = new richSet(other) < $
-    // difference
-    @deprecated("Use &~")
-    def \(other: Set[T]): Set[T] = $ &~ other
     def isDisjointTo(other: Set[T]): Boolean = $.exists(other.contains).isFalse
   }
 }
