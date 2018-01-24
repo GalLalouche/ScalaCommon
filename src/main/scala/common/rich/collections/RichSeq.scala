@@ -12,7 +12,7 @@ object RichSeq {
     def shuffle: Seq[T] = {
       val array = ArrayBuffer[T]($: _*)
       val random = new scala.util.Random
-      for (n ← array.length - 1 to 0 by -1) {
+      for (n <- array.length - 1 to 0 by -1) {
         val k = random.nextInt(n + 1)
         val (a, b) = (array(n), array(k))
         array(k) = a

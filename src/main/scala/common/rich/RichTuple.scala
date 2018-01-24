@@ -3,8 +3,8 @@ package common.rich
 /** Mostly for adding maps and stuff. */
 object RichTuple {
   implicit class richTuple[T]($: (T, T)) {
-    def map[S](f: T ⇒ S): (S, S) = (f($._1), f($._2))
-    def foreach(f: T ⇒ Unit) {f($._1); f($._2)}
+    def map[S](f: T => S): (S, S) = (f($._1), f($._2))
+    def foreach(f: T => Unit) {f($._1); f($._2)}
     def toList = List($._1, $._2)
   }
 

@@ -30,9 +30,9 @@ object RichIterator {
 
   implicit class richIterator[T]($: Iterator[T]) {
     /** Returns an iterator that throws an exception on the first item that does not satisfy f */
-    def verify(f: T ⇒ Boolean,
+    def verify(f: T => Boolean,
         exceptionMessage: (T, Int) => String = (e, i) => s"Item $e @ $i failed f"): Iterator[T] =
-      $.zipWithIndex.map(e ⇒ if (f(e._1)) e._1 else throw new Exception(exceptionMessage(e._1, e._2)))
+      $.zipWithIndex.map(e => if (f(e._1)) e._1 else throw new Exception(exceptionMessage(e._1, e._2)))
 
     /**
      * Returns an iterator that outputs to the console its iteration number
@@ -85,7 +85,7 @@ object RichIterator {
     }
 
     def zipWithIndex: Iterator[(T, Int)] = new Iterator[(T, Int)] {
-      var i = -1
+      private var i = -1
       override def hasNext = $.hasNext
       override def next() = {
         i += 1
