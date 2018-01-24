@@ -3,7 +3,7 @@ package common.rich
 import common.LazyMap
 
 /**
- * This class is mutable wrapper of {@link common.LazyMap}
+ * This class is mutable wrapper of [[common.LazyMap]]
  * Since it is mutable, it is made thread-safe via the use of synchronisation
  */
 class CacheMap[K, V] private(private var lazyMap: LazyMap[K, V]) extends Function[K, V] {

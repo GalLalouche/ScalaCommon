@@ -8,10 +8,8 @@ import common.rich.primitives.RichBoolean._
 
 /**
  * Utility functions for moving files and directories. These aren't implemented as methods in
- *  RichFile and Directory since those classes assume their input file or directory exists.
+ * RichFile and Directory since those classes assume their input file or directory exists.
  */
-//TODO figure out a way to make Directory/RichFile safer...
-// This would be a breaking change so it would probably involve changing the version
 object RichFileUtils {
   /**
    * Moves a file to another directory, keeping the same name.

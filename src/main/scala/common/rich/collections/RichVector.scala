@@ -6,7 +6,7 @@ import java.lang.Math._
 object RichVector {
   type Vektor = Vector[Double]
 
-  implicit class Rich($: Vektor) {
+  implicit class richVector($: Vektor) {
     def magnitude: Double = sqrt(dot($))
 
     private def operatorMap(other: Vektor, f: (Double, Double) => Double): Vektor = {

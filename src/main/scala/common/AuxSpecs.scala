@@ -48,7 +48,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
     }
   }
 
-  // typesafe equality checking
+  // type-safe equality checking
   implicit class RichShould[T]($: T) {
     def shouldReturn(t: T) {
       try $ should ===(t)
@@ -84,7 +84,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
   }
 
   // usage: { block } shouldFinish in lessThan 2.seconds
-  implicit def richBlock(f: => Any) = new {
+  implicit class richBlock(f: => Any) {
     def shouldFinish(matcher: NewMatchers) = new {
       def lessThan(maxTime: Duration) = new {
         val depth = 7

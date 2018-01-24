@@ -14,7 +14,7 @@ class IndentableRichFile private(f: File, indentLevel: Int) extends RichFile(f) 
     super.clear()
     this.resetIndentation()
   }
-  override def appendLine(s: String) = {
+  override def appendLine(s: String): this.type = {
     super.appendLine(("\t" * indentLevel) + s)
     this
   }

@@ -12,7 +12,7 @@ class LazyMap[K, V] private (f: K => V, currentMap: Map[K, V]) extends Function[
   /**
    * Possibly update the map with the correct value of the key.
    * @param k the key to use
-   * @return A tuple of the matching value, and the new map. 
+   * @return A tuple of the matching value, and the new map.
    * If the key did not exist in the map, the updated map will be returned.
    * Other wise, the current map will be returned.
    */
@@ -31,9 +31,9 @@ class LazyMap[K, V] private (f: K => V, currentMap: Map[K, V]) extends Function[
    */
   def apply(k: K): V = get(k).getOrElse(f(k))
   def get(k: K): Option[V] = currentMap.get(k)
-  def size = currentMap.size
-  def currentValues = currentMap.values
-  def currentKeys = currentMap.keys
+  def size: Int = currentMap.size
+  def currentValues: Iterable[V] = currentMap.values
+  def currentKeys: Iterable[K] = currentMap.keys
 }
 
 object LazyMap {

@@ -8,6 +8,8 @@ import common.rich.path.RichFile._
 import common.rich.path.RichPath.poorPath
 import org.scalatest.{BeforeAndAfter, FreeSpec, OneInstancePerTest}
 
+import scala.language.postfixOps
+
 class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest with BeforeAndAfter {
   // yeah yeah, it uses DirectorySpecs which uses Directory
 
@@ -70,15 +72,18 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
     "list deep files both deep and shallow" in {
       $.addFile("foo.bar")
       $.addSubDir("foobar").addFile("bar.foo")
-      $.deepFiles.toSet === Set(new File(tempDir, "foo.bar"), new File(tempDir / "foobar" /, "bar.foo"))
+      $.deepFiles.toSet === Set(new File(tempDir, "foo.bar"),
+        new File(tempDir / "foobar" /, "bar.foo"))
     }
     "list deep dirs both deep and shallow" in {
       $.addSubDir("foobar").addSubDir("barfoo")
-      $.deepDirs.map(_.dir).toSet === Set(new File(tempDir, "foobar"), new File((tempDir / "foobar" / "barfoo" /).path))
+      $.deepDirs.map(_.dir).toSet === Set(new File(tempDir, "foobar"),
+        new File((tempDir / "foobar" / "barfoo" /).path))
     }
     "list deep paths both deep and shallow" in {
       $.addSubDir("foobar").addFile("bar.foo")
-      $.deepPaths.map(_.f).toSet === Set(new File(tempDir, "foobar"), new File((tempDir / "foobar" / "bar.foo").path))
+      $.deepPaths.map(_.f).toSet === Set(new File(tempDir, "foobar"),
+        new File((tempDir / "foobar" / "bar.foo").path))
     }
     "clear" - {
       "not delete self" in {
