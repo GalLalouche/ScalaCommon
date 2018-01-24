@@ -12,7 +12,7 @@ import scala.language.implicitConversions
 class RichFile(f: File) extends RichPath[RichFile](f) {
   // this is required - if a RichFile is created for a file that is a directory, it is considered a programming bug
   // Why is this commented out??
-  //	require(f.isDirectory == false, s"Rich file $f cannot be a directory")
+  //require(f.isDirectory == false, s"Rich file $f cannot be a directory")
   lazy val extension: String = {
     val i = f.getName.lastIndexOf('.')
     if (i == -1) "" else f.getName.substring(i + 1).toLowerCase

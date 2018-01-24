@@ -97,7 +97,7 @@ class LRUCacheTest extends FreeSpec with AuxSpecs {
       for (i <- 0 to 100000) {
         if ($.size > 3)
           throw new AssertionError(s"failed on $i, size was ${$.size}")
-        $(i) = "1q2934102937123j1l2;3jalshdz,xmcvzxkcvjfhq09w327410	234uh1nc,zxnczo0x87dfq12l4n1.23eka[s8udawhn4,.1234n12o847ehn"
+        $(i) = "1q2934102937123j1l2;3jalshdz,xmcvzxkcvjfhq09w327410 234uh1nc,zxnczo0x87dfq12l4n1.23eka[s8udawhn4,.1234n12o847ehn"
       }
     }
   }
