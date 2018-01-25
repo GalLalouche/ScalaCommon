@@ -24,7 +24,7 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
   implicit class toMoreMonadErrorOptionalOps[F[_], A, S]($: F[Option[A]])(
       implicit ev: MonadError[F, S]) {
     def ifNone(other: => A): F[A] = ifNoneTry(ev pure other)
-    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_ map (ev.pure(_)) getOrElse other)
+    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.fold(other)(ev.pure(_)))
   }
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
       implicit ev: MonadError[F, Throwable]) {

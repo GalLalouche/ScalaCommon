@@ -9,7 +9,7 @@ trait ToMoreMonadOps extends ToMonadOps {
     private def pure[B](e: B) = Monad.apply.pure(e)
     def mFilterOpt(p: A => F[Boolean]): F[Option[A]] = for (
       e <- $;
-      predValue <- e map p getOrElse pure(true);
+      predValue <- e.fold(pure(true))(p);
       result <- if (predValue) $ else pure(None)) yield result
   }
 }
