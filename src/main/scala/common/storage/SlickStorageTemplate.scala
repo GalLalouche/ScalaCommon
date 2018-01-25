@@ -29,15 +29,9 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
     db.run(tableQuery.insertOrUpdate(toEntity(k, v)))
   protected def internalDelete(k: Key): Future[_] =
     db.run(tableQuery.filter(toId(_) === extractId(k)).delete)
-  override def forceStore(k: Key, v: Value): Future[Option[Value]] =
-    load(k).flatMap(existing => internalForceStore(k, v).>|(existing))
 
   override def storeMultiple(kvs: Seq[(Key, Value)]) =
     db.run(tableQuery.++=(kvs.map(e => toEntity(e._1, e._2)))).void
-  override def mapStore(k: Key, f: Value => Value, default: => Value) =
-    load(k).flatMap(v => forceStore(k, v map f getOrElse default))
-  override def delete(k: Key): Future[Option[Value]] =
-    for (existing <- load(k); _ <- internalDelete(k)) yield existing
   override def load(k: Key) =
     db.run(tableQuery.filter(toId(_) === extractId(k)).result).map(_.headOption map extractValue)
 
