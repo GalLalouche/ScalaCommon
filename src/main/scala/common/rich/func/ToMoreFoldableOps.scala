@@ -5,7 +5,7 @@ import scalaz.syntax.ToFoldableOps
 import scalaz.{Foldable, MonadError, PlusEmpty}
 
 trait ToMoreFoldableOps extends ToFoldableOps {
-  implicit class richFoldable[A, F[_] : Foldable]($: F[A]) extends ToMoreMonadErrorOps {
+  implicit class toMoreFoldableOps[A, F[_] : Foldable]($: F[A]) extends ToMoreMonadErrorOps {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
       var list: List[A] = Nil

@@ -8,7 +8,7 @@ import scalaz.MonadPlus
 import scalaz.syntax.ToMonadPlusOps
 
 trait ToMoreMonadPlusOps extends ToMonadPlusOps {
-  implicit class richMonadPlus[A, F[_] : MonadPlus]($: F[A]) {
+  implicit class toMoreMonadPlusOps[A, F[_] : MonadPlus]($: F[A]) {
     def tryMap[B](f: A => B): F[B] =
       $.map(e => Try(f(e)))
           .filter(_.isSuccess)
