@@ -1,6 +1,7 @@
 package common.rich.func
 
 import common.rich.RichT._
+import common.rich.primitives.RichOption._
 
 import scala.language.higherKinds
 import scalaz.MonadError
@@ -24,7 +25,7 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
   implicit class toMoreMonadErrorOptionalOps[F[_], A, S]($: F[Option[A]])(
       implicit ev: MonadError[F, S]) {
     def ifNone(other: => A): F[A] = ifNoneTry(ev pure other)
-    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.fold(other)(ev.pure(_)))
+    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.mapOrElse(ev.pure(_), other))
   }
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
       implicit ev: MonadError[F, Throwable]) {

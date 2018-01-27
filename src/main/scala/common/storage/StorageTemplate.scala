@@ -1,5 +1,7 @@
 package common.storage
 
+import common.rich.primitives.RichOption._
+
 import scala.concurrent.{ExecutionContext, Future}
 import scalaz.std.FutureInstances
 import scalaz.syntax.{ToBindOps, ToFunctorOps}
@@ -14,6 +16,6 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
   override def forceStore(k: Key, v: Value): Future[Option[Value]] = load(k) `<*ByName` internalForceStore(k, v)
   override def store(k: Key, v: Value): Future[Unit] = storeMultiple(List(k -> v))
   override def mapStore(k: Key, f: Value => Value, default: => Value): Future[Option[Value]] =
-    load(k).flatMap(v => forceStore(k, v.fold(default)(f)))
+    load(k).flatMap(v => forceStore(k, v.mapOrElse(f, default)))
   override def delete(k: Key): Future[Option[Value]] = load(k) `<*ByName` internalDelete(k)
 }

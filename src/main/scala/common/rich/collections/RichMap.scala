@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import common.rich.primitives.RichOption._
+
 import scala.language.higherKinds
 import scalaz.syntax.ToSemigroupOps
 import scalaz.{Plus, Semigroup}
@@ -11,7 +13,7 @@ object RichMap {
       if ($.size > other.size) aux(other, $) else aux($, other)
     }
     def upsert(kv: (K, V)): Map[K, V] = upsert(kv._1, kv._2)
-    def upsert(k: K, v: => V): Map[K, V] = $.updated(k, $.get(k).fold(v)(_ |+| v))
+    def upsert(k: K, v: => V): Map[K, V] = $.updated(k, $.get(k).mapOrElse(_ ⊹ v, v))
     def mergeIntersecting(other: Map[K, V]): Map[K, V] =
       $.filterKeys(other.contains).map(e => (e._1, e._2 |+| other(e._1)))
   }

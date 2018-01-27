@@ -1,6 +1,7 @@
 package common.rich.collections
 
 import common.rich.RichT._
+import common.rich.primitives.RichOption._
 
 import scala.math.log10
 import scalaz.std.{AnyValInstances, ListInstances, VectorInstances}
@@ -13,7 +14,7 @@ object RichTraversableOnce
       $.foldLeft(Map[Key, Value]()) {(m, next) =>
         val key = toKey(next)
         val value = toValue(next)
-        m + (key -> m.get(key).fold(value)(Semigroup[Value].append(_, value)))
+        m + (key -> m.get(key).mapOrElse(Semigroup[Value].append(_, value), value))
       }
 
     def mapBy[S](f: T => S): Map[S, T] =
