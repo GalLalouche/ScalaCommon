@@ -146,33 +146,6 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
     val some: BoxOrMsg[Option[Int]] = Box(Some(42))
     val none: BoxOrMsg[Option[Int]] = Box(None)
     val failure: BoxOrMsg[Option[Int]] = Msg("failure")
-    "ifNone" - {
-      "Some" in {
-        some.ifNone(???).get shouldReturn 42
-      }
-      "None" in {
-        none.ifNone(43).get shouldReturn 43
-      }
-      "failure" in {
-        failure.ifNone(???).getFailure shouldReturn "failure"
-      }
-    }
-    "ifNoneTry" - {
-      "Some" in {
-        some.ifNoneTry(???).get shouldReturn 42
-      }
-      "None" - {
-        "to success" in {
-          none.ifNoneTry(Box(42)).get shouldReturn 42
-        }
-        "to failure" in {
-          none.ifNoneTry(Msg("failurez")).getFailure shouldReturn "failurez"
-        }
-      }
-      "failure" in {
-        failure.ifNoneTry(???).getFailure shouldReturn "failure"
-      }
-    }
   }
   "toMoreMonadErrorThrowableOps" - {
     val success: ContainerOrError[Int] = Container(42)
