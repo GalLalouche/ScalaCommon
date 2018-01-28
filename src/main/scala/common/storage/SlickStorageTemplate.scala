@@ -31,7 +31,7 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
     db.run(tableQuery.filter(toId(_) === extractId(k)).delete)
 
   override def storeMultiple(kvs: Seq[(Key, Value)]) =
-    db.run(tableQuery.++=(kvs.map(e => toEntity(e._1, e._2)))).void
+    db.run(tableQuery ++= kvs.map(e => toEntity(e._1, e._2))).void
   override def load(k: Key) =
     db.run(tableQuery.filter(toId(_) === extractId(k)).result).map(_.headOption map extractValue)
 

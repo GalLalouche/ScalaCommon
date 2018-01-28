@@ -77,7 +77,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
     val start = System.currentTimeMillis
     try {
       t.get(2 * maxTime.toMillis, TimeUnit.MILLISECONDS)
-      Some(System.currentTimeMillis - start).map(Duration(_, TimeUnit.MILLISECONDS))
+      Some(Duration(System.currentTimeMillis - start, TimeUnit.MILLISECONDS))
     } catch {
       case _: TimeoutException => None
     } finally t.cancel(true)

@@ -1,6 +1,7 @@
 package common.rich.collections
 
 import java.lang.Math._
+import common.rich.primitives.RichDouble._
 
 /** Like, an algebraic Vector over ℝ^n */
 object RichVector {
@@ -11,7 +12,7 @@ object RichVector {
 
     private def operatorMap(other: Vektor, f: (Double, Double) => Double): Vektor = {
       require($.size == other.size)
-      $.zip(other).map(e => f(e._1, e._2))
+      $ zip other map f.tupled
     }
 
     /** dot product of two vectors */
@@ -33,11 +34,11 @@ object RichVector {
     /** Calculates the projection of this vector on another vector. The resulting vector is parallel to the other vector. */
     def projectionOn(other: Vektor): Vektor = {
       val otherUnit = other.toUnit
-      otherUnit.*(this.dot(otherUnit))
+      otherUnit * this.dot(otherUnit)
     }
 
     def cosineSimilarityTo(other: Vektor): Double = abs(dot(other) / (magnitude * other.magnitude))
 
-    def euclideanDistanceFrom(other: Vektor): Double = this.-(other).map(e => e * e).sum
+    def euclideanDistanceFrom(other: Vektor): Double = this.-(other).map(_.sq).sum
   }
 }

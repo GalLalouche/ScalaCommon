@@ -15,7 +15,10 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
 
   override def forceStore(k: Key, v: Value): Future[Option[Value]] = load(k) `<*ByName` internalForceStore(k, v)
   override def store(k: Key, v: Value): Future[Unit] = storeMultiple(List(k -> v))
-  override def mapStore(k: Key, f: Value => Value, default: => Value): Future[Option[Value]] =
-    load(k).flatMap(v => forceStore(k, v.mapOrElse(f, default)))
+  override def mapStore(k: Key, f: Value => Value, default: => Value): Future[Option[Value]] = for {
+    loadedValue <- load(k)
+    orDefault = loadedValue.mapOrElse(f, default)
+    result <- forceStore(k, orDefault)} yield result
+
   override def delete(k: Key): Future[Option[Value]] = load(k) `<*ByName` internalDelete(k)
 }
