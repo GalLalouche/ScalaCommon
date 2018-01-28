@@ -1,14 +1,14 @@
 package common.storage
 
-import common.rich.primitives.RichOption._
+import common.rich.func.ToMoreFoldableOps
 
 import scala.concurrent.{ExecutionContext, Future}
-import scalaz.std.FutureInstances
+import scalaz.std.{FutureInstances, OptionInstances}
 import scalaz.syntax.{ToBindOps, ToFunctorOps}
 
 /** Provides overrides since the TableUtils trait can't have implicit parameters. */
 abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extends Storage[Key, Value]
-    with ToFunctorOps with ToBindOps with FutureInstances {
+    with ToFunctorOps with ToBindOps with ToMoreFoldableOps with FutureInstances with OptionInstances {
   /** If a previous value exists, override it. */
   protected def internalDelete(k: Key): Future[_]
   protected def internalForceStore(k: Key, v: Value): Future[_]
@@ -17,7 +17,7 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
   override def store(k: Key, v: Value): Future[Unit] = storeMultiple(List(k -> v))
   override def mapStore(k: Key, f: Value => Value, default: => Value): Future[Option[Value]] = for {
     loadedValue <- load(k)
-    orDefault = loadedValue.mapOrElse(f, default)
+    orDefault = loadedValue.mapHeadOrElse(f, default)
     result <- forceStore(k, orDefault)} yield result
 
   override def delete(k: Key): Future[Option[Value]] = load(k) `<*ByName` internalDelete(k)

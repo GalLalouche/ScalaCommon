@@ -1,10 +1,10 @@
 package common.rich.func
 
 import common.rich.RichT._
-import common.rich.primitives.RichOption._
 
 import scala.language.higherKinds
 import scalaz.MonadError
+import scalaz.std.OptionInstances
 import scalaz.syntax.{ToMonadErrorOps, ToTraverseOps}
 
 trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
@@ -23,9 +23,9 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
     def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
   }
   implicit class toMoreMonadErrorOptionalOps[F[_], A, S]($: F[Option[A]])(
-      implicit ev: MonadError[F, S]) {
+      implicit ev: MonadError[F, S]) extends ToMoreFoldableOps with OptionInstances {
     def ifNone(other: => A): F[A] = ifNoneTry(ev pure other)
-    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.mapOrElse(ev.pure(_), other))
+    def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.mapHeadOrElse(ev.pure(_), other))
   }
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
       implicit ev: MonadError[F, Throwable]) {

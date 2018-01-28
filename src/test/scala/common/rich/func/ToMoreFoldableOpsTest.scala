@@ -26,4 +26,12 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
     "Iterable" in test(Iterable.fill(_)(1))
     "Vector" in test(Vector.fill(_)(1))
   }
+  "mapHeadOrElse" - {
+    "when Some" in {
+      Seq(1).mapHeadOrElse(_ + 1, ???) shouldReturn 2
+    }
+    "when None" in {
+      Nil.mapHeadOrElse((_: Int) => ???, 2) shouldReturn 2
+    }
+  }
 }

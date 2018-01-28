@@ -19,6 +19,7 @@ trait ToMoreFoldableOps extends ToFoldableOps {
       Foldable[F].foldMap($)(f)(PlusEmpty[M].monoid)
     def foldLeftME[M[_], B, S](f: A => M[B], b: M[B])(implicit ev: MonadError[M, S]): M[B] =
       Foldable[F].foldLeft($, b)(_ orElseTry f(_))
+    def mapHeadOrElse[B](f: A => B, default: => B): B = $.index(0).fold(default)(f)
   }
 }
 

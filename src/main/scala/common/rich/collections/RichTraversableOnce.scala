@@ -1,20 +1,21 @@
 package common.rich.collections
 
 import common.rich.RichT._
-import common.rich.primitives.RichOption._
+import common.rich.func.ToMoreFoldableOps
 
 import scala.math.log10
-import scalaz.std.{AnyValInstances, ListInstances, VectorInstances}
+import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
 import scalaz.{Functor, Semigroup}
 
 object RichTraversableOnce
-    extends VectorInstances with ListInstances with AnyValInstances {
+    extends VectorInstances with ListInstances with AnyValInstances with OptionInstances
+        with ToMoreFoldableOps {
   implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value): Map[Key, Value] =
-      $.foldLeft(Map[Key, Value]()) {(m, next) =>
+      $.foldLeft(Map[Key, Value]()) { (m, next) =>
         val key = toKey(next)
         val value = toValue(next)
-        m + (key -> m.get(key).mapOrElse(Semigroup[Value].append(_, value), value))
+        m + (key -> m.get(key).mapHeadOrElse(Semigroup[Value].append(_, value), value))
       }
 
     def mapBy[S](f: T => S): Map[S, T] =
