@@ -107,7 +107,28 @@ object RichSeq {
      * @param e the element to insert
      */
     def insert(e: T) = new _inserter(e)
+
+    /** Like lengthCompare, but nicer return value. */
+    def checkLength(n: Int): CheckLengthResult = {
+      val res = $.lengthCompare(n)
+      if (res < 0)
+        Smaller
+      else if (res == 0)
+        Equal
+      else
+        Larger
+    }
+    def hasAtLeastSizeOf(n: Int): Boolean = $.lengthCompare(n) >= 0
+    def isLargerThan(n: Int): Boolean = $.lengthCompare(n) > 0
+    def hasAtMostSizeOf(n: Int): Boolean = $.lengthCompare(n) <= 0
+    def isSmallerThan(n: Int): Boolean = $.lengthCompare(n) < 0
+    def hasExactlySizeOf(n: Int): Boolean = $.lengthCompare(n) == 0
   }
+
+  sealed trait CheckLengthResult
+  case object Smaller extends CheckLengthResult
+  case object Larger extends CheckLengthResult
+  case object Equal extends CheckLengthResult
 
   implicit class richSeqTuplesDouble[T, S]($: Seq[(T, S)]) {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))
