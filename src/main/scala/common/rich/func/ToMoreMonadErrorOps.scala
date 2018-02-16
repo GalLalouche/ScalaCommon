@@ -20,6 +20,7 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
       result <- if (predValue) F pure e else F raiseError error(e)
     } yield result
     def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
+    def listenError(f: S => Any): F[A] = mapError(e => {f(e); e})
   }
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
       implicit ev: MonadError[F, Throwable]) {

@@ -141,6 +141,16 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
         failure.mapError(_.toUpperCase).getFailure shouldReturn "FAILURE"
       }
     }
+    "listenError" - {
+      "success" in {
+        success.listenError(_ => ???).get
+      }
+      "failure" in {
+        var x = 10
+        failure.listenError(x += _.length).getFailure
+        x shouldReturn 17
+      }
+    }
   }
   "toMoreMonadErrorOptionalOps" - {
     val some: BoxOrMsg[Option[Int]] = Box(Some(42))
