@@ -51,4 +51,8 @@ class RichStringTest extends FreeSpec with AuxSpecs {
           .captureWith( """"([^"]+)".*""".r) shouldReturn "D:\\Program Files (x86)\\Evince-2.32.0.145\\bin\\evince.exe"
     }
   }
+
+  "fromPrintStream" in {
+    RichString.fromPrintStream(_.write("foobar".getBytes)) shouldReturn "foobar"
+  }
 }

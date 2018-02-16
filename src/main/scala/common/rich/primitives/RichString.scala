@@ -1,6 +1,6 @@
 package common.rich.primitives
 
-import java.io.{ByteArrayInputStream, File, InputStream}
+import java.io.{ByteArrayInputStream, File, InputStream, PrintStream}
 
 import common.rich.RichT.{richT, _}
 import common.rich.path.RichFile.richFile
@@ -38,5 +38,16 @@ object RichString {
     def dropAfterLast(c: Char): String = $.substring($.lastIndexOf(c) + 1)
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
     def capitalize: String = $.head.toUpper + $.tail.toLowerCase
+  }
+  /** Reads what's written to the PrintStream and writes it to the output string. */
+  def fromPrintStream(f: PrintStream => Any): String = {
+    import java.io.{ByteArrayOutputStream, PrintStream}
+    import java.nio.charset.StandardCharsets
+
+    val baos = new ByteArrayOutputStream()
+    val ps = new PrintStream(baos, true, "utf-8")
+    try f(ps)
+    finally ps.close()
+    new String(baos.toByteArray, StandardCharsets.UTF_8)
   }
 }
