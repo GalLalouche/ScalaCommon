@@ -8,6 +8,19 @@ import scalaz.syntax.ToSemigroupOps
 import scalaz.{Plus, Semigroup}
 
 object RichMap {
+  implicit class richMap[K, V]($: Map[K, V]) {
+    /** Throws on duplicate keys. */
+    def mapKeys[K2](f: K => K2): Map[K2, V] = {
+      $.foldLeft(Map[K2, V]()) {case (map, (k, v)) =>
+        val k2 = f(k)
+        if (map contains k2)
+          throw new UnsupportedOperationException(
+            s"key <$k2> already exists in map but it is also transformed from key <$k>")
+        map + (k2 -> v)
+      }
+    }
+  }
+
   implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V])
       extends ToSemigroupOps with ToMoreFoldableOps with OptionInstances {
     def merge(other: Map[K, V]): Map[K, V] = {
