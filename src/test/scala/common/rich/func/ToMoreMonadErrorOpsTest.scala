@@ -70,6 +70,14 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
   "toMoreMonadErrorOps" - {
     val success: BoxOrMsg[Int] = Box(42)
     val failure: BoxOrMsg[Int] = Msg("failure")
+    "handleErrorFlat" - {
+      "success" in {
+        success.handleErrorFlat(_ => ???).get shouldReturn 42
+      }
+      "failure" in {
+        failure.handleErrorFlat(_.length).get shouldReturn 7
+      }
+    }
     "orElse" - {
       "success" in {
         success.orElse(???).get shouldReturn 42

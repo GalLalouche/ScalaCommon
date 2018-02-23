@@ -9,6 +9,7 @@ import scalaz.syntax.{ToMonadErrorOps, ToTraverseOps}
 trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
   class FilteredException(str: String) extends NoSuchElementException(str)
   implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
+    def handleErrorFlat(f: S => A): F[A] = $.handleError(f.andThen(F.pure(_)))
     def orElse(other: => A): F[A] = orElseTry(F.pure(other))
     def orElseTry(other: => F[A]): F[A] = $ handleError other.const
     def handleButKeepOriginal(other: S => F[A]): F[A] = $ handleError other orElseTry $
