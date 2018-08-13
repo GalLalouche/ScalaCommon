@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import RichBoolean._
 
 object RichInt {
-  implicit class Rich(n: Int) {
+  implicit class Rich(private val n: Int) extends AnyVal {
     def factorial: BigInt = {
       @tailrec
       def aux(x: Int, result: BigInt = 1): BigInt = x.ensuring(x >= 0) match {

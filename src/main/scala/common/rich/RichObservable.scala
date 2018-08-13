@@ -7,7 +7,7 @@ import scala.concurrent.{Future, Promise}
 import scala.language.higherKinds
 
 object RichObservable {
-  implicit class richObservable[T]($: Observable[T]) {
+  implicit class richObservable[T](private val $: Observable[T]) extends AnyVal {
     /**
      * Returns a Future of a collection of all elements emitted by this observable. Future will not
      * complete if this observable does not complete.

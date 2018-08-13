@@ -28,7 +28,7 @@ object RichIterator {
     }
   }
 
-  implicit class richIterator[T]($: Iterator[T]) {
+  implicit class richIterator[T](private val $: Iterator[T]) extends AnyVal {
     /** Returns an iterator that throws an exception on the first item that does not satisfy f */
     def verify(f: T => Boolean,
         exceptionMessage: (T, Int) => String = (e, i) => s"Item $e @ $i failed f"): Iterator[T] =

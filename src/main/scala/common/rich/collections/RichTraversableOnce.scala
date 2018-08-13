@@ -8,9 +8,24 @@ import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstan
 import scalaz.{Functor, Semigroup}
 
 object RichTraversableOnce
-    extends VectorInstances with ListInstances with AnyValInstances with OptionInstances
-        with ToMoreFoldableOps {
-  implicit class richTraversableOnce[T]($: TraversableOnce[T]) {
+    extends ToMoreFoldableOps
+        with VectorInstances with ListInstances with AnyValInstances with OptionInstances {
+  class __Joiner[T, S] private[RichTraversableOnce]($: TraversableOnce[T], other: TraversableOnce[S]) {
+    def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
+      for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
+
+    def by[U](ft: T => U, fs: S => U): TraversableOnce[(T, S)] = by(ft, fs, (x, y) => (x, y))
+
+    def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): TraversableOnce[W] = {
+      val tMap = $.map(e => ft(e) -> e).toMap
+      val sMap = other.map(e => fs(e) -> e).toMap
+      tMap.keys.filter(sMap.contains).map(k => builder(tMap(k), sMap(k)))
+    }
+  }
+
+  implicit class richTraversableOnce[T](private val $: TraversableOnce[T]) extends AnyVal {
+    def reduceByKey[Key](toKey: T => Key)(implicit ev: Semigroup[T]): Map[Key, T] =
+      aggregateMap(toKey, identity)
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value): Map[Key, Value] =
       $.foldLeft(Map[Key, Value]()) { (m, next) =>
         val key = toKey(next)
@@ -97,20 +112,7 @@ object RichTraversableOnce
       aggregateMap(f, e => e).values
     }
 
-    class _joiner[S](other: TraversableOnce[S]) {
-      def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
-        for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
-
-      def by[U](ft: T => U, fs: S => U): TraversableOnce[(T, S)] = by(ft, fs, (x, y) => (x, y))
-
-      def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): TraversableOnce[W] = {
-        val tMap = $.map(e => ft(e) -> e).toMap
-        val sMap = other.map(e => fs(e) -> e).toMap
-        tMap.keys.filter(sMap.contains).map(k => builder(tMap(k), sMap(k)))
-      }
-    }
-
-    def join[S](other: TraversableOnce[S]) = new _joiner(other)
+    def join[S](other: TraversableOnce[S]) = new __Joiner($, other)
 
     def single: T = {
       val i = $.toIterator

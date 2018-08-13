@@ -2,9 +2,8 @@ package common.rich.collections
 
 import common.rich.primitives.RichBoolean._
 
-// supports containment operators
 object RichSet {
-  implicit class richSet[T]($: Set[T]) {
+  implicit class richSet[T](private val $: Set[T]) extends AnyVal {
     def <=[U >: T](other: Set[U]): Boolean = $ forall other
     def <(other: Set[T]): Boolean = <=(other) && $.size < other.size
     def >=(other: Set[T]): Boolean = new richSet(other) <= $

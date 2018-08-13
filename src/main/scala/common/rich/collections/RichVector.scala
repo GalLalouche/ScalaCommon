@@ -7,7 +7,7 @@ import common.rich.primitives.RichDouble._
 object RichVector {
   type Vektor = Vector[Double]
 
-  implicit class richVector($: Vektor) {
+  implicit class richVector(private val $: Vektor) extends AnyVal {
     def magnitude: Double = sqrt(dot($))
 
     private def operatorMap(other: Vektor, f: (Double, Double) => Double): Vektor = {

@@ -7,7 +7,21 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.reflect.ClassTag
 
 object RichSeq {
-  implicit class richSeq[T]($: Seq[T]) {
+  class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
+    /**
+     * @param index the index to insert at
+     * @throws IndexOutOfBoundsException
+     */
+    def at(index: Int): Seq[T] = {
+      require(index >= 0)
+      if ($.size < index)
+        throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
+      else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
+    }
+    def after(index: Int): Seq[T] = at(index + 1)
+    def before(index: Int): Seq[T] = at(index - 1)
+  }
+  implicit class richSeq[T](private val $: Seq[T]) extends AnyVal {
     /** Returns a random shuffle of this sequence in O(n), using the fisher-yates algorithm */
     def shuffle: Seq[T] = {
       val array = ArrayBuffer[T]($: _*)
@@ -86,27 +100,13 @@ object RichSeq {
      */
     def insertAt(e: T, index: Int): Seq[T] = this insert e at index
 
-    class _inserter(elementToInsert: T) {
-      /**
-       * @param index the index to insert at
-       * @throws IndexOutOfBoundsException
-       */
-      def at(index: Int): Seq[T] = {
-        require(index >= 0)
-        if ($.size < index)
-          throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-        else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
-      }
-      def after(index: Int): Seq[T] = at(index + 1)
-      def before(index: Int): Seq[T] = at(index - 1)
-    }
 
     /**
      * Syntactic sugar, so one can write <code>insert e at i</code> or
      * <code>insert e after i</code> or <code>insert e before i</code>
      * @param e the element to insert
      */
-    def insert(e: T) = new _inserter(e)
+    def insert(e: T) = new __Inserter($, e)
 
     /** Like lengthCompare, but nicer return value. */
     def checkLength(n: Int): CheckLengthResult = {
@@ -130,7 +130,7 @@ object RichSeq {
   case object Larger extends CheckLengthResult
   case object Equal extends CheckLengthResult
 
-  implicit class richSeqTuplesDouble[T, S]($: Seq[(T, S)]) {
+  implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))
     /** Creates a map view from T to S. The map has linear search time, but on the other hand it keeps the same sequence as the original */
     def asMap: Map[T, S] = new Map[T, S]() {
@@ -143,13 +143,13 @@ object RichSeq {
     def toMultiMap: Map[T, Seq[S]] = RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
   }
 
-  implicit class richSeqTuplesTriplets[T, S, U]($: Seq[(T, S, U)]) {
+  implicit class richSeqTuplesTriplets[T, S, U](private val $: Seq[(T, S, U)]) extends AnyVal {
     def flatZip[W](other: Seq[W]): Seq[(T, S, U, W)] = $ zip other map (e => (e._1._1, e._1._2, e._1._3, e._2))
 
     def flatZipWithIndex: Seq[(T, S, U, Int)] = $.zipWithIndex.map(e => (e._1._1, e._1._2, e._1._3, e._2))
   }
 
-  implicit class richSeqTuplesQuadruplets[T, S, U, W]($: Seq[(T, S, U, W)]) {
+  implicit class richSeqTuplesQuadruplets[T, S, U, W](private val $: Seq[(T, S, U, W)]) extends AnyVal {
     def flatZip[X](other: Seq[X]): Seq[(T, S, U, W, X)] = $ zip other map (e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))
 
     def flatZipWithIndex: Seq[(T, S, U, W, Int)] = $.zipWithIndex.map(e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))

@@ -8,7 +8,7 @@ import scalaz.syntax.ToSemigroupOps
 import scalaz.{Plus, Semigroup}
 
 object RichMap {
-  implicit class richMap[K, V]($: Map[K, V]) {
+  implicit class richMap[K, V](private val $: Map[K, V]) extends AnyVal {
     /** Throws on duplicate keys. */
     def mapKeys[K2](f: K => K2): Map[K2, V] = {
       $.foldLeft(Map[K2, V]()) {case (map, (k, v)) =>

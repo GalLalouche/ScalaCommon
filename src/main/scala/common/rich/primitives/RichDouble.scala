@@ -3,7 +3,7 @@ package common.rich.primitives
 import common.rich.primitives.RichBoolean._
 
 object RichDouble {
-  implicit class richDouble(d: Double) {
+  implicit class richDouble(private val d: Double) extends AnyVal {
     def **(d2: Double): Double = Math.pow(d, d2)
     def sq: Double = d * d
     def sqrt: Double = Math sqrt d

@@ -14,7 +14,12 @@ object RichT {
     java.lang.Void.TYPE -> classOf[java.lang.Void],
     java.lang.Short.TYPE -> classOf[java.lang.Short])
 
-  implicit class richT[T]($: T) {
+  class __Mapper[T] private[RichT](e: T, p: T => Boolean) {
+    def to(f: T => T): T = if (p(e)) f(e) else e
+    def to(t: => T): T = if (p(e)) t else e
+  }
+
+  implicit class richT[T](private val $: T) extends AnyVal {
     /**
      * Logs the given string to console and returns this.
      * @param f An optional stringifier to use; by default, .toString is used
@@ -27,14 +32,10 @@ object RichT {
     /** For the F# lovers in the audience. */
     def |>[S](f: T => S): S = mapTo(f)
 
-    def mapIf(p: T => Boolean): __mapper = new __mapper($, p)
+    def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
 
     // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
     // This is used instead of a local class for performance.
-    class __mapper private[RichT](e: T, p: T => Boolean) {
-      def to(f: T => T): T = if (p(e)) f(e) else e
-      def to(t: => T): T = if (p(e)) t else e
-    }
 
     /** Returns this if the condition is true; if not, returns the default value */
     def onlyIf(b: Boolean): T = (
@@ -67,7 +68,10 @@ object RichT {
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
 
-    def toTuple[A, B](f: T => A, g: T => B): (A, B) = f($) -> g($)
+    def toTuple[S1, S2](f1: T => S1, f2: T => S2): (S1, S2) = (f1($), f2($))
+    def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
+    def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
+      (f1($), f2($), f3($), f4($))
   }
 
   implicit class lazyT[T]($: => T) {

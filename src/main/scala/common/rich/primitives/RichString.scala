@@ -8,7 +8,7 @@ import common.rich.path.RichFile.richFile
 import scala.util.matching.Regex
 
 object RichString {
-  implicit class richString($: String) {
+  implicit class richString(private val $: String) extends AnyVal {
     def withoutTrailingQuotes: String = $.replaceAll("""^["']+|["']+$""", "")
     def isWhitespaceOrEmpty: Boolean = $ matches "\\s*"
     def appendTo(f: File): Unit = f appendLine $

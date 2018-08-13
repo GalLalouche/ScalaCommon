@@ -6,7 +6,7 @@ import scala.annotation.tailrec
 import scala.io.Source
 
 object RichInputStream {
-  implicit class richInputStream($: InputStream) {
+  implicit class richInputStream(private val $: InputStream) extends AnyVal {
     def asString: String = Source.fromInputStream($).mkString
     def toBytes: Array[Byte] = {
       val baos = new ByteArrayOutputStream()
