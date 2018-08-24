@@ -16,8 +16,8 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
     s shouldReturn "123"
   }
   "printPerLine should not overflow" - {
-    def test[F[_]: Foldable](f: Int => F[Int]): Unit = {
-      Console.withOut(_ => ()) { f(10000).printPerLine() }
+    def test[F[_] : Foldable](f: Int => F[Int]): Unit = {
+      Console.withOut(_ => ()) {f(10000).printPerLine()}
     }
     "Seq" in test(Seq.fill(_)(1))
     "List" in test(List.fill(_)(1))
@@ -33,5 +33,10 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
     "when None" in {
       Nil.mapHeadOrElse((_: Int) => ???, 2) shouldReturn 2
     }
+  }
+  "head" in {Seq(1, 2, 3).head shouldReturn 1}
+  "headOpt" - {
+    "empty" in {Seq().headOpt shouldReturn None}
+    "nonEmpty" in {Seq(1, 2, 3).headOpt shouldReturn Some(1)}
   }
 }
