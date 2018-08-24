@@ -3,14 +3,15 @@ package common.rich.func
 import common.rich.RichT._
 
 import scala.language.higherKinds
+
 import scalaz.MonadError
 import scalaz.syntax.{ToMonadErrorOps, ToTraverseOps}
 
 trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
   class FilteredException(str: String) extends NoSuchElementException(str)
   implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
-    def handleErrorFlat(f: S => A): F[A] = $.handleError(f.andThen(F.pure(_)))
-    def orElse(other: => A): F[A] = orElseTry(F.pure(other))
+    def handleErrorFlat(f: S => A): F[A] = $.handleError(f andThen (F.pure(_)))
+    def orElse(other: => A): F[A] = orElseTry(F pure other)
     def orElseTry(other: => F[A]): F[A] = $ handleError other.const
     def handleButKeepOriginal(other: S => F[A]): F[A] = $ handleError other orElseTry $
     def filterWith(p: A => Boolean, error: => S): F[A] = filterWithF(p, error.const)
@@ -21,10 +22,10 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
       result <- if (predValue) F pure e else F raiseError error(e)
     } yield result
     def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
-    def listenError(f: S => Any): F[A] = mapError(e => {f(e); e})
+    def listenError(f: S => Any): F[A] = mapError(_ applyAndReturn f)
   }
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
-      implicit ev: MonadError[F, Throwable]) {
+      implicit F: MonadError[F, Throwable]) {
     def filterWithMessage(p: A => Boolean, message: String = "Failed filter"): F[A] =
       $.filterWithMessageF(p, message.const)
     def filterWithMessageF(p: A => Boolean, message: A => String): F[A] =
@@ -35,8 +36,8 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
       val stackTrace = Thread.currentThread.getStackTrace drop 3
       def error(a: A): F[A] = {
         val ex = new FilteredException(message(a))
-        ex.setStackTrace(stackTrace)
-        ev raiseError ex
+        ex setStackTrace stackTrace
+        F raiseError ex
       }
       $.flatMap(e => if (p(e)) $ else error(e))
     }

@@ -58,7 +58,6 @@ object RichIterator {
           print("\r")
           false
         }
-
       }
       override def next() = {
         i += 1

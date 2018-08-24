@@ -108,6 +108,7 @@ object RichSeq {
      */
     def insert(e: T) = new __Inserter($, e)
 
+    // TODO move to RichTraversableOnce?
     /** Like lengthCompare, but nicer return value. */
     def checkLength(n: Int): CheckLengthResult = {
       val res = $.lengthCompare(n)

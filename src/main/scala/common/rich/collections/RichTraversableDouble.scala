@@ -33,9 +33,12 @@ object RichTraversableDouble {
       $.map(e => sortedMap(e) / $.size.toDouble).toVector // why toVector?
     }
 
-    private lazy val sorted = $.toVector.sorted
+    private def sorted = $.toVector.sorted
 
-    def median: Double = (sorted($.size / 2) + sorted(($.size - 1) / 2)) / 2
+    def median: Double = {
+      val s = sorted
+      (s($.size / 2) + s(($.size - 1) / 2)) / 2
+    }
     def decimal: Double = sorted($.size / 10)
     def medianAbsoluteDeviation: Double = new richTraversableDouble($ map (_ - median) map Math.abs).median
 
