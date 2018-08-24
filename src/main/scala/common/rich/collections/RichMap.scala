@@ -23,12 +23,9 @@ object RichMap {
 
   implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V])
       extends ToSemigroupOps with ToMoreFoldableOps with OptionInstances {
-    def merge(other: Map[K, V]): Map[K, V] = {
-      def aux(smallMap: Map[K, V], largeMap: Map[K, V]): Map[K, V] = smallMap.foldLeft(largeMap)(_ upsert _)
-      if ($.size > other.size) aux(other, $) else aux($, other)
-    }
     def upsert(kv: (K, V)): Map[K, V] = upsert(kv._1, kv._2)
     def upsert(k: K, v: => V): Map[K, V] = $.updated(k, $.get(k).mapHeadOrElse(_ ⊹ v, v))
+    def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
     def mergeIntersecting(other: Map[K, V]): Map[K, V] =
       $.filterKeys(other.contains).map(e => (e._1, e._2 |+| other(e._1)))
   }

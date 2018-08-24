@@ -4,10 +4,9 @@ import common.AuxSpecs
 import common.rich.collections.RichMap._
 import common.rich.func.MoreSetInstances
 import org.scalatest.FreeSpec
+import scalaz.std.{ListInstances, StringInstances}
 
-import scalaz.std.ListInstances
-
-class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with ListInstances {
+class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with ListInstances with StringInstances {
   "richMap" - {
     "mapKeys" - {
       "no dups" in {
@@ -28,6 +27,14 @@ class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with List
       Map(1 -> Set("foo"), 2 -> Set("bazz"))
           .mergeIntersecting(Map(1 -> Set("bar"), 3 -> Set("quxx"))) shouldReturn
           Map(1 -> Set("foo", "bar"))
+    }
+    "Non abelian" - {
+      "this is bigger" in {
+        Map(1 -> "foo", 2 -> "moo").merge(Map(1 -> "bar")) shouldReturn Map(1 -> "foobar", 2 -> "moo")
+      }
+      "this is smaller" in {
+        Map(1 -> "foo").merge(Map(1 -> "bar", 2 -> "moo")) shouldReturn Map(1 -> "foobar", 2 -> "moo")
+      }
     }
   }
 }
