@@ -14,6 +14,7 @@ lazy val scalaCommon = (project in file("."))
         "io.reactivex" %% "rxscala" % "0.26.4" % "provided",
         "org.scalacheck" %% "scalacheck" % "1.13.5" % "provided", // Not in test scope due to AuxSpecs
         "org.scalatest" %% "scalatest" % "3.0.4" % "provided", // Not in test scope due to AuxSpecs
+        "com.github.julien-truffaut" %% "monocle-core" % "1.5.0",
 
         "com.h2database" % "h2" % "1.4.196" % "test",
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
