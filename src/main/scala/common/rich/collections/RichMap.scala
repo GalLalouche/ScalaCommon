@@ -1,6 +1,10 @@
 package common.rich.collections
 
+import java.util
+
 import common.rich.func.ToMoreFoldableOps
+import common.rich.primitives.RichBoolean._
+import common.rich.RichT._
 
 import scala.language.higherKinds
 import scalaz.std.OptionInstances
@@ -8,6 +12,17 @@ import scalaz.syntax.ToSemigroupOps
 import scalaz.{Plus, Semigroup}
 
 object RichMap {
+  implicit class richJavaMap[K, V](private val $: util.Map[K, V]) {
+    /** *Not* inherently thread-safe. Use ConcurrentHashMap if you need one. */
+    def getOrPutIfAbsent(k: K, v: => V): V = {
+      if ($.containsKey(k).isFalse) // Not using putIfAbsent since its strict in its argument
+        $.put(k, v)
+      $.get(k)
+    }
+
+    def getOpt(k: K): Option[V] = $.get(k).opt
+  }
+
   implicit class richMap[K, V](private val $: Map[K, V]) extends AnyVal {
     /** Throws on duplicate keys. */
     def mapKeys[K2](f: K => K2): Map[K2, V] = {

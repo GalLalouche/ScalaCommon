@@ -1,12 +1,42 @@
 package common.rich.collections
 
+import java.util
+
 import common.AuxSpecs
 import common.rich.collections.RichMap._
 import common.rich.func.MoreSetInstances
-import org.scalatest.FreeSpec
+import org.scalatest.{FreeSpec, OneInstancePerTest}
+
 import scalaz.std.{ListInstances, StringInstances}
 
-class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with ListInstances with StringInstances {
+class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with ListInstances with StringInstances
+    with OneInstancePerTest {
+  "richJavaMap" - {
+    val $: util.Map[String, Integer] = new util.HashMap[String, Integer]()
+    $.put("foo", 5)
+    "getOrPutIfAbsent" - {
+      "exists" in {
+        $.getOrPutIfAbsent("foo", ???) shouldReturn 5
+        $.get("foo") shouldReturn 5
+      }
+      "absent" in {
+        var first = true
+        $.getOrPutIfAbsent("bar", {
+          if (first) {
+            first = false
+            6
+            // should only be computed once
+          } else ???
+        }) shouldReturn 6
+        $.get("bar") shouldReturn 6
+      }
+    }
+    "opt" - {
+      "exists" in {$.getOpt("foo") shouldReturn Some(5)}
+      "absent" in {$.getOpt("bar") shouldReturn None}
+    }
+  }
+
   "richMap" - {
     "mapKeys" - {
       "no dups" in {
@@ -17,6 +47,7 @@ class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with List
       }
     }
   }
+
   "richSemigroupMap" - {
     "merge" in {
       Map(1 -> Set("foo"), 2 -> Set("bazz"))
