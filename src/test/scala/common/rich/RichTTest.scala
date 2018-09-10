@@ -5,6 +5,16 @@ import common.rich.RichT._
 import org.scalatest.FreeSpec
 
 class RichTTest extends FreeSpec with AuxSpecs {
+  "mapIf" - {
+    "predicate" - {
+      "true" in {5.mapIf(_ > 5).to(6) shouldReturn 5}
+      "false" in {5.mapIf(_ < 10).to(_ * 5) shouldReturn 25}
+    }
+    "boolean" - {
+      "true" in {5.mapIf(false).to(_ * 5) shouldReturn 5}
+      "false" in {5.mapIf(true).to(10) shouldReturn 10}
+    }
+  }
   "opt" - {
     "None" in {
       val x: Any = null

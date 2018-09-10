@@ -33,6 +33,7 @@ object RichT {
     def |>[S](f: T => S): S = mapTo(f)
 
     def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
+    def mapIf(p: Boolean): __Mapper[T] = new __Mapper[T]($, p.const)
 
     // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
     // This is used instead of a local class for performance.
