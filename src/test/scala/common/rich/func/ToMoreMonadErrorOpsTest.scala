@@ -67,6 +67,8 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
   import common.rich.func.ToMoreMonadErrorOpsTest._
 
   private lazy val unusedError: String = ???
+  private def is(expected: Int)(actual: Int) =
+    if (actual == expected) None else Some(s"Is not $expected")
   "toMoreMonadErrorOps" - {
     val success: BoxOrMsg[Int] = Box(42)
     val failure: BoxOrMsg[Int] = Msg("failure")
@@ -119,12 +121,25 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
           success.filterWith(_ == 42, unusedError).get shouldReturn 42
         }
         "pred is false" in {
-          success.filterWithF(_ == 43, e => s"expected 43 but was $e")
+          success.filterWith(_ == 43, "expected 43 but was 42")
               .getFailure shouldReturn "expected 43 but was 42"
         }
       }
       "failure" in {
-        failure.filterWithF(_ => ???, _ => ???).getFailure shouldReturn "failure"
+        failure.filterWith(_ => ???, {???}).getFailure shouldReturn "failure"
+      }
+    }
+    "filterMap" - {
+      "success" - {
+        "pred is true" in {
+          success.filterMap(is(42)).get shouldReturn 42
+        }
+        "pred is false" in {
+          success.filterMap(is(43)).getFailure shouldReturn "Is not 43"
+        }
+      }
+      "failure" in {
+        failure.filterMap(_ => ???).getFailure shouldReturn "failure"
       }
     }
     "mFilter" - {
@@ -160,9 +175,25 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
       }
     }
   }
+
   "toMoreMonadErrorThrowableOps" - {
     val success: ContainerOrError[Int] = Container(42)
     val failure: ContainerOrError[Int] = Error(new RuntimeException("failure"))
+    "filterEquals" - {
+      "success" - {
+        "pred is true" in {
+          success.filterEquals(42).get shouldReturn 42
+        }
+        "pred is false" in {
+          success.filterEquals(43).getFailure.getMessage shouldReturn "Expected <43>, but was <42>"
+        }
+      }
+      "failure" in {
+        val ex = failure.filterEquals(???).getFailure
+        ex.getMessage shouldReturn "failure"
+        ex shouldBe a[RuntimeException]
+      }
+    }
     "filterWithMessage" - {
       "success" - {
         "pred is true" in {
@@ -175,6 +206,21 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
       }
       "failure" in {
         val ex = failure.filterWithMessageF(_ => ???, _ => ???).getFailure
+        ex.getMessage shouldReturn "failure"
+        ex shouldBe a[RuntimeException]
+      }
+    }
+    "filterMap" - {
+      "success" - {
+        "pred is true" in {
+          success.filterMapMessage(is(42)).get shouldReturn 42
+        }
+        "pred is false" in {
+          success.filterMapMessage(is(43)).getFailure.getMessage shouldReturn "Is not 43"
+        }
+      }
+      "failure" in {
+        val ex = failure.filterMapMessage(_ => ???).getFailure
         ex.getMessage shouldReturn "failure"
         ex shouldBe a[RuntimeException]
       }
@@ -213,4 +259,3 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
     }
   }
 }
-

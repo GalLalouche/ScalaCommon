@@ -19,6 +19,7 @@ lazy val scalaCommon = (project in file("."))
         "com.h2database" % "h2" % "1.4.196" % "test",
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
       ),
+      addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
     ).settings(scalacOptions in(Compile, doc) ++= Seq(
   "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
 ))
