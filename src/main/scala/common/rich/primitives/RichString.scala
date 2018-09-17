@@ -37,7 +37,6 @@ object RichString {
 
     def dropAfterLast(c: Char): String = $.substring($.lastIndexOf(c) + 1)
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
-    def capitalize: String = $.head.toUpper + $.tail.toLowerCase
   }
   /** Reads what's written to the PrintStream and writes it to the output string. */
   def fromPrintStream(f: PrintStream => Any): String = {
