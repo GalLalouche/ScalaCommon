@@ -1,7 +1,9 @@
 package common.rich.primitives
 
 import java.io.{ByteArrayInputStream, File, InputStream, PrintStream}
+import java.util.regex.Pattern
 
+import common.rich.primitives.RichBoolean._
 import common.rich.RichT.{richT, _}
 import common.rich.path.RichFile.richFile
 
@@ -37,7 +39,11 @@ object RichString {
 
     def dropAfterLast(c: Char): String = $.substring($.lastIndexOf(c) + 1)
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
+
+    def matches(p: Pattern): Boolean = p.matcher($).matches()
+    def doesNotMatch(p: Pattern): Boolean = matches(p).isFalse
   }
+
   /** Reads what's written to the PrintStream and writes it to the output string. */
   def fromPrintStream(f: PrintStream => Any): String = {
     import java.io.{ByteArrayOutputStream, PrintStream}
