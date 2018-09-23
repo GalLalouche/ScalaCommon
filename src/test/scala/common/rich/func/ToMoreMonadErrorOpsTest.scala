@@ -185,7 +185,9 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
           success.filterEquals(42).get shouldReturn 42
         }
         "pred is false" in {
-          success.filterEquals(43).getFailure.getMessage shouldReturn "Expected <43>, but was <42>"
+          success.filterEquals(43).getFailure.getMessage shouldReturn
+              "Expected: <43>,\n" +
+              "but was:  <42>"
         }
       }
       "failure" in {
