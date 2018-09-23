@@ -16,6 +16,7 @@ trait ToMoreMonadPlusOps extends ToMonadPlusOps {
           .map(_.get)
     // because flatMap only works on collections
     def oMap[B](f: A => Option[B]): F[B] = $.map(f).filter(_.isDefined).map(_.get)
+    def present[B](implicit ev: A <:< Option[B]): F[B] = oMap(ev.apply)
     def select[B <: A : Manifest]: F[B] = oMap(_.safeCast[B])
     /** Not thread-safe! */
     def uniqueBy[B](f: A => B): F[A] = {

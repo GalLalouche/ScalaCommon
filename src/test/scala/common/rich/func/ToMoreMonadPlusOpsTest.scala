@@ -55,4 +55,7 @@ class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs with ListInstances w
   "uniqueBy" in {
     List("foo", "bar", "bazz", "quux").uniqueBy(_.length) shouldReturn List("foo", "bazz")
   }
+  "present" in {
+    List(Option("foo"), None).present shouldReturn List("foo")
+  }
 }
