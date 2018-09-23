@@ -2,6 +2,8 @@ package common.rich
 
 import common.rich.primitives.RichBoolean._
 
+import scala.util.Try
+
 object RichT {
   private val primitiveMappings: Map[Class[_], Class[_]] = Map(
     java.lang.Integer.TYPE -> classOf[java.lang.Integer],
@@ -73,6 +75,8 @@ object RichT {
     def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
     def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
       (f1($), f2($), f3($), f4($))
+
+    def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
   }
 
   implicit class lazyT[T]($: => T) {

@@ -5,6 +5,15 @@ import common.rich.RichT._
 import org.scalatest.FreeSpec
 
 class RichTTest extends FreeSpec with AuxSpecs {
+  "tryOrKeep" - {
+    "succeeds" in {
+      5.tryOrKeep(_ + 1) shouldReturn 6
+    }
+    "fails" in {
+      5.tryOrKeep(_ => ???) shouldReturn 5
+    }
+  }
+
   "mapIf" - {
     "predicate" - {
       "true" in {5.mapIf(_ > 5).to(6) shouldReturn 5}
@@ -15,6 +24,7 @@ class RichTTest extends FreeSpec with AuxSpecs {
       "false" in {5.mapIf(true).to(10) shouldReturn 10}
     }
   }
+
   "opt" - {
     "None" in {
       val x: Any = null
@@ -24,6 +34,7 @@ class RichTTest extends FreeSpec with AuxSpecs {
       5.opt shouldReturn Some(5)
     }
   }
+
   "only if" - {
     "int" - {
       "false" in {
@@ -58,6 +69,7 @@ class RichTTest extends FreeSpec with AuxSpecs {
       }
     }
   }
+
   "safe cast" - {
     "primitives" - {
       "Any" in {
@@ -94,10 +106,11 @@ class RichTTest extends FreeSpec with AuxSpecs {
         class A
         class B extends A
         val b: A = new B
-        b.safeCast[B] should === (Some(b))
+        b.safeCast[B] should ===(Some(b))
       }
     }
   }
+
   "lazyT" - {
     "const" - {
       "returns t" in {
@@ -116,7 +129,6 @@ class RichTTest extends FreeSpec with AuxSpecs {
         def foo: Int = ???
         None.map(foo.partialConst) shouldReturn None
       }
-
     }
   }
 }
