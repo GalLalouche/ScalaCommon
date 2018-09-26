@@ -4,6 +4,7 @@ import common.AuxSpecs
 import org.scalatest.FreeSpec
 
 import scala.language.higherKinds
+
 import scalaz.Foldable
 import scalaz.std.{ListInstances, VectorInstances}
 
@@ -38,5 +39,20 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
   "headOpt" - {
     "empty" in {Seq().headOpt shouldReturn None}
     "nonEmpty" in {Seq(1, 2, 3).headOpt shouldReturn Some(1)}
+  }
+
+  "topK" - {
+    "empty" in {
+      List[String]().topK(10) shouldReturn Nil
+    }
+    "smaller than requested k should return reverse ordered" in {
+      Vector("foo", "bar", "moo").topK(10) shouldReturn Vector("moo", "foo", "bar")
+    }
+    "actual test" in {
+      Vector("foo", "moo", "bar").topK(2) shouldReturn Vector("moo", "foo")
+    }
+  }
+  "bottomK" in {
+    Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
   }
 }

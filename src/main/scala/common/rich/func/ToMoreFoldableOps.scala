@@ -1,15 +1,20 @@
 package common.rich.func
 
+import common.rich.primitives.RichBoolean._
+
+import scala.Ordering.Implicits._
+import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
-import scalaz.syntax.ToFoldableOps
+
 import scalaz.{Foldable, MonadError, PlusEmpty}
+import scalaz.syntax.ToFoldableOps
 
 trait ToMoreFoldableOps extends ToFoldableOps {
   implicit class toMoreFoldableOps[A, F[_] : Foldable]($: F[A]) extends ToMoreMonadErrorOps {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
       var list: List[A] = Nil
-      Foldable[F].any($) { e => list = e :: list; false }
+      Foldable[F].any($) {e => list = e :: list; false}
       list foreach f
       $
     }
@@ -22,6 +27,24 @@ trait ToMoreFoldableOps extends ToFoldableOps {
     def mapHeadOrElse[B](f: A => B, default: => B): B = headOpt.fold(default)(f)
     def headOpt: Option[A] = $ index 0
     def head: A = headOpt.get
+
+    /** O(n * log(k)), where n is the size of the foldable. */
+    def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
+      val q = new java.util.PriorityQueue[A](k, ord.compare)
+      doForEach(next => {
+        if (q.size < k)
+          q.add(next)
+        else if (q.peek < next) {
+          q.poll()
+          q.add(next)
+        }
+      })
+      val mb = new ListBuffer[A]()
+      while (q.isEmpty.isFalse)
+        q.poll() +=: mb
+      mb.toVector
+    }
+    def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
   }
 }
 
