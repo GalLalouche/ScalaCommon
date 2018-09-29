@@ -1,6 +1,6 @@
 package common.rich.func
 
-import scala.language.higherKinds
+import scala.language.{higherKinds, reflectiveCalls}
 
 import scalaz.{~>, Applicative, Functor, OptionT}
 
