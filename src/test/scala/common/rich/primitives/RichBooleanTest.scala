@@ -21,4 +21,10 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
       true.ifFalse(???) shouldReturn None
     }
   }
+  "xor" - {
+    "00" in {false ⊕ false shouldBe false}
+    "01" in {false ⊕ true shouldBe true}
+    "10" in {true ⊕ false shouldBe true}
+    "11" in {true ⊕ true shouldBe false}
+  }
 }
