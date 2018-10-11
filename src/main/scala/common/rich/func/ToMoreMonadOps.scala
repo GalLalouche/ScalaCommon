@@ -7,10 +7,17 @@ import scalaz.std.OptionInstances
 import scalaz.syntax.ToMonadOps
 
 trait ToMoreMonadOps extends ToMonadOps {
+  import scalaz.Leibniz.===
+
   implicit class toMoreMonadOps[F[_]: Monad, A]($: F[A]) {
+    private def pure[B](e: B) = Monad.apply.pure(e)
     def toOptionTF2[B](f: A => OptionT[F, B]): OptionT[F, B] =
       OptionT($.map(Option(_))).flatMap(f)
+    def ifFalse(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = pure(Unit), ifFalse = f.void)
+    def ifTrue(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = pure(Unit))
   }
+
+  //TODO move below
   implicit class toMoreOptionMonadOps[A, F[_]: Monad]($: F[Option[A]])
       extends ToMoreFoldableOps with OptionInstances {
     private def pure[B](e: B) = Monad.apply.pure(e)
