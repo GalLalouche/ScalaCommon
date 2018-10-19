@@ -20,7 +20,7 @@ object RichWindows extends RichOs {
         .map(_.trim)
         .find(_.startsWith("Directory of"))
         .get
-        .mapTo(_.captureWith("Directory of (.*)".r) + "\\" + macroedPath.dropAfterLast('\\').captureWith("\\.[A-z]{3}".r))
+        .mapTo(_.captureWith("Directory of (.*)".r) + "\\" + macroedPath.takeAfterLast('\\').captureWith("\\.[A-z]{3}".r))
   }
   override def getRunningProcesses: Seq[ProcessInfo] = {
     val cmdList = Process("WMIC PROCESS get Caption,Commandline,Processid").!!

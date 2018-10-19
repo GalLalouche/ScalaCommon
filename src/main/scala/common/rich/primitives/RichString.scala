@@ -37,7 +37,13 @@ object RichString {
       case regex(result) => result
     }
 
-    def dropAfterLast(c: Char): String = $.substring($.lastIndexOf(c) + 1)
+    /** If c isn't present in the string, returns the same string. */
+    def dropAfterLast(c: Char): String = {
+      val dropFrom: Int = $ lastIndexOf c
+      if (dropFrom == -1) $ else $.substring(0, dropFrom + 1)
+    }
+    /** If c isn't present in the string, returns the same string. */
+    def takeAfterLast(c: Char): String = $.substring($.lastIndexOf(c) + 1)
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
 
     def matches(p: Pattern): Boolean = p.matcher($).matches()

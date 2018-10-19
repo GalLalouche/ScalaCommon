@@ -61,4 +61,34 @@ class RichStringTest extends FreeSpec with AuxSpecs {
       "barfoo".matches(Pattern.compile("f.{4}r"))
     }
   }
+
+  "dropAfterLast" - {
+    "no character returns same string" in {
+      "foobar" dropAfterLast 'q' shouldReturn "foobar"
+    }
+    "last character returns same string" in {
+      "foobar" dropAfterLast 'r' shouldReturn "foobar"
+    }
+    "first character" in {
+      "foobar" dropAfterLast 'f' shouldReturn "f"
+    }
+    "middle" in {
+      "foobar" dropAfterLast 'o' shouldReturn "foo"
+    }
+  }
+
+  "takeAfterLast" - {
+    "no character returns same string" in {
+      "foobar" takeAfterLast 'q' shouldReturn "foobar"
+    }
+    "last character returns empty" in {
+      "foobar" takeAfterLast 'r' shouldReturn ""
+    }
+    "first character" in {
+      "foobar" takeAfterLast 'f' shouldReturn "oobar"
+    }
+    "middle" in {
+      "foobar" takeAfterLast 'o' shouldReturn "bar"
+    }
+  }
 }
