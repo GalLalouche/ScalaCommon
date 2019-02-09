@@ -5,6 +5,7 @@ import common.rich.RichFuture._
 import org.scalatest.{BeforeAndAfter, FreeSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import scalaz.std.FutureInstances
 import scalaz.syntax.ToBindOps
 
@@ -51,6 +52,17 @@ class SlickTableUtilsTest extends FreeSpec with AuxSpecs with BeforeAndAfter
         $.createTable()
             .>>($.dropTable())
             .>>($.createTable()).get
+      }
+    }
+    "createTableIfNotExists" - {
+      "exists" in {
+        $.createTable().>>($.createTableIfNotExists()).get shouldReturn false
+        $.doesTableExist.get shouldReturn true
+      }
+      "does not exist" in {
+        $.doesTableExist.get shouldReturn false
+        $.createTableIfNotExists().get shouldReturn true
+        $.doesTableExist.get shouldReturn true
       }
     }
     "clear" - {
