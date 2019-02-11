@@ -131,4 +131,9 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       Seq("one", "four", "three").filterAndSortBy(_.length, List(5, 3)) shouldReturn List("three", "one")
     }
   }
+
+  "product works on iterators" in {
+    val $ = Iterator(1, 2, 3) * Iterator(4, 5, 6)
+    $.toVector shouldReturn Vector(1 -> 4, 1 -> 5, 1 -> 6, 2 -> 4, 2 -> 5, 2 -> 6, 3 -> 4, 3 -> 5, 3 -> 6)
+  }
 }

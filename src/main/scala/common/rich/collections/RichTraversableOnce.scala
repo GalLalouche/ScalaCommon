@@ -97,12 +97,11 @@ object RichTraversableOnce
       satisfy.toDouble / total
     }
 
-    /**
-     * Returns the Cartesian product of both sequences.
-     *
-     * @param xs the other traversable
-     */
-    def *[S](xs: TraversableOnce[S]): TraversableOnce[(T, S)] = for (x <- $; y <- xs) yield (x, y)
+    /** Returns the Cartesian product of both traversables. */
+    def *[S](ys: TraversableOnce[S]): TraversableOnce[(T, S)] = {
+      val yIterable = ys.toIterable // Needed if y really is traversable*Once*.
+      for (x <- $; y <- yIterable) yield (x, y)
+    }
 
     /** Selects a representative from each equivalence set */
     def selectRepresentative[U](f: T => U): TraversableOnce[T] = {
