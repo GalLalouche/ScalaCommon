@@ -7,9 +7,10 @@ import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
 import scala.language.higherKinds
+
+import scalaz.{Foldable, Plus, Semigroup}
 import scalaz.std.OptionInstances
-import scalaz.syntax.ToSemigroupOps
-import scalaz.{Plus, Semigroup}
+import scalaz.syntax.{ToFoldableOps, ToSemigroupOps}
 
 object RichMap {
   implicit class richJavaMap[K, V](private val $: util.Map[K, V]) {
@@ -38,11 +39,12 @@ object RichMap {
 
   implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V])
       extends ToSemigroupOps with ToMoreFoldableOps with OptionInstances {
-    def upsert(kv: (K, V)): Map[K, V] = upsert(kv._1, kv._2)
-    def upsert(k: K, v: => V): Map[K, V] = $.updated(k, $.get(k).mapHeadOrElse(_ ⊹ v, v))
     def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
+    def upsert[V2 >: V : Semigroup](kv: (K, V2)): Map[K, V2] = upsert(kv._1, kv._2)
+    def upsert[V2 >: V : Semigroup](k: K, v: => V2): Map[K, V2] =
+      $.updated(k, $.get(k).asInstanceOf[Option[V2]].mapHeadOrElse(_ ⊹ v, v))
     def mergeIntersecting(other: Map[K, V]): Map[K, V] =
-      $.filterKeys(other.contains).map(e => (e._1, e._2 |+| other(e._1)))
+      $.filterKeys(other.contains).map(e => (e._1, e._2 ⊹ other(e._1)))
   }
   implicit class richPlusMap[K, V[_] : Plus, A]($: Map[K, V[A]]) {
     private val asSemigroup = richSemigroupMap($)(Plus[V].semigroup)

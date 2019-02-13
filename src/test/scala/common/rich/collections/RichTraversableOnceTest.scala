@@ -101,7 +101,7 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       a[NoSuchElementException] should be thrownBy Nil.single
     }
     "throws an exception on a traversable with more than 1 element" in {
-      a[UnsupportedOperationException] should be thrownBy List(1, 2).single
+      an[UnsupportedOperationException] should be thrownBy List(1, 2).single
     }
   }
 
