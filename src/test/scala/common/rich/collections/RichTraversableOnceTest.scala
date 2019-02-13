@@ -3,6 +3,7 @@ package common.rich.collections
 import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
 import org.scalatest.FreeSpec
+import scalaz.Semigroup
 
 import scala.collection.mutable
 
@@ -110,7 +111,7 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       List("Hello", "world!").mapBy(_.length) shouldReturn Map(5 -> "Hello", 6 -> "world!")
     }
     "throws on repeats" in {
-      an[UnsupportedOperationException] should be thrownBy List(1, 2).mapBy(_.toString.length)
+      an[IllegalArgumentException] should be thrownBy List(1, 2).mapBy(_.toString.length)
     }
   }
 
@@ -121,6 +122,16 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     "extracts the value when passed" in {
       List("one", "two", "three").toMultiMap(_.length, _.toUpperCase) shouldReturn Map(3 -> Seq("ONE", "TWO"), 5 -> Seq("THREE"))
     }
+  }
+
+  "aggregateMap" in {
+    implicit val concatStrings: Semigroup[String] = Semigroup.instance(_ + _)
+    List("one", "two", "three").aggregateMap(_.length, _.toUpperCase) shouldReturn Map(3 -> "ONETWO", 5 -> "THREE")
+  }
+
+  "reduceByKey" in {
+    implicit val concatStrings: Semigroup[String] = Semigroup.instance(_ + _)
+    List("one", "two", "three").reduceByKey(_.length) shouldReturn Map(3 -> "onetwo", 5 -> "three")
   }
 
   "filterAndSortBy" - {

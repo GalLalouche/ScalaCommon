@@ -1,11 +1,14 @@
 package common.rich.collections
 
 import common.rich.RichT._
+import common.rich.collections.RichIterator._
+import common.rich.collections.RichMap._
 import common.rich.func.ToMoreFoldableOps
 
 import scala.math.log10
-import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
+
 import scalaz.{Functor, Semigroup}
+import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
 
 object RichTraversableOnce
     extends ToMoreFoldableOps
@@ -27,17 +30,14 @@ object RichTraversableOnce
     def reduceByKey[Key](toKey: T => Key)(implicit ev: Semigroup[T]): Map[Key, T] =
       aggregateMap(toKey, identity)
     def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value): Map[Key, Value] =
-      $.foldLeft(Map[Key, Value]()) { (m, next) =>
-        val key = toKey(next)
-        val value = toValue(next)
-        m + (key -> m.get(key).mapHeadOrElse(Semigroup[Value].append(_, value), value))
-      }
+      $.map(_.toTuple(toKey, toValue)).foldLeft(Map[Key, Value]())(_ upsert _)
 
+    /** Throws on repeat keys. */
     def mapBy[S](f: T => S): Map[S, T] =
       $.foldLeft(Map[S, T]())((map, nextValue) => {
         val key = f(nextValue)
         if (map.contains(key))
-          throw new UnsupportedOperationException(
+          throw new IllegalArgumentException(
             s"key <$key> is already used for value <${map(key)}>, " +
                 s"but is also requested as a key for value <$nextValue>")
         map + (key -> nextValue)
@@ -70,7 +70,7 @@ object RichTraversableOnce
     def entropy: Double = {
       val f = frequencies
       val size = f.values.sum
-      frequencies.values
+      f.values
           .map(_.toDouble / size)
           .map(p => -p * log10(p) / log10(2))
           .sum
@@ -78,8 +78,8 @@ object RichTraversableOnce
 
     /** Retrieves all <i>N choose 2<\i> pairs */
     def unorderedPairs: TraversableOnce[(T, T)] = {
-      val withIndex = $.toSeq.zipWithIndex
-      withIndex * withIndex filter (e => e._1._2 < e._2._2) map (e => e._1._1 -> e._2._1)
+      val withIndex = $.toVector.zipWithIndex
+      for ((a, i) <- withIndex; (b, j) <- withIndex; if i < j) yield a -> b
     }
 
     def hasSameValues[U](f: T => U): Boolean = {
@@ -89,7 +89,8 @@ object RichTraversableOnce
     }
 
     /** Checks if the traversable has any repeats */
-    def allUnique: Boolean = $.toSet.size == $.size
+    def allUnique: Boolean =
+      $.toIterator.foldingIterator(Set[T]())(_ + _).zipWithIndex.forall {case (s, i) => s.size == i}
 
     /** Finds the percentage of elements satisfying the predicate */
     def percentageSatisfying(p: T => Boolean): Double = {
@@ -105,9 +106,7 @@ object RichTraversableOnce
 
     /** Selects a representative from each equivalence set */
     def selectRepresentative[U](f: T => U): TraversableOnce[T] = {
-      implicit val semigroupFirst: Semigroup[T] = new Semigroup[T] {
-        override def append(f1: T, f2: => T): T = f1
-      }
+      implicit val semigroupFirst: Semigroup[T] = Semigroup.instance((x, _) => x)
       aggregateMap(f, e => e).values
     }
 
