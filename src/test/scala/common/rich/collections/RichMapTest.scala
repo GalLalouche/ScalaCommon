@@ -68,4 +68,15 @@ class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with List
       }
     }
   }
+
+  "richFoldableMap" - {
+    val $ = Map("foo" -> List(1, 2, 3), "bar" -> List(4, 5))
+    "flattenValues" in {
+      $.flattenValues shouldSetEqual Set("foo" -> 1, "foo" -> 2, "foo" -> 3, "bar" -> 4, "bar" -> 5)
+    }
+    "totalSize" in {
+      $.totalSizeSlow shouldReturn 5
+      $.totalSize shouldReturn 5
+    }
+  }
 }
