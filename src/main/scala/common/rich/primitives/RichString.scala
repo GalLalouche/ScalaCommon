@@ -15,6 +15,29 @@ object RichString {
     def isWhitespaceOrEmpty: Boolean = $ matches "\\s*"
     def appendTo(f: File): Unit = f appendLine $
 
+    type Parser[A] = String => A
+    def splitParse[A, B](splitBy: String, fa: Parser[A], fb: Parser[B]): (A, B) = {
+      val split = $.split(splitBy)
+      require(split.size == 2)
+      (fa(split(0)), fb(split(1)))
+    }
+    def splitParse[A, B, C](splitBy: String, fa: Parser[A], fb: Parser[B], fc: Parser[C]): (A, B, C) = {
+      val split = $.split(splitBy)
+      require(split.size == 3)
+      (fa(split(0)), fb(split(1)), fc(split(2)))
+    }
+    def splitParse[A, B, C, D](splitBy: String,
+        fa: Parser[A], fb: Parser[B], fc: Parser[C], fd: Parser[D]): (A, B, C, D) = {
+      val split = $.split(splitBy)
+      require(split.size == 4)
+      (fa(split(0)), fb(split(1)), fc(split(2)), fd(split(3)))
+    }
+    def splitParse[A, B, C, D, E](splitBy: String,
+        fa: Parser[A], fb: Parser[B], fc: Parser[C], fd: Parser[D], fe: Parser[E]): (A, B, C, D, E) = {
+      val split = $.split(splitBy)
+      require(split.size == 5)
+      (fa(split(0)), fb(split(1)), fc(split(2)), fd(split(3)), fe(split(4)))
+    }
     /** does not return a sequence of delimiters at the end */
     def smartSplit(regex: String): Seq[String] = $
         .split(regex)
