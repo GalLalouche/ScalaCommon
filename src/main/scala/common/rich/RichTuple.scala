@@ -6,6 +6,7 @@ object RichTuple {
     def reduce[C](f: (A, B) => C): C = f($._1, $._2)
     def modifySecond[C](f: B => C): (A, C) = $._1 -> f($._2)
     def modifyFirst[C](f: A => C): (C, B) = f($._1) -> $._2
+    def map2[C, D](f: A => C, g: B => D): (C, D) = f($._1) -> g($._2)
   }
   implicit class richSameTuple2[A](private val $: (A, A)) extends AnyVal {
     def map[S](f: A => S): (S, S) = (f($._1), f($._2))
