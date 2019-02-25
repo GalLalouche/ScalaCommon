@@ -100,7 +100,6 @@ object RichSeq {
      */
     def insertAt(e: T, index: Int): Seq[T] = this insert e at index
 
-
     /**
      * Syntactic sugar, so one can write <code>insert e at i</code> or
      * <code>insert e after i</code> or <code>insert e before i</code>
@@ -124,6 +123,10 @@ object RichSeq {
     def hasAtMostSizeOf(n: Int): Boolean = $.lengthCompare(n) <= 0
     def isSmallerThan(n: Int): Boolean = $.lengthCompare(n) < 0
     def hasExactlySizeOf(n: Int): Boolean = $.lengthCompare(n) == 0
+    def cutoffsAt(p: T => Boolean): Seq[Seq[T]] = $.foldLeft(Seq[Seq[T]]())((agg, t) => agg match {
+      case Nil => List(List(t))
+      case x :: xs => if (p(t)) List(t) :: x.reverse :: xs else (t :: x) :: xs
+    }).reverse
   }
 
   sealed trait CheckLengthResult

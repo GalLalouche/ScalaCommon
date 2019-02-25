@@ -175,4 +175,15 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
       list.hasExactlySizeOf(4) shouldReturn false
     }
   }
+
+  "cutoffsAt" - {
+    "starts at false" in {
+      Vector(1, 7, 2, 3, 4, 5, 6, 6).cutoffsAt(_ % 2 == 0).toVector.map(_.toVector) shouldReturn
+          Vector(Vector(1, 7), Vector(2, 3), Vector(4, 5), Vector(6), Vector(6))
+    }
+    "starts at true" in {
+      Vector(6, 4, 2, 3, 4, 5, 6, 6).cutoffsAt(_ % 2 == 0).toVector.map(_.toVector) shouldReturn
+          Vector(Vector(6), Vector(4), Vector(2, 3), Vector(4, 5), Vector(6), Vector(6))
+    }
+  }
 }
