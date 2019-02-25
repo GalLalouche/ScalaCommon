@@ -95,14 +95,6 @@ object RichIterator {
     def par(windowSize: Int = 20): Iterator[T] = new ParIterator($, windowSize)
 
     def reducingIterator(f: (T, T) => T): Iterator[T] =
-      if ($.isEmpty) Iterator() else foldingIterator($.next)(f)
-
-    def foldingIterator[S](s: S)(f: (S, T) => S): Iterator[S] = {
-      var current = s
-      Iterator.single(s) ++ $.map(t => {
-        current = f(current, t)
-        current
-      })
-    }
+      if ($.isEmpty) Iterator() else $.scanLeft($.next)(f)
   }
 }

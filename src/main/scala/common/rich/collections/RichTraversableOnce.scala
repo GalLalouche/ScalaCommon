@@ -5,6 +5,7 @@ import common.rich.collections.RichIterator._
 import common.rich.collections.RichMap._
 import common.rich.func.ToMoreFoldableOps
 
+import scala.collection.TraversableOnce
 import scala.math.log10
 
 import scalaz.{Functor, Semigroup}
@@ -90,7 +91,7 @@ object RichTraversableOnce
 
     /** Checks if the traversable has any repeats */
     def allUnique: Boolean =
-      $.toIterator.foldingIterator(Set[T]())(_ + _).zipWithIndex.forall {case (s, i) => s.size == i}
+      $.toIterator.scanLeft(Set[T]())(_ + _).zipWithIndex.forall {case (s, i) => s.size == i}
 
     /** Finds the percentage of elements satisfying the predicate */
     def percentageSatisfying(p: T => Boolean): Double = {

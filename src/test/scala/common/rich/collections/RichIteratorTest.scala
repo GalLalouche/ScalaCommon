@@ -47,21 +47,6 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       compareIterators(Iterator(1, 2, 3, 4, 5).reducingIterator(_ + _), List(1, 3, 6, 10, 15))
     }
   }
-  "foldingIterator" - {
-    def fold(i: Int, s: String): Int = i + s.length
-    "empty" in {
-      compareIterators(Iterator[String]().foldingIterator(5)(fold), Seq(5))
-    }
-    "single element" in {
-      compareIterators(Iterator("foo").foldingIterator(5)(fold), List(5, 8))
-    }
-    "two elements" in {
-      compareIterators(Iterator("foobar", "bazz").foldingIterator(5)(fold), List(5, 11, 15))
-    }
-    "five elements" in {
-      compareIterators(Iterator("foo", "bar", "bazz", "quux", "moomoo").foldingIterator(5)(fold), List(5, 8, 11, 15, 19, 25))
-    }
-  }
 
   "par" ignore {
     "create threads to run a map request" ignore {
