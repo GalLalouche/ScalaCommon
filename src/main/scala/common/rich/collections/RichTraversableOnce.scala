@@ -1,7 +1,7 @@
 package common.rich.collections
 
+import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
-import common.rich.collections.RichIterator._
 import common.rich.collections.RichMap._
 import common.rich.func.ToMoreFoldableOps
 
@@ -128,5 +128,8 @@ object RichTraversableOnce
           .sortBy(_._2 |> orderMap)
           .map(_._1)
     }
+
+    def fornone(p: T => Boolean): Boolean = $.exists(p).isFalse
+    def existsNot(p: T => Boolean): Boolean = $.forall(p).isFalse
   }
 }

@@ -147,4 +147,13 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     val $ = Iterator(1, 2, 3) * Iterator(4, 5, 6)
     $.toVector shouldReturn Vector(1 -> 4, 1 -> 5, 1 -> 6, 2 -> 4, 2 -> 5, 2 -> 6, 3 -> 4, 3 -> 5, 3 -> 6)
   }
+
+  "fornone" - {
+    "true" in {Seq(1, 2, 3).fornone(_ == 4) shouldReturn true}
+    "false" in {Seq(1, 2, 3).fornone(_ == 3) shouldReturn false}
+  }
+  "existsNot" - {
+    "true" in {Seq(1, 2, 3).existsNot(_ == 3) shouldReturn true}
+    "false" in {Seq(1, 2, 3).existsNot(_ != 4) shouldReturn false}
+  }
 }
