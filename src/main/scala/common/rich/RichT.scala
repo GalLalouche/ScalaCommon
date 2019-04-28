@@ -58,6 +58,10 @@ object RichT {
       f($)
       $
     }
+    def <|(f: T => Any): T = applyAndReturn(f)
+
+    def :->[S](f: T => S): (T, S) = $ -> f($)
+    def <-:[S](f: T => S): (S, T) = f($) -> $
 
     /** the simple class name, without $ and stuff */
     def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
