@@ -1,24 +1,24 @@
 package common
 
 import java.io.File
-import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
+import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
 import common.rich.primitives.RichBoolean._
-import org.scalatest.exceptions.TestFailedException
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Matchers, Suite}
+import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.duration.Duration
 
 /** Several helping methods and fixtures for testing */
-trait AuxSpecs extends Matchers { self: Suite =>
-
-  // since the parameter means jack shit it seems
+trait AuxSpecs extends Matchers {self: Suite =>
+  // Since the parameter means jack shit it seems.
   private def throwProperDepthException(message: String, depth: Int): Unit = {
     val e = new TestFailedException(message, 0)
     e.setStackTrace(Thread.currentThread.getStackTrace.drop(depth + 1))
     throw e
   }
-  // More information on errors
+  // More information on errors.
   implicit class RichShouldTraversable[T]($: Traversable[T]) {
     private val ProperExceptionDepth = 2
     def shouldContain(first: T, last: T*): Unit = {
@@ -48,7 +48,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
     }
   }
 
-  // type-safe equality checking
+  // Type-safe equality checking.
   implicit class RichShould[T]($: T) {
     def shouldReturn(t: T) {
       try $ should ===(t)
@@ -83,7 +83,7 @@ trait AuxSpecs extends Matchers { self: Suite =>
     } finally t.cancel(true)
   }
 
-  // usage: { block } shouldFinish in lessThan 2.seconds
+  /** Usage: {{{ { foobar() } shouldFinish in lessThan 2.seconds. }}} */
   implicit class richBlock(f: => Any) {
     def shouldFinish(matcher: NewMatchers) = new {
       def lessThan(maxTime: Duration) = new {
@@ -108,4 +108,5 @@ trait AuxSpecs extends Matchers { self: Suite =>
   }
 
   def getResourceFile(name: String): File = new File(getClass.getResource(name).getFile)
+  implicit def genToArbitrary[A: Gen]: Arbitrary[A] = Arbitrary(implicitly[Gen[A]])
 }
