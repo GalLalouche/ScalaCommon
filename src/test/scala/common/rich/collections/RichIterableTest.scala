@@ -21,18 +21,49 @@ class RichIterableTest extends FreeSpec with AuxSpecs {
     }
   }
 
-  "hasExactSize" - {
-    "true" in {
-      RichIterable.from(Iterator(1, 2, 3)).hasExactSize(3) shouldReturn true
+  "length comparisons" - {
+    val $ = RichIterable.from(Iterator(1, 2, 3))
+    val inf = RichIterable.continually(5)
+    "checkLength" in {
+      $.checkLength(2) shouldReturn RichIterable.Larger
+      $.checkLength(3) shouldReturn RichIterable.Equal
+      $.checkLength(4) shouldReturn RichIterable.Smaller
+      inf.checkLength(5) shouldReturn RichIterable.Larger
     }
-    "more" in {
-      RichIterable.from(Iterator(1, 2, 3, 4)).hasExactSize(3) shouldReturn false
+
+    "hasAtLeastSizeOf" in {
+      $.hasAtLeastSizeOf(2) shouldReturn true
+      $.hasAtLeastSizeOf(3) shouldReturn true
+      $.hasAtLeastSizeOf(4) shouldReturn false
+      inf.hasAtLeastSizeOf(5) shouldReturn true
     }
-    "less" in {
-      RichIterable.from(Iterator(1, 2)).hasExactSize(3) shouldReturn false
+
+    "hasAtMostSizeOf" in {
+      $.hasAtMostSizeOf(2) shouldReturn false
+      $.hasAtMostSizeOf(3) shouldReturn true
+      $.hasAtMostSizeOf(4) shouldReturn true
+      inf.hasAtMostSizeOf(5) shouldReturn false
     }
-    "infinite" in {
-      RichIterable.continually(1).hasExactSize(3) shouldReturn false
+
+    "isLargerThan" in {
+      $.isLargerThan(2) shouldReturn true
+      $.isLargerThan(3) shouldReturn false
+      $.isLargerThan(4) shouldReturn false
+      inf.isLargerThan(5) shouldReturn true
+    }
+
+    "isSmallerThan" in {
+      $.isSmallerThan(2) shouldReturn false
+      $.isSmallerThan(3) shouldReturn false
+      $.isSmallerThan(4) shouldReturn true
+      inf.isSmallerThan(5) shouldReturn false
+    }
+
+    "hasExactlySizeOf" in {
+      $.hasExactlySizeOf(2) shouldReturn false
+      $.hasExactlySizeOf(3) shouldReturn true
+      $.hasExactlySizeOf(4) shouldReturn false
+      inf.hasExactlySizeOf(5) shouldReturn false
     }
   }
 }

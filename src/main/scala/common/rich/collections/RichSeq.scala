@@ -70,6 +70,7 @@ object RichSeq {
 
     /**
      * Cyclicly shifts the sequence
+     *
      * @param shiftSize the number of elements to shift by. It can be either negative or positive.
      */
     def shift(shiftSize: Int): Seq[T] = $ splitAt shiftSize mapTo (e => e._2 ++ e._1)
@@ -94,7 +95,8 @@ object RichSeq {
 
     /**
      * Inserts the element at the index. O(n) complexity.
-     * @param e the element to insert
+     *
+     * @param e     the element to insert
      * @param index the index to insert at
      * @throws IndexOutOfBoundsException
      */
@@ -103,36 +105,16 @@ object RichSeq {
     /**
      * Syntactic sugar, so one can write <code>insert e at i</code> or
      * <code>insert e after i</code> or <code>insert e before i</code>
+     *
      * @param e the element to insert
      */
     def insert(e: T) = new __Inserter($, e)
 
-    // TODO move to RichTraversableOnce?
-    /** Like lengthCompare, but nicer return value. */
-    def checkLength(n: Int): CheckLengthResult = {
-      val res = $.lengthCompare(n)
-      if (res < 0)
-        Smaller
-      else if (res == 0)
-        Equal
-      else
-        Larger
-    }
-    def hasAtLeastSizeOf(n: Int): Boolean = $.lengthCompare(n) >= 0
-    def isLargerThan(n: Int): Boolean = $.lengthCompare(n) > 0
-    def hasAtMostSizeOf(n: Int): Boolean = $.lengthCompare(n) <= 0
-    def isSmallerThan(n: Int): Boolean = $.lengthCompare(n) < 0
-    def hasExactlySizeOf(n: Int): Boolean = $.lengthCompare(n) == 0
     def cutoffsAt(p: T => Boolean): Seq[Seq[T]] = $.foldLeft(Seq[Seq[T]]())((agg, t) => agg match {
       case Nil => List(List(t))
       case x :: xs => if (p(t)) List(t) :: x.reverse :: xs else (t :: x) :: xs
     }).reverse
   }
-
-  sealed trait CheckLengthResult
-  case object Smaller extends CheckLengthResult
-  case object Larger extends CheckLengthResult
-  case object Equal extends CheckLengthResult
 
   implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))

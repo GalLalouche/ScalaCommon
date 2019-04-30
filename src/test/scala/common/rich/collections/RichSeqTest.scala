@@ -137,44 +137,6 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
       1 :: Seq(2) shouldBe Seq(1, 2)
     }
   }
-  "length comparisons" - {
-    val list = List(1, 2, 3)
-    "checkLength" in {
-      list.checkLength(2) shouldReturn RichSeq.Larger
-      list.checkLength(3) shouldReturn RichSeq.Equal
-      list.checkLength(4) shouldReturn RichSeq.Smaller
-    }
-
-    "hasAtLeastSizeOf" in {
-      list.hasAtLeastSizeOf(2) shouldReturn true
-      list.hasAtLeastSizeOf(3) shouldReturn true
-      list.hasAtLeastSizeOf(4) shouldReturn false
-    }
-
-    "hasAtMostSizeOf" in {
-      list.hasAtMostSizeOf(2) shouldReturn false
-      list.hasAtMostSizeOf(3) shouldReturn true
-      list.hasAtMostSizeOf(4) shouldReturn true
-    }
-
-    "isLargerThan" in {
-      list.isLargerThan(2) shouldReturn true
-      list.isLargerThan(3) shouldReturn false
-      list.isLargerThan(4) shouldReturn false
-    }
-
-    "isSmallerThan" in {
-      list.isSmallerThan(2) shouldReturn false
-      list.isSmallerThan(3) shouldReturn false
-      list.isSmallerThan(4) shouldReturn true
-    }
-
-    "hasExactlySizeOf" in {
-      list.hasExactlySizeOf(2) shouldReturn false
-      list.hasExactlySizeOf(3) shouldReturn true
-      list.hasExactlySizeOf(4) shouldReturn false
-    }
-  }
 
   "cutoffsAt" - {
     "starts at false" in {
