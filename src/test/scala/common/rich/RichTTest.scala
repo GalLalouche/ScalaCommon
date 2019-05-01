@@ -131,4 +131,23 @@ class RichTTest extends FreeSpec with AuxSpecs {
       }
     }
   }
+
+  "anyRefT" - {
+    "neq" - {
+      "true" in {
+        "foo" neq "bar" shouldReturn true
+      }
+      "false" in {
+        "foo" neq "foo" shouldReturn false
+      }
+      "super type" in {
+        val x: AnyRef = Nil
+        val y = "bar"
+        x neq y shouldReturn true
+      }
+      "doesn't compile invalid types" in {
+        """Nil.neq("foo")""" shouldNot typeCheck
+      }
+    }
+  }
 }

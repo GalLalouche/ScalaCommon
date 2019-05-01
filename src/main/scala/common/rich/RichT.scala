@@ -87,4 +87,8 @@ object RichT {
     def const[S]: S => T = _ => $
     def partialConst[S]: PartialFunction[S, T] = {case _ => $}
   }
+
+  implicit class anyRefT[T <: AnyRef](private val $: T) extends AnyVal {
+    def neq(other: T): Boolean = !$.eq(other)
+  }
 }
