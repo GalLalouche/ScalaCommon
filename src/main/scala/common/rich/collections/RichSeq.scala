@@ -5,6 +5,7 @@ import common.rich.RichT._
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.reflect.ClassTag
+import scala.util.Random
 
 object RichSeq {
   class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
@@ -23,9 +24,8 @@ object RichSeq {
   }
   implicit class richSeq[T](private val $: Seq[T]) extends AnyVal {
     /** Returns a random shuffle of this sequence in O(n), using the fisher-yates algorithm */
-    def shuffle: Seq[T] = {
+    def shuffle(random: Random): Seq[T] = {
       val array = ArrayBuffer[T]($: _*)
-      val random = new scala.util.Random
       for (n <- array.length - 1 to 0 by -1) {
         val k = random.nextInt(n + 1)
         val (a, b) = (array(n), array(k))
@@ -34,11 +34,11 @@ object RichSeq {
       }
       array.toVector
     }
+    def shuffle: Seq[T] = shuffle(Random)
 
     /** Returns a sample of uniformly random n elements */
-    def sample(n: Int): Seq[T] = {
+    def sample(n: Int, random: Random = Random): Seq[T] = {
       require(n <= $.size, s"Can't sample $n items out of a sequence of size ${$.size}")
-      val random = new scala.util.Random
       def swap(v: Vector[T], a: Int, b: Int): Vector[T] = {
         val (x, y) = v(a) -> v(b)
         v.updated(b, x).updated(a, y)
