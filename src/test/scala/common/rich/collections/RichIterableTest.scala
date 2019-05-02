@@ -5,25 +5,9 @@ import common.rich.collections.RichIterable._
 import org.scalatest.FreeSpec
 
 class RichIterableTest extends FreeSpec with AuxSpecs {
-  "additional constructors" - {
-    "from" in {
-      val $ = RichIterable.from(Iterator(1, 2, 3, 4))
-      $.toVector shouldReturn Vector(1, 2, 3, 4)
-      $.toVector shouldReturn Vector(1, 2, 3, 4)
-    }
-    "continually" in {
-      RichIterable.continually(1).take(10).toVector shouldReturn Vector.fill(10)(1)
-    }
-    "iterate" in {
-      val $ = RichIterable.iterate(1)(_ + 1)
-      $.take(10).toVector shouldReturn 1.to(10).toVector
-      $.take(10).toVector shouldReturn 1.to(10).toVector
-    }
-  }
-
   "length comparisons" - {
-    val $ = RichIterable.from(Iterator(1, 2, 3))
-    val inf = RichIterable.continually(5)
+    val $ = Vector(1, 2, 3)
+    val inf = Stream.continually(5)
     "checkLength" in {
       $.checkLength(2) shouldReturn RichIterable.Larger
       $.checkLength(3) shouldReturn RichIterable.Equal
