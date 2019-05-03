@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import common.rich.collections.RichIterator._
+
 import scalaz.MonadPlus
 
 /** Like Iterable, but its higher order methods don't invoke a builder. */
@@ -9,8 +11,9 @@ class LazyIterable[+A](_iterator: => Iterator[A]) {
 
   def mapIterator[B](f: Iterator[A] => Iterator[B]): LazyIterable[B] = new LazyIterable(f(iterator))
 
-  def takeWhile(f: A => Boolean): LazyIterable[A] = mapIterator(_ takeWhile f)
-  def dropWhile(f: A => Boolean): LazyIterable[A] = mapIterator(_ dropWhile f)
+  def takeUntil(p: A => Boolean): LazyIterable[A] = mapIterator(_ takeUntil p)
+  def takeWhile(p: A => Boolean): LazyIterable[A] = mapIterator(_ takeWhile p)
+  def dropWhile(p: A => Boolean): LazyIterable[A] = mapIterator(_ dropWhile p)
   def take(n: Int): LazyIterable[A] = mapIterator(_ take n)
   def drop(n: Int): LazyIterable[A] = mapIterator(_ drop n)
 

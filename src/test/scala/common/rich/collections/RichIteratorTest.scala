@@ -15,7 +15,7 @@ import scala.util.Random
 class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
   override val timeLimit = 2 seconds
   private def compareIterators[T](actual: Iterator[T], expected: TraversableOnce[T]): Unit =
-    actual.toList shouldReturn expected.toList
+    actual.toVector shouldReturn expected.toVector
 
   "verifyForAll" - {
     "throws an exception if f is not satisfied" in {
@@ -30,7 +30,7 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
   }
 
   "zipWithIndex zips with index" in {
-    compareIterators(Iterator(1.0, 2.0, 3.0).zipWithIndex, List((1.0, 0), (2.0, 1), (3.0, 2)))
+    compareIterators(Iterator(1.0, 2.0, 3.0).zipWithIndex, Vector((1.0, 0), (2.0, 1), (3.0, 2)))
   }
 
   "reducingIterator" - {
@@ -38,13 +38,28 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       Iterator[Int]().reducingIterator((_, _) => ???) shouldBe 'empty
     }
     "single element" in {
-      compareIterators(Iterator(1).reducingIterator(_ + _), List(1))
+      compareIterators(Iterator(1).reducingIterator(_ + _), Vector(1))
     }
     "two elements" in {
-      compareIterators(Iterator(1, 2).reducingIterator(_ + _), List(1, 3))
+      compareIterators(Iterator(1, 2).reducingIterator(_ + _), Vector(1, 3))
     }
     "five elements" in {
-      compareIterators(Iterator(1, 2, 3, 4, 5).reducingIterator(_ + _), List(1, 3, 6, 10, 15))
+      compareIterators(Iterator(1, 2, 3, 4, 5).reducingIterator(_ + _), Vector(1, 3, 6, 10, 15))
+    }
+  }
+
+  "takeUntil" - {
+    "empty" in {
+      Iterator[Int]().takeUntil(_ => ???) shouldBe 'empty
+    }
+    "all true" in {
+      compareIterators(Iterator(1, 2, 3).takeUntil(_ < 4), Vector(1, 2, 3))
+    }
+    "first element is false" in {
+      compareIterators(Iterator(1, 2, 3).takeUntil(_ != 1), Vector(1))
+    }
+    "second element is false" in {
+      compareIterators(Iterator(1, 2, 3).takeUntil(_ != 2), Vector(1, 2))
     }
   }
 
@@ -59,15 +74,15 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
 
     "returns the items ignore order" ignore {
-      Iterator(1, 2, 3, 4, 5, 6).par().map(_ * 2).toList shouldReturn List(2, 4, 6, 8, 10, 12)
+      Iterator(1, 2, 3, 4, 5, 6).par().map(_ * 2).toVector shouldReturn Vector(2, 4, 6, 8, 10, 12)
     }
 
     "works on lists of size 10" ignore {
-      (1 to 10).iterator.par().map(_ * 2).toList shouldReturn (2 to 20 by 2).toList
+      (1 to 10).iterator.par().map(_ * 2).toVector shouldReturn (2 to 20 by 2).toVector
     }
 
     "runs work ignore parallel and be faster than a serialize execution" ignore {
-      val list = (1 to 100).toList
+      val list = (1 to 100).toVector
       val serTime = time {
         list.iterator.foreach(_ => Thread.sleep(1))
       }
@@ -78,19 +93,19 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
 
     "runs maps ignore parallel" ignore {
-      val list = (1 to 100).toList
+      val list = (1 to 100).toVector
       var x: Any = null
       val serTime = time {
         list.iterator.map(e => {
           Thread sleep 1
           e * 2
-        }).toList
+        }).toVector
       }
       val parTime = time {
         x = list.iterator.par().map(e => {
           Thread sleep 1
           e * 2
-        }).toList
+        }).toVector
       }
       serTime.toDouble / parTime should be >= 1.5
       x shouldReturn (list map (_ * 2))

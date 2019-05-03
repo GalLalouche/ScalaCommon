@@ -1,7 +1,10 @@
 package common.rich.collections
 
+import common.rich.primitives.RichBoolean._
+
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.ParSeq
+import scala.collection.AbstractIterator
 
 object RichIterator {
   private class ParIterator[T]($: Iterator[T], windowSize: Int) extends Iterator[T] {
@@ -28,10 +31,10 @@ object RichIterator {
     }
   }
 
-  implicit class richIterator[T](private val $: Iterator[T]) extends AnyVal {
+  implicit class richIterator[A](private val $: Iterator[A]) extends AnyVal {
     /** Returns an iterator that throws an exception on the first item that does not satisfy f */
-    def verify(f: T => Boolean,
-        exceptionMessage: (T, Int) => String = (e, i) => s"Item $e @ $i failed f"): Iterator[T] =
+    def verify(f: A => Boolean,
+        exceptionMessage: (A, Int) => String = (e, i) => s"Item $e @ $i failed f"): Iterator[A] =
       $.zipWithIndex.map(e => if (f(e._1)) e._1 else throw new Exception(exceptionMessage(e._1, e._2)))
 
     /**
@@ -40,7 +43,7 @@ object RichIterator {
      * @param frequency the frequency of the output, i.e., how often should the message be printed.
      *                  Default is every time, i.e., at every step.
      */
-    def withCounter(frequency: Int = 1): Iterator[T] = withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
+    def withCounter(frequency: Int = 1): Iterator[A] = withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
 
     /**
      * Returns an iterator that outputs to the console its progress
@@ -49,7 +52,7 @@ object RichIterator {
      *          If the None, nothing will be printed.
      *          Otherwise, f(e) will be printed, where e is the current element being processed.
      */
-    def withCounter(f: Int => Option[String]): Iterator[T] = new Iterator[T] {
+    def withCounter(f: Int => Option[String]): Iterator[A] = new AbstractIterator[A] {
       private var i = 0
       override def hasNext = {
         if ($.hasNext)
@@ -72,7 +75,7 @@ object RichIterator {
      *
      * @param size the total number of elements in the iterator
      */
-    def withPercentage(size: Int): Iterator[T] = {
+    def withPercentage(size: Int): Iterator[A] = {
       var lastPercentage = 0
       withCounter(i => {
         val currentPercentage = i * 100 / size
@@ -83,7 +86,7 @@ object RichIterator {
       })
     }
 
-    def zipWithIndex: Iterator[(T, Int)] = new Iterator[(T, Int)] {
+    def zipWithIndex: Iterator[(A, Int)] = new AbstractIterator[(A, Int)] {
       private var i = -1
       override def hasNext = $.hasNext
       override def next() = {
@@ -92,9 +95,21 @@ object RichIterator {
       }
     }
 
-    def par(windowSize: Int = 20): Iterator[T] = new ParIterator($, windowSize)
+    def par(windowSize: Int = 20): Iterator[A] = new ParIterator($, windowSize)
 
-    def reducingIterator(f: (T, T) => T): Iterator[T] =
+    def reducingIterator(f: (A, A) => A): Iterator[A] =
       if ($.isEmpty) Iterator() else $.scanLeft($.next)(f)
+
+    /** Similar to takeWhile, except the first element not satisfying the predicate is also included. */
+    def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A] {
+      private var stopped: Boolean = false
+      override def hasNext = stopped.isFalse && $.hasNext
+      override def next() = {
+        if (stopped) throw new NoSuchElementException
+        val result = $.next()
+        stopped = p(result).isFalse
+        result
+      }
+    }
   }
 }
