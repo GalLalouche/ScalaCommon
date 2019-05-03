@@ -2,6 +2,7 @@ package common.rich.collections
 
 import common.rich.primitives.RichBoolean._
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.ParSeq
 import scala.collection.AbstractIterator
@@ -110,6 +111,12 @@ object RichIterator {
         stopped = p(result).isFalse
         result
       }
+    }
+
+    def last(): A = {
+      @tailrec
+      def aux(current: A): A = if ($.hasNext) aux($.next()) else current
+      aux($.next())
     }
   }
 }

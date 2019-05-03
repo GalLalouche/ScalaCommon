@@ -28,6 +28,8 @@ class LazyIterable[+A](_iterator: => Iterator[A]) {
 
   def toVector: Vector[A] = iterator.toVector
   def toStream: Seq[A] = iterator.toStream
+
+  def last: A = iterator.last()
 }
 
 object LazyIterable {
