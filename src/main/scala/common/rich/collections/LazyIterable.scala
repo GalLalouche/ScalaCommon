@@ -35,6 +35,8 @@ class LazyIterable[+A](_iterator: => Iterator[A]) {
 object LazyIterable {
   def from[A](i: => Iterator[A]): LazyIterable[A] = new LazyIterable[A](i)
   def iterate[A](a: => A)(f: A => A): LazyIterable[A] = new LazyIterable[A](Iterator.iterate(a)(f))
+  def iterateOptionally[A](a: => A)(f: A => Option[A]): LazyIterable[A] =
+    new LazyIterable[A](Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get))
   def continually[A](a: => A): LazyIterable[A] = new LazyIterable[A](Iterator.continually(a))
 
   implicit object MonadPlusEv extends MonadPlus[LazyIterable] {
