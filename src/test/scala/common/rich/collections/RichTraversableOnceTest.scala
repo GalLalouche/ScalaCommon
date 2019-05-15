@@ -156,4 +156,8 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     "true" in {Seq(1, 2, 3).existsNot(_ == 3) shouldReturn true}
     "false" in {Seq(1, 2, 3).existsNot(_ != 4) shouldReturn false}
   }
+
+  "range" in {
+    Iterator(1, 2, 3).range shouldReturn (1, 3)
+  }
 }

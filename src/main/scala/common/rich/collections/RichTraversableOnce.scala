@@ -1,41 +1,41 @@
 package common.rich.collections
 
-import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
+import common.rich.RichTuple._
 import common.rich.collections.RichMap._
 import common.rich.func.ToMoreFoldableOps
+import common.rich.primitives.RichBoolean._
+import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
+import scalaz.{Functor, Semigroup}
 
 import scala.collection.TraversableOnce
 import scala.math.log10
 
-import scalaz.{Functor, Semigroup}
-import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
-
 object RichTraversableOnce
     extends ToMoreFoldableOps
         with VectorInstances with ListInstances with AnyValInstances with OptionInstances {
-  class __Joiner[T, S] private[RichTraversableOnce]($: TraversableOnce[T], other: TraversableOnce[S]) {
-    def where(predicate: (T, S) => Boolean): TraversableOnce[(T, S)] =
+  class __Joiner[A, B] private[RichTraversableOnce]($: TraversableOnce[A], other: TraversableOnce[B]) {
+    def where(predicate: (A, B) => Boolean): TraversableOnce[(A, B)] =
       for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
 
-    def by[U](ft: T => U, fs: S => U): TraversableOnce[(T, S)] = by(ft, fs, (x, y) => (x, y))
+    def by[C](ft: A => C, fs: B => C): TraversableOnce[(A, B)] = by(ft, fs, (x, y) => (x, y))
 
-    def by[U, W](ft: T => U, fs: S => U, builder: (T, S) => W): TraversableOnce[W] = {
+    def by[C, D](ft: A => C, fs: B => C, builder: (A, B) => D): TraversableOnce[D] = {
       val tMap = $.map(e => ft(e) -> e).toMap
       val sMap = other.map(e => fs(e) -> e).toMap
       tMap.keys.filter(sMap.contains).map(k => builder(tMap(k), sMap(k)))
     }
   }
 
-  implicit class richTraversableOnce[T](private val $: TraversableOnce[T]) extends AnyVal {
-    def reduceByKey[Key](toKey: T => Key)(implicit ev: Semigroup[T]): Map[Key, T] =
+  implicit class richTraversableOnce[A](private val $: TraversableOnce[A]) extends AnyVal {
+    def reduceByKey[Key](toKey: A => Key)(implicit ev: Semigroup[A]): Map[Key, A] =
       aggregateMap(toKey, identity)
-    def aggregateMap[Key, Value: Semigroup](toKey: T => Key, toValue: T => Value): Map[Key, Value] =
+    def aggregateMap[Key, Value: Semigroup](toKey: A => Key, toValue: A => Value): Map[Key, Value] =
       $.map(_.toTuple(toKey, toValue)).foldLeft(Map[Key, Value]())(_ upsert _)
 
     /** Throws on repeat keys. */
-    def mapBy[S](f: T => S): Map[S, T] =
-      $.foldLeft(Map[S, T]())((map, nextValue) => {
+    def mapBy[B](f: A => B): Map[B, A] =
+      $.foldLeft(Map[B, A]())((map, nextValue) => {
         val key = f(nextValue)
         if (map.contains(key))
           throw new IllegalArgumentException(
@@ -51,7 +51,7 @@ object RichTraversableOnce
      * @param f       the function to apply to the elements
      * @param between the function to apply between elements
      */
-    def foreachWithBetween(f: T => Unit, between: () => Unit) {
+    def foreachWithBetween(f: A => Unit, between: () => Unit) {
       val iterator = $.toIterator
       while (iterator.hasNext) {
         f(iterator.next())
@@ -60,12 +60,12 @@ object RichTraversableOnce
       }
     }
 
-    def toMultiMap[S](f: T => S): Map[S, Seq[T]] = toMultiMap(f, identity)
-    def toMultiMap[S, U](toKey: T => S, toValue: T => U): Map[S, Seq[U]] =
+    def toMultiMap[S](f: A => S): Map[S, Seq[A]] = toMultiMap(f, identity)
+    def toMultiMap[S, U](toKey: A => S, toValue: A => U): Map[S, Seq[U]] =
       aggregateMap(toKey, toValue(_) :: Nil)
 
     /** The number of occurrences of each element */
-    def frequencies: Map[T, Int] = aggregateMap(e => e, 1.const)
+    def frequencies: Map[A, Int] = aggregateMap(e => e, 1.const)
 
     /** The entropy value of this traversable */
     def entropy: Double = {
@@ -78,12 +78,12 @@ object RichTraversableOnce
     }
 
     /** Retrieves all <i>N choose 2<\i> pairs */
-    def unorderedPairs: TraversableOnce[(T, T)] = {
+    def unorderedPairs: TraversableOnce[(A, A)] = {
       val withIndex = $.toVector.zipWithIndex
       for ((a, i) <- withIndex; (b, j) <- withIndex; if i < j) yield a -> b
     }
 
-    def hasSameValues[U](f: T => U): Boolean = {
+    def hasSameValues[U](f: A => U): Boolean = {
       val iterator = $.toIterator
       val sample = f(iterator.next())
       iterator.map(f).forall(_ == sample)
@@ -91,29 +91,29 @@ object RichTraversableOnce
 
     /** Checks if the traversable has any repeats */
     def allUnique: Boolean =
-      $.toIterator.scanLeft(Set[T]())(_ + _).zipWithIndex.forall {case (s, i) => s.size == i}
+      $.toIterator.scanLeft(Set[A]())(_ + _).zipWithIndex.forall(_.reduce(_.size == _))
 
     /** Finds the percentage of elements satisfying the predicate */
-    def percentageSatisfying(p: T => Boolean): Double = {
+    def percentageSatisfying(p: A => Boolean): Double = {
       val (total, satisfy) = $.foldLeft((0, 0)) {(agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0))}
       satisfy.toDouble / total
     }
 
     /** Returns the Cartesian product of both traversables. */
-    def *[S](ys: TraversableOnce[S]): TraversableOnce[(T, S)] = {
+    def *[B](ys: TraversableOnce[B]): TraversableOnce[(A, B)] = {
       val yIterable = ys.toIterable // Needed if y really is traversable*Once*.
       for (x <- $; y <- yIterable) yield (x, y)
     }
 
     /** Selects a representative from each equivalence set */
-    def selectRepresentative[U](f: T => U): TraversableOnce[T] = {
-      implicit val semigroupFirst: Semigroup[T] = Semigroup.instance((x, _) => x)
+    def selectRepresentative[B](f: A => B): TraversableOnce[A] = {
+      implicit val semigroupFirst: Semigroup[A] = Semigroup.instance((x, _) => x)
       aggregateMap(f, e => e).values
     }
 
-    def join[S](other: TraversableOnce[S]) = new __Joiner($, other)
+    def join[B](other: TraversableOnce[B]) = new __Joiner($, other)
 
-    def single: T = {
+    def single: A = {
       val i = $.toIterator
       val next = i.next()
       if (i.hasNext)
@@ -121,7 +121,7 @@ object RichTraversableOnce
       next
     }
 
-    def filterAndSortBy[S](f: T => S, order: Seq[S]): Seq[T] = {
+    def filterAndSortBy[B](f: A => B, order: Seq[B]): Seq[A] = {
       val orderMap = order.zipWithIndex.toMap
       Functor[Vector].fproduct($.toVector)(f)
           .filter(_._2 |> orderMap.contains)
@@ -129,7 +129,13 @@ object RichTraversableOnce
           .map(_._1)
     }
 
-    def fornone(p: T => Boolean): Boolean = $.exists(p).isFalse
-    def existsNot(p: T => Boolean): Boolean = $.forall(p).isFalse
+    def fornone(p: A => Boolean): Boolean = $.exists(p).isFalse
+    def existsNot(p: A => Boolean): Boolean = $.forall(p).isFalse
+
+    def range(implicit ev: Ordering[A]): (A, A) = {
+      val i = $.toIterator
+      val initial = i.next()
+      i.foldLeft(initial -> initial) {case (agg, next) => ev.min(next, agg._1) -> ev.max(next, agg._2)}
+    }
   }
 }
