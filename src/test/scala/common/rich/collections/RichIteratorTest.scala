@@ -72,6 +72,15 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
   }
 
+  "lastOption" - {
+    "None on empty" in {
+      Iterator.empty.lastOption() shouldReturn None
+    }
+    "returns last" in {
+      Iterator(1, 2, 3).lastOption() shouldReturn Some(3)
+    }
+  }
+
   "par" ignore {
     "create threads to run a map request" ignore {
       val set = new mutable.HashSet[Object]()

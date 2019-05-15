@@ -118,5 +118,7 @@ object RichIterator {
       def aux(current: A): A = if ($.hasNext) aux($.next()) else current
       aux($.next())
     }
+
+    def lastOption(): Option[A] = if ($.hasNext) Some(last()) else None
   }
 }
