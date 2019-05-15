@@ -27,7 +27,7 @@ class LazyIterable[+A](_iterator: => Iterator[A]) {
   def filterNot(p: A => Boolean)(implicit d: DummyImplicit): LazyIterable[A] = mapIterator(_ filterNot p)
 
   def toVector: Vector[A] = iterator.toVector
-  def toStream: Seq[A] = iterator.toStream
+  def toStream: Stream[A] = iterator.toStream
 
   def last: A = iterator.last()
 }
