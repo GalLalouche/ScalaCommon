@@ -1,6 +1,8 @@
 package common.rich
 
-import rx.lang.scala.Observable
+import java.util.concurrent.atomic.AtomicInteger
+
+import rx.lang.scala.{Observable, Observer}
 
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{Future, Promise}
@@ -27,5 +29,21 @@ object RichObservable {
 
     def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] =
       $.flatMap(e => Observable.from(ev(e)))
+  }
+
+  def register[A](callback: (A => Unit) => Unit): Observable[A] = Observable[A](s => callback(s.onNext))
+
+  def concat[A](os: TraversableOnce[Observable[A]]): Observable[A] = {
+    val seq = os.toVector
+    val size = seq.size
+    // os.reduce(_ merge _) isn't stack safe.
+    Observable[A](s => {
+      val completed: AtomicInteger = new AtomicInteger(0)
+      seq.foreach(_.subscribe(new Observer[A] {
+        override def onNext(value: A) = s.onNext(value)
+        override def onError(error: Throwable) = s.onError(error)
+        override def onCompleted() = if (completed.incrementAndGet() >= size) s.onCompleted()
+      }))
+    })
   }
 }

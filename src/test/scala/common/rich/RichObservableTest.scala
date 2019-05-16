@@ -1,18 +1,19 @@
 package common.rich
+
 import java.util.NoSuchElementException
 
 import common.AuxSpecs
+import common.rich.RichFuture._
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 import rx.lang.scala.subjects.PublishSubject
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import RichFuture._
-import rx.lang.scala.Observable
+import rx.lang.scala.{Observable, Subject}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
   import RichObservable._
+
   private val sub = PublishSubject[Int]()
   "toFuture" in {
     val future = sub.toFuture[List]
@@ -33,7 +34,7 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
     "empty" in {
       val future = sub.firstFuture
       sub.onCompleted()
-      future.getFailure shouldBe a [NoSuchElementException]
+      future.getFailure shouldBe a[NoSuchElementException]
     }
   }
   "flattenElements" in {
@@ -41,5 +42,40 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
     val actual = ArrayBuffer[Int]()
     x.doOnNext(actual.+=).subscribe()
     actual shouldReturn ArrayBuffer(1, 2, 3, 4)
+  }
+
+  "from" - {
+    "explicit emitter" in {
+      val source = Subject[Int]()
+      val $ = RichObservable.register(source.foreach)
+      val actual = ArrayBuffer[Int]()
+      $.foreach(actual.+=)
+      source.onNext(1)
+      source.onNext(2)
+      source.onNext(3)
+      actual shouldReturn ArrayBuffer(1, 2, 3)
+    }
+    "lazy emitter" in {
+      val source = Observable.just(1, 2, 3)
+      val $ = RichObservable.register(source.foreach)
+      val actual = ArrayBuffer[Int]()
+      $.foreach(actual.+=)
+      actual shouldReturn ArrayBuffer(1, 2, 3)
+    }
+  }
+
+  "concat" - {
+    "simple" in {
+      RichObservable.concat(Vector(Observable.just(1), Observable.just(2))).toFuture.get shouldReturn Vector(1, 2)
+    }
+    "reusable" in {
+      val v = Vector(Observable.just(1), Observable.just(2))
+      val $ = RichObservable.concat(v)
+      $.toFuture.get shouldReturn Vector(1, 2)
+      $.toFuture.get shouldReturn Vector(1, 2)
+    }
+    "large list" in {
+      RichObservable.concat(1.to(10000).map(Observable.just(_))).toFuture.get shouldReturn 1.to(10000).toVector
+    }
   }
 }
