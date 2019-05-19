@@ -9,6 +9,9 @@ import scala.concurrent.{Future, Promise}
 import scala.language.higherKinds
 
 object RichObservable {
+  trait Unsubscribable[A] {
+    def apply(a: A): Unit
+  }
   implicit class richObservable[A](private val $: Observable[A]) extends AnyVal {
     /**
      * Returns a Future of a collection of all elements emitted by this observable. Future will not
@@ -28,10 +31,21 @@ object RichObservable {
     }
 
     def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] =
-      $.flatMap(e => Observable.from(ev(e)))
+      $.flatMapIterable(ev)
   }
 
-  def register[A](callback: (A => Unit) => Unit): Observable[A] = Observable[A](s => callback(s.onNext))
+  def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
+    Observable[A] {s =>
+      callback(s.onNext)
+      if (unsubscribe != null)
+        s.add {unsubscribe(); ()}
+    }
+
+  def registerUnsubscribable[A, S: Unsubscribable](callback: (A => Unit) => S): Observable[A] =
+    Observable[A] {subscriber =>
+      val subscription = callback(subscriber.onNext)
+      subscriber.add(implicitly[Unsubscribable[S]].apply(subscription))
+    }
 
   // os.reduce(_ merge _) isn't stack safe.
   def concat[A](os: TraversableOnce[Observable[A]]): Observable[A] = {

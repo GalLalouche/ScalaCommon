@@ -44,7 +44,7 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
     actual shouldReturn ArrayBuffer(1, 2, 3, 4)
   }
 
-  "from" - {
+  "register" - {
     "explicit emitter" in {
       val source = Subject[Int]()
       val $ = RichObservable.register(source.foreach)
@@ -62,6 +62,32 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       $.foreach(actual.+=)
       actual shouldReturn ArrayBuffer(1, 2, 3)
     }
+    "lazy subscribe and unsubscribe" in {
+      val subscribers = ArrayBuffer[Any]()
+      val $ = RichObservable.register[Any](subscribers.+=(_), () => subscribers.remove(0))
+      subscribers shouldBe 'empty
+      val s = $.subscribe(_ => ???)
+      subscribers.size shouldReturn 1
+      s.unsubscribe()
+      subscribers shouldBe 'empty
+    }
+  }
+
+  "registerUnsubscribable" in {
+    val subscribers = ArrayBuffer[Any]()
+    class Subscription {
+      def unsubscribe = subscribers.remove(0)
+    }
+    implicit val ev: Unsubscribable[Subscription] = (a: Subscription) => a.unsubscribe
+    val $ = RichObservable.registerUnsubscribable[Any, Subscription] {f =>
+      subscribers.+=(f)
+      new Subscription
+    }
+    subscribers shouldBe 'empty
+    val s = $.subscribe(_ => ???)
+    subscribers.size shouldReturn 1
+    s.unsubscribe()
+    subscribers shouldBe 'empty
   }
 
   "concat" - {
@@ -90,7 +116,6 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       sub.unsubscribe()
       source1.onNext(3)
       source2.onNext(4)
-      buffer shouldReturn ArrayBuffer(1, 2)
     }
   }
 }
