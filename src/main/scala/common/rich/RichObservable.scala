@@ -37,13 +37,14 @@ object RichObservable {
     val seq = os.toVector
     val size = seq.size
     // os.reduce(_ merge _) isn't stack safe.
-    Observable[A](s => {
+    Observable[A] {s =>
       val completed: AtomicInteger = new AtomicInteger(0)
-      seq.foreach(_.subscribe(new Observer[A] {
+      val subs = seq.map(_.subscribe(new Observer[A] {
         override def onNext(value: A) = s.onNext(value)
         override def onError(error: Throwable) = s.onError(error)
         override def onCompleted() = if (completed.incrementAndGet() >= size) s.onCompleted()
       }))
-    })
+      s.add(subs.foreach(_.unsubscribe()))
+    }
   }
 }

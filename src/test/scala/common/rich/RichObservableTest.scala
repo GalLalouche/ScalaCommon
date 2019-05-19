@@ -77,5 +77,17 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
     "large list" in {
       RichObservable.concat(1.to(10000).map(Observable.just(_))).toFuture.get shouldReturn 1.to(10000).toVector
     }
+    "unsubscribe" in {
+      val source1 = PublishSubject[Int]()
+      val source2 = PublishSubject[Int]()
+      val buffer = ArrayBuffer[Int]()
+      val sub = RichObservable.concat(Vector(source1, source2)).subscribe(buffer.+=(_))
+      source1.onNext(1)
+      source2.onNext(2)
+      sub.unsubscribe()
+      source1.onNext(3)
+      source2.onNext(4)
+      buffer shouldReturn ArrayBuffer(1, 2)
+    }
   }
 }
