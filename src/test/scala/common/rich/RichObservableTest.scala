@@ -65,6 +65,9 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
   }
 
   "concat" - {
+    "empty" in {
+      RichObservable.concat(Vector[Observable[Int]]()).toFuture.get shouldReturn Vector[Int]()
+    }
     "simple" in {
       RichObservable.concat(Vector(Observable.just(1), Observable.just(2))).toFuture.get shouldReturn Vector(1, 2)
     }

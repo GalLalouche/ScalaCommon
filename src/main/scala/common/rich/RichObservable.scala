@@ -33,11 +33,11 @@ object RichObservable {
 
   def register[A](callback: (A => Unit) => Unit): Observable[A] = Observable[A](s => callback(s.onNext))
 
+  // os.reduce(_ merge _) isn't stack safe.
   def concat[A](os: TraversableOnce[Observable[A]]): Observable[A] = {
     val seq = os.toVector
     val size = seq.size
-    // os.reduce(_ merge _) isn't stack safe.
-    Observable[A] {s =>
+    if (seq.isEmpty) Observable.empty else Observable[A] {s =>
       val completed: AtomicInteger = new AtomicInteger(0)
       val subs = seq.map(_.subscribe(new Observer[A] {
         override def onNext(value: A) = s.onNext(value)
