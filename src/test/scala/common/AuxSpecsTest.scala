@@ -62,6 +62,27 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
           "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\nIt is missing Set(4).\nAnd has extra items: Set(3).")
       }
     }
+    "shouldMultiSetEqual" - {
+      "when all is okay" in {
+        doesNotThrow(List(1, 2, 3, 2) shouldMultiSetEqual List(1, 3, 2, 2))
+      }
+      "on error" in {
+        val e = throws(List(1, 2, 3) shouldMultiSetEqual List(1, 2, 4))
+        verifyStackDepth(e)
+        verifyMessage(e,
+          "MultiSet(1, 2, 3) isn't the same MultiSet as MultiSet(1, 2, 4).\n" +
+              "It is missing MultiSet(4).\n" +
+              "And has extra items: MultiSet(3).")
+      }
+      "Same set different size" in {
+        val e = throws(List(1, 2, 3) shouldMultiSetEqual List(3, 1, 2, 3))
+        verifyStackDepth(e)
+        verifyMessage(e,
+          "MultiSet(1, 2, 3) isn't the same MultiSet as MultiSet(3[2], 1, 2).\n" +
+              "It is missing MultiSet(3).\n" +
+              "And has extra items: MultiSet().")
+      }
+    }
     "allShouldSatisfy" - {
       "when all is okay" in {
         doesNotThrow(List(1, 2, 3) allShouldSatisfy (_ > 0))

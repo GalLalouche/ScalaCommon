@@ -3,6 +3,7 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
+import common.rich.collections.RichTraversableOnce._
 import common.rich.primitives.RichBoolean._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Matchers, Suite}
@@ -36,6 +37,27 @@ trait AuxSpecs extends Matchers {self: Suite =>
       if (extra.++(missing).nonEmpty)
         throwProperDepthException(
           s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.",
+          ProperExceptionDepth)
+    }
+
+    private def simplifyMultiSetString[A](xs: Traversable[(A, Int)]): String = xs.map {
+      case (x, 1) => x
+      case (x, n) => s"$x[$n]"
+    }.mkString("MultiSet(", ", ", ")")
+    private def diff[A](f1: Map[A, Int], f2: Map[A, Int]): Map[A, Int] = f1.map {
+      case (k, v) => k -> (v - f2.getOrElse(k, 0))
+    }.filter(_._2 > 0)
+    def shouldMultiSetEqual(other: Traversable[T]): Unit = {
+      val otherFreqs = other.frequencies
+      val actualFreqs = $.frequencies
+      val extra = diff(actualFreqs, otherFreqs)
+      val missing = diff(otherFreqs, actualFreqs)
+      // TODO extract MultiSet to a class?
+      if (extra.++(missing).nonEmpty)
+        throwProperDepthException(
+          s"${simplifyMultiSetString(actualFreqs)} isn't the same MultiSet as ${simplifyMultiSetString(otherFreqs)}.\n"
+              + s"It is missing ${simplifyMultiSetString(missing)}.\n"
+              + s"And has extra items: ${simplifyMultiSetString(extra)}.",
           ProperExceptionDepth)
     }
 
