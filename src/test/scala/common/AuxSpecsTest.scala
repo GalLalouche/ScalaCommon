@@ -55,32 +55,56 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
       "when all is okay" in {
         doesNotThrow(List(1, 2, 3) shouldSetEqual List(1, 3, 2))
       }
-      "on error" in {
-        val e = throws(List(1, 2, 3) shouldSetEqual List(1, 2, 4))
-        verifyStackDepth(e)
-        verifyMessage(e,
-          "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\nIt is missing Set(4).\nAnd has extra items: Set(3).")
+      "on error" - {
+        "missing and extra" in {
+          val e = throws(List(1, 2, 3) shouldSetEqual List(1, 2, 4))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "Set(1, 2, 3) isn't the same set as Set(1, 2, 4).\n" +
+                "It is missing:       Set(4).\n" +
+                "And has extra items: Set(3).")
+        }
+        "missing only" in {
+          val e = throws(List(1, 2) shouldSetEqual List(1, 2, 4))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "Set(1, 2) isn't the same set as Set(1, 2, 4).\nIt is missing: Set(4).")
+        }
+        "Extra only" in {
+          val e = throws(List(1, 2, 3) shouldSetEqual List(1, 2))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "Set(1, 2, 3) isn't the same set as Set(1, 2).\nIt has extra items: Set(3).")
+        }
       }
     }
     "shouldMultiSetEqual" - {
       "when all is okay" in {
         doesNotThrow(List(1, 2, 3, 2) shouldMultiSetEqual List(1, 3, 2, 2))
       }
-      "on error" in {
-        val e = throws(List(1, 2, 3) shouldMultiSetEqual List(1, 2, 4))
-        verifyStackDepth(e)
-        verifyMessage(e,
-          "MultiSet(1, 2, 3) isn't the same MultiSet as MultiSet(1, 2, 4).\n" +
-              "It is missing MultiSet(4).\n" +
-              "And has extra items: MultiSet(3).")
-      }
-      "Same set different size" in {
-        val e = throws(List(1, 2, 3) shouldMultiSetEqual List(3, 1, 2, 3))
-        verifyStackDepth(e)
-        verifyMessage(e,
-          "MultiSet(1, 2, 3) isn't the same MultiSet as MultiSet(3[2], 1, 2).\n" +
-              "It is missing MultiSet(3).\n" +
-              "And has extra items: MultiSet().")
+      "on error" - {
+        "Missing and extra different items" in {
+          val e = throws(List(1, 2, 3, 5) shouldMultiSetEqual List(1, 2, 4, 4, 5, 5))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "MultiSet(1, 2, 3, 5) isn't the same MultiSet as MultiSet(1, 2, 4[2], 5[2]).\n" +
+                "It is missing:       MultiSet(4[2], 5).\n" +
+                "And has extra items: MultiSet(3).")
+        }
+        "Only extra items" in {
+          val e = throws(List(1, 2, 3, 3, 2, 3) shouldMultiSetEqual List(1, 2, 3))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "MultiSet(1, 2[2], 3[3]) isn't the same MultiSet as MultiSet(1, 2, 3).\n" +
+                "It has extra items: MultiSet(2, 3[2]).")
+        }
+        "Only missing items" in {
+          val e = throws(List(1, 2, 3) shouldMultiSetEqual List(1, 2, 3, 3, 2, 3))
+          verifyStackDepth(e)
+          verifyMessage(e,
+            "MultiSet(1, 2, 3) isn't the same MultiSet as MultiSet(1, 2[2], 3[3]).\n" +
+                "It is missing: MultiSet(2, 3[2]).")
+        }
       }
     }
     "allShouldSatisfy" - {

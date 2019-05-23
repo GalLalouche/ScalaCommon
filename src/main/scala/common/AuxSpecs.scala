@@ -3,6 +3,7 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
+import common.rich.RichT._
 import common.rich.collections.RichTraversableOnce._
 import common.rich.primitives.RichBoolean._
 import org.scalacheck.{Arbitrary, Gen}
@@ -34,13 +35,19 @@ trait AuxSpecs extends Matchers {self: Suite =>
       val actualSet = $.toSet
       val extra = actualSet &~ otherSet
       val missing = otherSet &~ actualSet
-      if (extra.++(missing).nonEmpty)
-        throwProperDepthException(
-          s"$actualSet isn't the same set as $otherSet.\nIt is missing $missing.\nAnd has extra items: $extra.",
-          ProperExceptionDepth)
+      if (extra.++(missing).nonEmpty) {
+        val base = s"$actualSet isn't the same set as $otherSet."
+        val missingStr =
+          s"\nIt is missing: ${"      ".onlyIf(extra.nonEmpty)}$missing.".onlyIf(missing.nonEmpty)
+        val extraStr =
+          s"\n${if (missing.nonEmpty) "And" else "It"} has extra items: $extra.".onlyIf(extra.nonEmpty)
+        // While it is missing a space, it only exists if missing is empty, so there's nothing to
+        // horizontally-align anyway.
+        throwProperDepthException(base + missingStr + extraStr, ProperExceptionDepth)
+      }
     }
 
-    private def simplifyMultiSetString[A](xs: Traversable[(A, Int)]): String = xs.map {
+    private def simplify[A](xs: Traversable[(A, Int)]): String = xs.map {
       case (x, 1) => x
       case (x, n) => s"$x[$n]"
     }.mkString("MultiSet(", ", ", ")")
@@ -53,12 +60,19 @@ trait AuxSpecs extends Matchers {self: Suite =>
       val extra = diff(actualFreqs, otherFreqs)
       val missing = diff(otherFreqs, actualFreqs)
       // TODO extract MultiSet to a class?
-      if (extra.++(missing).nonEmpty)
-        throwProperDepthException(
-          s"${simplifyMultiSetString(actualFreqs)} isn't the same MultiSet as ${simplifyMultiSetString(otherFreqs)}.\n"
-              + s"It is missing ${simplifyMultiSetString(missing)}.\n"
-              + s"And has extra items: ${simplifyMultiSetString(extra)}.",
-          ProperExceptionDepth)
+
+      if (extra.++(missing).nonEmpty) {
+        val base =
+          s"${simplify(actualFreqs)} isn't the same MultiSet as ${simplify(otherFreqs)}."
+        val missingStr =
+          s"\nIt is missing: ${"      ".onlyIf(extra.nonEmpty)}${simplify(missing)}.".onlyIf(missing.nonEmpty)
+        val extraStr =
+          s"\n${if (missing.nonEmpty) "And" else "It"} has extra items: ${simplify(extra)}."
+              .onlyIf(extra.nonEmpty)
+        // While it is missing a space, it only exists if missing is empty, so there's nothing to
+        // horizontally-align anyway.
+        throwProperDepthException(base + missingStr + extraStr, ProperExceptionDepth)
+      }
     }
 
     def allShouldSatisfy(p: T => Boolean): Unit = {
