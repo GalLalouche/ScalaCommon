@@ -28,6 +28,8 @@ object RichTraversableOnce
   }
 
   implicit class richTraversableOnce[A](private val $: TraversableOnce[A]) extends AnyVal {
+    def filterNot(p: A => Boolean): TraversableOnce[A] = $.filter(!p(_))
+
     def reduceByKey[Key](toKey: A => Key)(implicit ev: Semigroup[A]): Map[Key, A] =
       aggregateMap(toKey, identity)
     def aggregateMap[Key, Value: Semigroup](toKey: A => Key, toValue: A => Value): Map[Key, Value] =

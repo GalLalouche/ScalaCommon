@@ -8,6 +8,9 @@ import scalaz.Semigroup
 import scala.collection.mutable
 
 class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
+  "filterNot" in {
+    1.to(5).filterNot(_ % 2 == 0).toVector shouldReturn Vector(1, 3, 5)
+  }
   "unorderedPairs" - {
     "has size of n choose 2" in {
       List.fill(10)("bla").unorderedPairs.size shouldReturn 45
