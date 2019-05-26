@@ -11,6 +11,7 @@ abstract class UnionFindTest extends FreeSpec with AuxSpecs {
   "all elements begin in different sets" in {
     $.sets shouldReturn vector.map(Set(_))
     $.numberOfSets shouldReturn 5
+    $.hasSingleSet shouldReturn false
   }
 
   "union" - {
@@ -27,6 +28,11 @@ abstract class UnionFindTest extends FreeSpec with AuxSpecs {
           .union(1, 10).union(5, 7).union(6, 6)
       deepSets($.sets) shouldEqual Set(Set(1, 2, 4, 5, 7, 10), Set(6, 8, 9), Set(3))
       $.numberOfSets shouldReturn 3
+      $.hasSingleSet shouldReturn false
     }
+  }
+
+  "singleSet" in {
+    createUnionFind(Vector(1, 2, 3)).union(1, 2).union(2, 3).hasSingleSet shouldReturn true
   }
 }

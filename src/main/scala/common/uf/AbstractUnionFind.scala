@@ -27,4 +27,5 @@ abstract class AbstractUnionFind[A] extends UnionFind[A]
   override def sameSet(a1: A, a2: A): Boolean = getSet(a1) == getSet(a2)
   override def sets = index.keys.fproduct(getSet).groupBy(_._2).values.map(_.map(_._1))
   override def values = index.keys
+  override def hasSingleSet = numberOfSets == 1
 }

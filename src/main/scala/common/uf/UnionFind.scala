@@ -12,4 +12,5 @@ trait UnionFind[A] {
   def sets: Iterable[Iterable[A]]
   def values: Iterable[A]
   def numberOfSets: Int
+  def hasSingleSet: Boolean
 }
