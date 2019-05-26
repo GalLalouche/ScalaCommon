@@ -2,9 +2,9 @@ package common.rich
 
 import common.AuxSpecs
 import common.rich.RichT._
-import org.scalatest.FreeSpec
+import org.scalatest.{FreeSpec, Matchers}
 
-class RichTTest extends FreeSpec with AuxSpecs {
+class RichTTest extends FreeSpec with AuxSpecs with Matchers {
   "tryOrKeep" - {
     "succeeds" in {
       5.tryOrKeep(_ + 1) shouldReturn 6
@@ -106,11 +106,11 @@ class RichTTest extends FreeSpec with AuxSpecs {
     }
     "type errors" - {
       "types don't match" in {
-        "true.safeCast[Int]" shouldNot typeCheck
+        "common.rich.RichT.richT(true).safeCast[Int]" shouldNot typeCheck
       }
       "safeCast to parent" in {
         // Safe casting to a parent isn't needed. If C <: P, then C is already a P.
-        "3.safeCast[AnyVal]" shouldNot typeCheck
+        "common.rich.RichT.richT(3).safeCast[AnyVal]" shouldNot typeCheck
       }
     }
     "classes" - {
