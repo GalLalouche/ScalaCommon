@@ -14,11 +14,12 @@ object RichT {
     java.lang.Character.TYPE -> classOf[java.lang.Character],
     java.lang.Byte.TYPE -> classOf[java.lang.Byte],
     java.lang.Void.TYPE -> classOf[java.lang.Void],
-    java.lang.Short.TYPE -> classOf[java.lang.Short])
+    java.lang.Short.TYPE -> classOf[java.lang.Short],
+  )
 
   class __Mapper[T] private[RichT](e: T, p: T => Boolean) {
-    def to(f: T => T): T = if (p(e)) f(e) else e
-    def to(t: => T): T = if (p(e)) t else e
+    @inline def to(f: T => T): T = if (p(e)) f(e) else e
+    @inline def to(t: => T): T = if (p(e)) t else e
   }
 
   implicit class richT[T](private val $: T) extends AnyVal {
@@ -26,16 +27,17 @@ object RichT {
      * Logs the given string to console and returns this.
      * @param f An optional stringifier to use; by default, .toString is used
      */
-    def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
+    @inline def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
     /** Converts this into an Option; this also works for null, beautifully enough :D */
-    def opt = Option($)
+    @inline def opt: Option[T] = Option($)
+    @inline def optFilter(p: T => Boolean): Option[T] = if ($ == null) None else if (p($)) Some($) else None
     /** When you really want a fluent API. */
-    def mapTo[S](f: T => S): S = f($)
+    @inline def mapTo[S](f: T => S): S = f($)
     /** For the F# lovers in the audience. */
-    def |>[S](f: T => S): S = mapTo(f)
+    @inline def |>[S](f: T => S): S = mapTo(f)
 
-    def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
-    def mapIf(p: Boolean): __Mapper[T] = new __Mapper[T]($, p.const)
+    @inline def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
+    @inline def mapIf(p: Boolean): __Mapper[T] = new __Mapper[T]($, p.const)
 
     // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
     // This is used instead of a local class for performance.
@@ -54,17 +56,17 @@ object RichT {
     def onlyIfNot(b: Boolean): T = onlyIf(b.isFalse)
 
     /** Apply some function to this and returns this. Side effects galore! */
-    def applyAndReturn(f: T => Any): T = {
+    @inline def applyAndReturn(f: T => Any): T = {
       f($)
       $
     }
-    def <|(f: T => Any): T = applyAndReturn(f)
+    @inline def <|(f: T => Any): T = applyAndReturn(f)
 
-    def :->[S](f: T => S): (T, S) = $ -> f($)
-    def <-:[S](f: T => S): (S, T) = f($) -> $
+    @inline def :->[S](f: T => S): (T, S) = $ -> f($)
+    @inline def <-:[S](f: T => S): (S, T) = f($) -> $
 
     /** the simple class name, without $ and stuff */
-    def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
+    @inline def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
 
     /** If this is of type C, returns Some(T), else None */
     def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {
@@ -75,12 +77,12 @@ object RichT {
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
 
-    def toTuple[S1, S2](f1: T => S1, f2: T => S2): (S1, S2) = (f1($), f2($))
-    def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
-    def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
+    @inline def toTuple[S1, S2](f1: T => S1, f2: T => S2): (S1, S2) = (f1($), f2($))
+    @inline def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
+    @inline def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
       (f1($), f2($), f3($), f4($))
 
-    def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
+    @inline def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
   }
 
   implicit class lazyT[T]($: => T) {
@@ -89,6 +91,6 @@ object RichT {
   }
 
   implicit class anyRefT[T <: AnyRef](private val $: T) extends AnyVal {
-    def neq(other: T): Boolean = !$.eq(other)
+    @inline def neq(other: T): Boolean = !$.eq(other)
   }
 }

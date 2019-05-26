@@ -34,6 +34,18 @@ class RichTTest extends FreeSpec with AuxSpecs {
       5.opt shouldReturn Some(5)
     }
   }
+  "optFilter" - {
+    "Null" in {
+      val x: Any = null
+      x.optFilter(_ => ???) shouldReturn None
+    }
+    "None" in {
+      4.optFilter(_ % 2 != 0) shouldReturn None
+    }
+    "Some" in {
+      4.optFilter(_ % 2 != 4) shouldReturn Some(4)
+    }
+  }
 
   "only if" - {
     "int" - {
