@@ -25,6 +25,7 @@ object RichT {
   implicit class richT[T](private val $: T) extends AnyVal {
     /**
      * Logs the given string to console and returns this.
+     *
      * @param f An optional stringifier to use; by default, .toString is used
      */
     @inline def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
@@ -68,13 +69,19 @@ object RichT {
     /** the simple class name, without $ and stuff */
     @inline def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
 
-    /** If this is of type C, returns Some(T), else None */
+    /** If this is of type C, returns Some(T), else None. */
     def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {
       val rtc = m.runtimeClass
       // Due to scala's own "primitives", e.g., Int vs int, there is a mismatch between the Manifest[B] and
       // the actual type of RichT. Therefore, we map the primitive classes to their boxed types.
       val referenceClass = primitiveMappings.getOrElse(rtc, rtc)
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
+    }
+
+    /** If this is of type C, returns Some(T), else None. */
+    def safeAs[C: IsATrait](implicit m: Manifest[C]): Option[C] = $ match {
+      case c: C => Some(c)
+      case _ => None
     }
 
     @inline def toTuple[S1, S2](f1: T => S1, f2: T => S2): (S1, S2) = (f1($), f2($))
@@ -92,5 +99,20 @@ object RichT {
 
   implicit class anyRefT[T <: AnyRef](private val $: T) extends AnyVal {
     @inline def neq(other: T): Boolean = !$.eq(other)
+  }
+
+  trait IsATrait[A]
+  object IsATrait {
+    import scala.language.experimental.macros
+    import scala.reflect.macros.whitebox
+
+    implicit def materialize[A]: IsATrait[A] = macro impl[A]
+
+    def impl[A: c.WeakTypeTag](c: whitebox.Context): c.Tree = {
+      import c.universe._
+      val tpA = weakTypeOf[A]
+      val ts = tpA.typeSymbol.asClass
+      if (ts.isTrait) q"new IsATrait[$tpA] {}" else c.abort(c.enclosingPosition, s"$tpA is not a trait")
+    }
   }
 }

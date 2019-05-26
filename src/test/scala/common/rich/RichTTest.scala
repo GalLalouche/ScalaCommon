@@ -123,6 +123,19 @@ class RichTTest extends FreeSpec with AuxSpecs {
     }
   }
 
+  "safeAs" - {
+    trait Speaks
+    class SuperType
+    case class Person(name: String) extends Speaks
+    class Dog
+    "not a returns None" in {
+      new Dog().safeAs[Speaks] shouldReturn None
+    }
+    "is a returns Some" in {
+      val person = Person("foobar")
+      person.safeAs[Speaks] shouldReturn Some(person)
+    }
+  }
   "lazyT" - {
     "const" - {
       "returns t" in {
