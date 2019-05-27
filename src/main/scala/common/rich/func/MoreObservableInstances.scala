@@ -12,3 +12,5 @@ trait MoreObservableInstances {
     override def empty[A]: Observable[A] = Observable.empty
   }
 }
+
+object MoreObservableInstances extends MoreObservableInstances

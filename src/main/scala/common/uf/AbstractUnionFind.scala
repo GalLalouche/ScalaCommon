@@ -1,12 +1,11 @@
 package common.uf
 
-import common.rich.func.MoreIterableInstances
-import scalaz.syntax.ToFunctorOps
+import common.rich.func.MoreIterableInstances._
+import scalaz.syntax.functor._
 
 import scala.annotation.tailrec
 
-abstract class AbstractUnionFind[A] extends UnionFind[A]
-    with ToFunctorOps with MoreIterableInstances {
+abstract class AbstractUnionFind[A] extends UnionFind[A] {
   protected def index: Map[A, Int]
   protected def getSet(a: A): Int
   protected def getParent(i: Int): Int

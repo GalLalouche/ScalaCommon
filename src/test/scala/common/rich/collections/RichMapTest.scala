@@ -4,12 +4,12 @@ import java.util
 
 import common.AuxSpecs
 import common.rich.collections.RichMap._
-import common.rich.func.MoreSetInstances
+import common.rich.func.MoreSetInstances._
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
 import scalaz.std.{ListInstances, StringInstances}
 
-class RichMapTest extends FreeSpec with AuxSpecs with MoreSetInstances with ListInstances with StringInstances
+class RichMapTest extends FreeSpec with AuxSpecs with ListInstances with StringInstances
     with OneInstancePerTest {
   "richJavaMap" - {
     val $: util.Map[String, Integer] = new util.HashMap[String, Integer]()

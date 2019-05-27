@@ -3,7 +3,6 @@ package common.rich.func
 import scala.language.higherKinds
 
 import scalaz.{Monad, OptionT}
-import scalaz.std.OptionInstances
 import scalaz.syntax.ToMonadOps
 
 trait ToMoreMonadOps extends ToMonadOps {
@@ -18,9 +17,10 @@ trait ToMoreMonadOps extends ToMonadOps {
   }
 
   //TODO move below
-  implicit class toMoreOptionMonadOps[A, F[_]: Monad]($: F[Option[A]])
-      extends ToMoreFoldableOps with OptionInstances {
-    private def pure[B](e: B) = Monad.apply.pure(e)
+  implicit class toMoreOptionMonadOps[A, F[_]: Monad]($: F[Option[A]]) {
+    import ToMoreFoldableOps._
+    import scalaz.std.option.optionInstance
+    private def pure[B](e: B): F[B] = implicitly[Monad[F]].pure(e)
     def mFilterOpt(p: A => F[Boolean]): F[Option[A]] = for {
       e <- $
       predValue <- e.mapHeadOrElse(p, pure(true))
@@ -28,3 +28,5 @@ trait ToMoreMonadOps extends ToMonadOps {
     def ifNoneTry(other: => F[A]): F[A] = $.flatMap(_.mapHeadOrElse(pure, other))
   }
 }
+
+object ToMoreMonadOps extends ToMoreMonadOps

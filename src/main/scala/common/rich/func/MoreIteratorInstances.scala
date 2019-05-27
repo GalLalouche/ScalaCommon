@@ -19,3 +19,5 @@ trait MoreIteratorInstances {
     override def foldLeft[A, B](fa: Iterator[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
+
+object MoreIteratorInstances extends MoreIteratorInstances

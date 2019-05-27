@@ -2,7 +2,7 @@ package common.rich.collections
 
 import java.util
 
-import common.rich.func.ToMoreFoldableOps
+import common.rich.func.ToMoreFoldableOps._
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
@@ -38,7 +38,7 @@ object RichMap {
   }
 
   implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V])
-      extends ToSemigroupOps with ToMoreFoldableOps with OptionInstances {
+      extends ToSemigroupOps with OptionInstances {
     def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
     def upsert[V2 >: V : Semigroup](kv: (K, V2)): Map[K, V2] = upsert(kv._1, kv._2)
     def upsert[V2 >: V : Semigroup](k: K, v: => V2): Map[K, V2] =

@@ -18,3 +18,5 @@ trait MoreTraversableInstances {
     override def foldLeft[A, B](fa: Traversable[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
+
+object MoreTraversableInstances extends MoreTraversableInstances

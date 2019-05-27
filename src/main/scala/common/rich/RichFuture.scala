@@ -1,15 +1,14 @@
 package common.rich
 
-import common.rich.func.ToMoreFunctorOps
+import common.rich.func.ToMoreFunctorOps._
+import scalaz.std.scalaFuture.futureInstance
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
-import scalaz.std.FutureInstances
 
 object RichFuture {
-  implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext)
-      extends ToMoreFunctorOps with FutureInstances {
+  implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
     def get: T = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)

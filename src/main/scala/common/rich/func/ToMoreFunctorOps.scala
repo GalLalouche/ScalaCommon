@@ -17,3 +17,4 @@ trait ToMoreFunctorOps extends ToFunctorOps {
   }
 }
 
+object ToMoreFunctorOps extends ToMoreFunctorOps

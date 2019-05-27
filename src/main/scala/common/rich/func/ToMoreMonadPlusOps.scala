@@ -33,3 +33,5 @@ trait ToMoreMonadPlusOps extends ToMonadPlusOps {
     }
   }
 }
+
+object ToMoreMonadPlusOps extends ToMoreMonadPlusOps

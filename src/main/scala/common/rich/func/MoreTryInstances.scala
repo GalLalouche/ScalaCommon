@@ -16,3 +16,5 @@ trait MoreTryInstances {
       if (fa.isSuccess) fa else fa.recoverWith {case e: Throwable => f(e)}
   }
 }
+
+object MoreTryInstances extends MoreTryInstances

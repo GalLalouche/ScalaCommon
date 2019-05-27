@@ -1,17 +1,16 @@
 package common.rich.func
 
 import common.rich.RichT._
+import common.rich.func.ToMoreFoldableOps._
+import scalaz.std.option.optionInstance
+import scalaz.syntax.monadError._
+import scalaz.{-\/, MonadError, \/, \/-}
 
 import scala.language.higherKinds
 
-import scalaz.{-\/, \/, \/-, MonadError}
-import scalaz.std.OptionInstances
-import scalaz.syntax.{ToMonadErrorOps, ToTraverseOps}
-
-trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
+trait ToMoreMonadErrorOps {
   class FilteredException(str: String) extends NoSuchElementException(str)
-  implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S])
-      extends ToMoreFoldableOps with OptionInstances {
+  implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
     def handleErrorFlat(f: S => A): F[A] = $.handleError(f andThen (F.pure(_)))
     def orElse(other: => A): F[A] = orElseTry(F pure other)
     def orElseTry(other: => F[A]): F[A] = $ handleError other.const
@@ -34,13 +33,11 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
       result <- if (predValue) F pure e else F raiseError error(e)
     } yield result
   }
-  implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(
-      implicit F: MonadError[F, Throwable])
-      extends ToMoreFoldableOps with OptionInstances {
+  implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(implicit F: MonadError[F, Throwable]) {
     def filterEquals(other: => A): F[A] =
       filterWithMessageF(_ == other, e =>
-          s"Expected: <$other>,\n" +
-          s"but was:  <$e>")
+        s"Expected: <$other>,\n" +
+            s"but was:  <$e>")
     def filterMapMessage(f: A => Option[String]): F[A] =
       mapEitherMessage(e => f(e).mapHeadOrElse(-\/.apply, \/-(e)))
     def filterWithMessage(p: A => Boolean, message: String): F[A] = $.filterWithMessageF(p, message.const)
@@ -63,3 +60,5 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps with ToTraverseOps {
     }
   }
 }
+
+object ToMoreMonadErrorOps extends ToMoreMonadErrorOps

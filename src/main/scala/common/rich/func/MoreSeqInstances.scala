@@ -18,3 +18,5 @@ trait MoreSeqInstances {
     override def foldLeft[A, B](fa: Seq[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
+
+object MoreSeqInstances extends MoreSeqInstances

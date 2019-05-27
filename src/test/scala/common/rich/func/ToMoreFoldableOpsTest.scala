@@ -1,16 +1,19 @@
 package common.rich.func
 
 import common.AuxSpecs
+import common.rich.func.MoreIterableInstances._
+import common.rich.func.MoreSeqInstances._
+import common.rich.func.MoreSetInstances._
+import common.rich.func.MoreTraversableInstances._
+import common.rich.func.ToMoreFoldableOps._
 import org.scalatest.FreeSpec
+import scalaz.Foldable
+import scalaz.std.list.listInstance
+import scalaz.std.vector.vectorInstance
 
 import scala.language.higherKinds
 
-import scalaz.Foldable
-import scalaz.std.{ListInstances, VectorInstances}
-
-class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs
-    with MoreSeqInstances with ToMoreFoldableOps with MoreTraversableInstances with ListInstances
-    with MoreIterableInstances with MoreSetInstances with VectorInstances {
+class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   "doForEach acts on left indices first" in {
     var s = ""
     Seq(1, 2, 3).doForEach(s += _)

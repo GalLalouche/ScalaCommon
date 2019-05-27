@@ -19,3 +19,5 @@ trait MoreSetInstances extends SetInstances {
     override def foldLeft[A, B](fa: Set[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
+
+object MoreSetInstances extends MoreSetInstances

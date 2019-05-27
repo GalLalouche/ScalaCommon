@@ -1,10 +1,9 @@
 package common.rich.func
 
 import common.AuxSpecs
+import common.rich.func.ToMoreMonadOps._
 import org.scalatest.FreeSpec
-
 import scalaz.Monad
-import scalaz.std.OptionInstances
 
 private object ToMoreMonadOpsTest {
   private case class Box[+A](a: A)
@@ -15,9 +14,9 @@ private object ToMoreMonadOpsTest {
   }
 }
 
-class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs
-    with OptionInstances with ToMoreMonadOps {
+class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs {
   import common.rich.func.ToMoreMonadOpsTest.Box
+
   private val none: Box[Option[Int]] = Box(None)
   private val some: Box[Option[Int]] = Box(Some(42))
   "mFilterOpt" - {

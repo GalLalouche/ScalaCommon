@@ -2,18 +2,13 @@ package common.rich
 
 import common.AuxSpecs
 import common.rich.RichFuture._
-import common.rich.func.ToMoreMonadErrorOps
 import org.scalatest.FreeSpec
 
-import RichT._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import scala.util.Try
-import scalaz.std.FutureInstances
 
-class RichFutureTest extends FreeSpec with AuxSpecs with
-    FutureInstances with ToMoreMonadErrorOps {
+class RichFutureTest extends FreeSpec with AuxSpecs {
   val success: Future[Int] = Future successful 1
   val exception = new Exception("Derp")
   val failure: Future[Int] = Future failed exception

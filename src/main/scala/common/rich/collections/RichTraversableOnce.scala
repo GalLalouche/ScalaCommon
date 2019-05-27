@@ -3,17 +3,16 @@ package common.rich.collections
 import common.rich.RichT._
 import common.rich.RichTuple._
 import common.rich.collections.RichMap._
-import common.rich.func.ToMoreFoldableOps
 import common.rich.primitives.RichBoolean._
-import scalaz.std.{AnyValInstances, ListInstances, OptionInstances, VectorInstances}
+import scalaz.std.anyVal._
+import scalaz.std.list._
+import scalaz.std.vector.vectorInstance
 import scalaz.{Functor, Semigroup}
 
 import scala.collection.TraversableOnce
 import scala.math.log10
 
-object RichTraversableOnce
-    extends ToMoreFoldableOps
-        with VectorInstances with ListInstances with AnyValInstances with OptionInstances {
+object RichTraversableOnce {
   class __Joiner[A, B] private[RichTraversableOnce]($: TraversableOnce[A], other: TraversableOnce[B]) {
     def where(predicate: (A, B) => Boolean): TraversableOnce[(A, B)] =
       for (i <- $; j <- other; if predicate(i, j)) yield (i, j)

@@ -3,14 +3,15 @@ package common.rich.func
 import common.AuxSpecs
 import common.rich.RichFuture._
 import common.rich.RichObservable._
+import common.rich.func.MoreObservableInstances._
+import common.rich.func.ToMoreFunctorOps._
 import org.scalatest.FreeSpec
 import rx.lang.scala.Observable
-import scalaz.std.VectorInstances
+import scalaz.std.vector.vectorInstance
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs
-    with ToMoreFunctorOps with MoreObservableInstances with VectorInstances {
+class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs {
   "listen" in {
     var sum = 0
     val $: Observable[Int] = Observable.just(1, 2, 3, 4).listen(sum += _)

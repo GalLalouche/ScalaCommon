@@ -17,3 +17,5 @@ trait ToMoreApplicativeOps extends ToApplicativeOps {
     def withFilter(p: Unit => Boolean): F[Unit] = $ whenM p()
   }
 }
+
+object ToMoreApplicativeOps extends ToMoreApplicativeOps

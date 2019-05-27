@@ -10,3 +10,5 @@ trait ToMoreBindOps extends ToBindOps {
     def toOptionTB[B](f: A => F[Option[B]]): OptionT[F, B] = OptionT($.flatMap(f))
   }
 }
+
+object ToMoreBindOps extends ToMoreBindOps

@@ -2,10 +2,9 @@ package common.rich.func
 
 import common.AuxSpecs
 import common.rich.RichT._
+import common.rich.func.ToMoreMonadErrorOps._
 import org.scalatest.FreeSpec
-
 import scalaz.MonadError
-import scalaz.std.EitherInstances
 
 private object ToMoreMonadErrorOpsTest {
   private sealed trait BoxOrMsg[+T] {
@@ -62,8 +61,7 @@ private object ToMoreMonadErrorOpsTest {
   }
 }
 
-class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
-    with EitherInstances with ToMoreMonadErrorOps {
+class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
   import common.rich.func.ToMoreMonadErrorOpsTest._
 
   private lazy val unusedError: String = ???
@@ -187,7 +185,7 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs
         "pred is false" in {
           success.filterEquals(43).getFailure.getMessage shouldReturn
               "Expected: <43>,\n" +
-              "but was:  <42>"
+                  "but was:  <42>"
         }
       }
       "failure" in {

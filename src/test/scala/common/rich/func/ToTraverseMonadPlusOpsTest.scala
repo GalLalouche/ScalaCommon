@@ -1,12 +1,12 @@
 package common.rich.func
 
 import common.AuxSpecs
+import common.rich.func.ToTraverseMonadPlusOps._
 import org.scalatest.FreeSpec
+import scalaz.std.list.listInstance
+import scalaz.std.option.optionInstance
 
-import scalaz.std.{ListInstances, OptionInstances}
-
-class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs
-    with ToTraverseMonadPlusOps with OptionInstances with ListInstances {
+class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs {
   "filterTraverse" in {
     List(1, 2, 3).filterTraverse[Option](x => Some(x % 2 == 0)).get shouldReturn List(2)
   }

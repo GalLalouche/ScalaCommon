@@ -14,3 +14,5 @@ trait MoreTraverseInstances {
         fa./:(fa.genericBuilder[B].η)((builder, x) => (builder ⊛ f(x)) (_ += _)) ∘ (_.result)
     }
 }
+
+object MoreTraverseInstances extends MoreTraverseInstances

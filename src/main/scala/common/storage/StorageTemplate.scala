@@ -1,14 +1,14 @@
 package common.storage
 
-import common.rich.func.ToMoreFoldableOps
+import common.rich.func.ToMoreFoldableOps._
+import scalaz.std.option.optionInstance
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scalaz.std.{FutureInstances, OptionInstances}
-import scalaz.syntax.{ToBindOps, ToFunctorOps}
 
 /** Provides overrides since the TableUtils trait can't have implicit parameters. */
-abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extends Storage[Key, Value]
-    with ToFunctorOps with ToBindOps with ToMoreFoldableOps with FutureInstances with OptionInstances {
+abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extends Storage[Key, Value] {
   /** If a previous value exists, override it. */
   protected def internalDelete(k: Key): Future[_]
   protected def internalForceStore(k: Key, v: Value): Future[_]
