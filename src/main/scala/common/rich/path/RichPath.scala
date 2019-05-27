@@ -10,6 +10,12 @@ import scala.language.implicitConversions
 abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
   require(f.getAbsoluteFile.exists, f.getAbsolutePath + " doesn't exist")
 
+  override def equals(obj: Any): Boolean = obj match {
+    // Fix for MacOS (of course).
+    case RichPath(otherF) => f.getCanonicalPath == otherF.getCanonicalPath
+    case _ => false
+  }
+
   val path: String = f.getCanonicalPath.replaceAll("\\\\", "/")
   val name: String = f.getName // including its extension
 
@@ -33,20 +39,21 @@ abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
 
   def parents: Seq[Directory] = {
     @tailrec
-    def aux(xs: ListBuffer[Directory], rp: RichPath[_]): Seq[Directory] = {
-      if (rp.f.getParentFile == null) xs else aux(xs += rp.parent, rp.parent)
-    }
-    aux(ListBuffer[Directory](), RichPath.this)
+    def aux(xs: ListBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
+      if (rp.f.getParentFile == null) xs.toVector else aux(xs += rp.parent, rp.parent)
+    aux(ListBuffer(), RichPath.this)
   }
 
   protected def internalCopyTo(f: File): T
   /**
    * Copies this path to another location with the same name.
+   *
    * @throws FileAlreadyExistsException if a file (or directory) with the same name already exists in the destination
    */
   def copyTo(dstDir: Directory): T = copyTo(dstDir, name)
   /**
    * Copies this file to another location with the same name.
+   *
    * @throws FileAlreadyExistsException if a file (or directory) with the same name already exists in the destination
    */
   def copyTo(dstDir: Directory, newName: String): T = {
