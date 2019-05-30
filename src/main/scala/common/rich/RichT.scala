@@ -2,6 +2,7 @@ package common.rich
 
 import common.rich.primitives.RichBoolean._
 
+import scala.Ordering.Implicits._
 import scala.util.Try
 
 object RichT {
@@ -90,6 +91,8 @@ object RichT {
       (f1($), f2($), f3($), f4($))
 
     @inline def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
+
+    def coerceIn(min: T, max: T)(implicit o: Ordering[T]): T = if ($ < min) min else if ($ > max) max else $
   }
 
   implicit class lazyT[T]($: => T) {
