@@ -22,8 +22,10 @@ trait ToMoreFoldableOps extends ToFoldableOps {
     // Why isn't this in the scalaz library? Who knows
     def foldMapPE[M[_] : PlusEmpty, B](f: A => M[B]): M[B] =
       Foldable[F].foldMap($)(f)(PlusEmpty[M].monoid)
-    def foldLeftME[M[_], B, S](f: A => M[B], b: M[B])(implicit ev: MonadError[M, S]): M[B] =
+    def foldLeftME[M[_], B, S](f: A => M[B], b: M[B])(implicit ev: MonadError[M, S]): M[B] = {
+      import ToMoreMonadErrorOps._
       Foldable[F].foldLeft($, b)(_ orElseTry f(_))
+    }
     def mapHeadOrElse[B](f: A => B, default: => B): B = headOpt.fold(default)(f)
     def headOpt: Option[A] = $ index 0
     def head: A = headOpt.get

@@ -1,14 +1,16 @@
 package common.rich.func
 
 import common.rich.RichT._
-import common.rich.func.ToMoreFoldableOps._
-import scalaz.std.option.optionInstance
-import scalaz.syntax.monadError._
-import scalaz.{-\/, MonadError, \/, \/-}
 
 import scala.language.higherKinds
 
-trait ToMoreMonadErrorOps {
+import scalaz.{-\/, \/, \/-, MonadError}
+import scalaz.std.option.optionInstance
+import scalaz.syntax.ToMonadErrorOps
+
+trait ToMoreMonadErrorOps extends ToMonadErrorOps {
+  import common.rich.func.ToMoreFoldableOps._
+
   class FilteredException(str: String) extends NoSuchElementException(str)
   implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
     def handleErrorFlat(f: S => A): F[A] = $.handleError(f andThen (F.pure(_)))
