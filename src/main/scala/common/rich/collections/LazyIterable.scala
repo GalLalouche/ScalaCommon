@@ -38,6 +38,7 @@ object LazyIterable {
   def iterateOptionally[A](a: => A)(f: A => Option[A]): LazyIterable[A] =
     new LazyIterable[A](Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get))
   def continually[A](a: => A): LazyIterable[A] = new LazyIterable[A](Iterator.continually(a))
+  def apply[A](as: A*): LazyIterable[A] = from(as.iterator)
 
   implicit object MonadPlusEv extends MonadPlus[LazyIterable] {
     override def empty[A] = from(Iterator.empty)
