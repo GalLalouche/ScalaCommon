@@ -122,6 +122,8 @@ object RichTraversableOnce {
       next
     }
 
+    def contains(a: A): Boolean = $.exists(_ == a)
+
     def filterAndSortBy[B](f: A => B, order: Seq[B]): Seq[A] = {
       val orderMap = order.zipWithIndex.toMap
       Functor[Vector].fproduct($.toVector)(f)
