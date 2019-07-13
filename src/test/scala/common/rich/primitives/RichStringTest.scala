@@ -55,11 +55,15 @@ class RichStringTest extends FreeSpec with AuxSpecs {
 
   "matches" - {
     "true" in {
-      "foobar".matches(Pattern.compile("f.{4}r"))
+      "foobar".matches(Pattern.compile("f.{4}r")) shouldReturn true
     }
     "false" in {
-      "barfoo".matches(Pattern.compile("f.{4}r"))
+      "barfoo".matches(Pattern.compile("f.{4}r")) shouldReturn false
     }
+  }
+
+  "replaceAll" in {
+    "foobar".replaceAll(Pattern.compile(".b"), "xx") shouldReturn "foxxar"
   }
 
   "dropAfterLast" - {

@@ -71,6 +71,7 @@ object RichString {
 
     def matches(p: Pattern): Boolean = p.matcher($).matches()
     def doesNotMatch(p: Pattern): Boolean = matches(p).isFalse
+    def replaceAll(p: Pattern, replacement: String): String = p.matcher($).replaceAll(replacement)
   }
 
   /** Reads what's written to the PrintStream and writes it to the output string. */
