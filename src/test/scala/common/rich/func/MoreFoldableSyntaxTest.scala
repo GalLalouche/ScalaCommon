@@ -27,7 +27,6 @@ class MoreFoldableSyntaxTest extends FreeSpec with AuxSpecs {
     "Seq" in test(Seq.fill(_)(1))
     "List" in test(List.fill(_)(1))
     "Set" in test(1.to(_).toSet)
-    "Traversable" in test(Iterable.fill(_)(1))
     "Iterable" in test(Iterable.fill(_)(1))
     "Vector" in test(Vector.fill(_)(1))
   }

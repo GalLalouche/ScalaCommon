@@ -56,8 +56,8 @@ object RichMap {
     /** Complexity: O(totalSize), which is pretty crappy */
     def totalSizeSlow: Int = $.values.map(_.length).sum
   }
-  implicit class richTraversableMap[K, A]($: Map[K, Traversable[A]]) {
-    /** Potentially faster for traversables whose size operation is O(1), e.g., Vector or Set. */
+  implicit class richIterableMap[K, A]($: Map[K, Iterable[A]]) {
+    /** Potentially faster for iterables whose size operation is O(1), e.g., Vector or Set. */
     def totalSize: Int = $.values.map(_.size).sum
   }
 }

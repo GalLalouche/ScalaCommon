@@ -31,7 +31,7 @@ class ImmutableUnionFind[A] private(
 
 object ImmutableUnionFind {
   def apply[A](a1: A, a2: A, as: A*): ImmutableUnionFind[A] = apply(a2 :: a1 :: as.toList)
-  def apply[A](as: TraversableOnce[A]): ImmutableUnionFind[A] = {
+  def apply[A](as: IterableOnce[A]): ImmutableUnionFind[A] = {
     val vector = as.toVector
     new ImmutableUnionFind[A](vector.indices.toVector, vector.zipWithIndex.toMap, vector.size)
   }

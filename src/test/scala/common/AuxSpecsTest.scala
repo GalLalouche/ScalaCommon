@@ -40,7 +40,7 @@ class AuxSpecsTest extends FreeSpec with AuxSpecs {
       verifyMessage(e, "4 did not equal 5")
     }
   }
-  "RichShouldTraversable" - {
+  "RichShouldIterable" - {
     "shouldContain" - {
       "when all is okay" in {
         doesNotThrow(List(1, 2, 3) shouldContain(1, 2, 3))

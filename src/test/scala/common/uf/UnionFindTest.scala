@@ -5,7 +5,7 @@ import org.scalatest.FreeSpec
 
 abstract class UnionFindTest extends FreeSpec with AuxSpecs {
   private val vector = Vector("foo", "bar", "bazz", "quux", "moo")
-  protected def createUnionFind[A](xs: TraversableOnce[A]): UnionFind[A]
+  protected def createUnionFind[A](xs: IterableOnce[A]): UnionFind[A]
   private val $ = createUnionFind(vector)
   private def deepSets[A](intses: Iterable[Iterable[A]]): Set[Set[A]] = intses.map(_.toSet).toSet
   "all elements begin in different sets" in {

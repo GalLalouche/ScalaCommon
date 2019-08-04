@@ -1,5 +1,5 @@
 package common.uf
 
 class ImmutableUnionFindTest extends UnionFindTest {
-  override protected def createUnionFind[A](xs: TraversableOnce[A]) = ImmutableUnionFind(xs)
+  override protected def createUnionFind[A](xs: IterableOnce[A]) = ImmutableUnionFind(xs)
 }
