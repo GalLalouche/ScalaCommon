@@ -5,3 +5,4 @@ project/**
 *.jar
 .idea/**
 sbt.sh
+update.sh
