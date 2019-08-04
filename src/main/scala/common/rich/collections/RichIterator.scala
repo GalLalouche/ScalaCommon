@@ -1,37 +1,11 @@
 package common.rich.collections
 
-import common.rich.primitives.RichBoolean._
-
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.parallel.ParSeq
 import scala.collection.AbstractIterator
 
+import common.rich.primitives.RichBoolean._
+
 object RichIterator {
-  private class ParIterator[T]($: Iterator[T], windowSize: Int) extends Iterator[T] {
-    override val seq = $
-    override def hasNext = $.hasNext
-    override def next() = $.next()
-
-    // Some iterators implement take() in a side-effect-less free way, so this method explicitly calls next().
-    private def take(): ParSeq[T] = {
-      val v = new ArrayBuffer[T](windowSize)
-      var i = 0
-      while (hasNext && i < windowSize) {
-        v += next()
-        i += 1
-      }
-      v.toVector.par
-    }
-    override def map[U](f: T => U): Iterator[U] =
-      (take() map f).iterator ++ (if (hasNext) new ParIterator($, windowSize) map f else Iterator.empty)
-
-    override def foreach[U](f: T => U) {
-      while ($.hasNext)
-        take() foreach f
-    }
-  }
-
   implicit class richIterator[A](private val $: Iterator[A]) extends AnyVal {
     /** Returns an iterator that throws an exception on the first item that does not satisfy f */
     def verify(f: A => Boolean,
@@ -95,8 +69,6 @@ object RichIterator {
         ($.next, i)
       }
     }
-
-    def par(windowSize: Int = 20): Iterator[A] = new ParIterator($, windowSize)
 
     def reducingIterator(f: (A, A) => A): Iterator[A] =
       if ($.isEmpty) Iterator() else $.scanLeft($.next)(f)

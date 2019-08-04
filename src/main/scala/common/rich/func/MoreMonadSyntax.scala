@@ -12,8 +12,8 @@ object MoreMonadSyntax {
     private def pure[B](e: B) = Monad.apply.pure(e)
     def toOptionTF2[B](f: A => OptionT[F, B]): OptionT[F, B] =
       OptionT($.map(Option(_))).flatMap(f)
-    def ifFalse(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = pure(Unit), ifFalse = f.void)
-    def ifTrue(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = pure(Unit))
+    def ifFalse(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = pure(()), ifFalse = f.void)
+    def ifTrue(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = pure(()))
   }
 
   //TODO move below

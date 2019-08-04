@@ -42,6 +42,7 @@ object Percentage {
   def step(by: Percentage): Seq[Percentage] = {
     val p = by.p
     require(p > 0 && p < 0.5)
-    (0.0 to 1.0 by p).map(Math.min(1, _)).map(Percentage.apply)
+    val x: Seq[BigDecimal] = BigDecimal(0.0).to(BigDecimal(1.0)).by(BigDecimal(p.p))
+    x.map(d => Percentage(d.doubleValue))
   }
 }

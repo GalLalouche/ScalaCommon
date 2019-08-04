@@ -117,27 +117,6 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
     }
   }
 
-
-  "+" - {
-    "appends an element at the end" in {
-      List[Int]() + 1 shouldBe List(1)
-    }
-
-    "appends an element at the end in non-empty" in {
-      List(1) + 2 shouldBe List(1, 2)
-    }
-  }
-
-  "::" - {
-    "prepends to an empty list" in {
-      1 :: Seq() shouldBe Seq(1)
-    }
-
-    "prepends to a non-empty list" in {
-      1 :: Seq(2) shouldBe Seq(1, 2)
-    }
-  }
-
   "cutoffsAt" - {
     "starts at false" in {
       Vector(1, 7, 2, 3, 4, 5, 6, 6).cutoffsAt(_ % 2 == 0).toVector.map(_.toVector) shouldReturn

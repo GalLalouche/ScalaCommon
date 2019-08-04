@@ -14,7 +14,7 @@ class StorageTemplateTest extends FreeSpec with OneInstancePerTest with AuxSpecs
     override protected def internalDelete(k: Int) = Future successful existingValues.remove(k)
     override protected def internalForceStore(k: Int, v: Int) = {
       existingValues += k -> v
-      Future successful Unit
+      Future.successful(())
     }
     override def load(k: Int): Future[Option[Int]] = Future successful existingValues.get(k)
     override def storeMultiple(kvs: Seq[(Int, Int)]) =

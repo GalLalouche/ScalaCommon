@@ -1,11 +1,11 @@
 package common.rich.collections
 
-import common.rich.RichT._
-
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.reflect.ClassTag
 import scala.util.Random
+
+import common.rich.RichT._
 
 object RichSeq {
   class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
@@ -17,7 +17,11 @@ object RichSeq {
       require(index >= 0)
       if ($.size < index)
         throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-      else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
+      else {
+        val xs = $ splitAt index
+        val buffer = xs._1.to(ListBuffer) += elementToInsert
+        buffer.++(xs._2).toVector
+      }
     }
     def after(index: Int): Seq[T] = at(index + 1)
     def before(index: Int): Seq[T] = at(index - 1)
@@ -84,11 +88,8 @@ object RichSeq {
       if ($.size <= i)
         throw new IndexOutOfBoundsException(s"requested to remove at $i when size is ${$.size}")
       else
-        $.splitAt(i).mapTo(e => e._1.to[ListBuffer] ++ e._2.drop(1))
+        $.splitAt(i).mapTo(e => e._1.to(ListBuffer).++(e._2.drop(1)).toVector)
     }
-
-    /** Appends an element at the end of the sequence. O(n) complexity. */
-    def +(e: T): Seq[T] = $.to[ListBuffer] += e
 
     /** Prepends an element to the sequence. Unless the underlying sequence is a list, the complexity is O(n). */
     def ::[U >: T](e: U): Seq[U] = e :: $.toList
@@ -118,13 +119,17 @@ object RichSeq {
 
   implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))
-    /** Creates a map view from T to S. The map has linear search time, but on the other hand it keeps the same sequence as the original */
+    /**
+     * Creates a map view from T to S. The map has linear search time, but it keeps the same sequence as the
+     * original
+     */
     def asMap: Map[T, S] = new Map[T, S]() {
-      override def +[B1 >: S](kv: (T, B1)): Map[T, B1] = ???
       override def get(key: T): Option[S] = $.find(_._1 == key).map(_._2)
       override def iterator: Iterator[(T, S)] = $.iterator
-      override def -(key: T): Map[T, S] = ???
+      override def removed(key: T): Map[T, S] = $.filter(_ != key).asMap
       override def toSeq = $
+      override def updated[V1 >: S](key: T, value: V1) =
+        $.map {case (x, y) => if (x == key) x -> value else x -> y}.asMap
     }
     def toMultiMap: Map[T, Seq[S]] = RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
   }

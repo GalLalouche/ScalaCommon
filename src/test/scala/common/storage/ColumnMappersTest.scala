@@ -1,11 +1,12 @@
 package common.storage
 
-import common.AuxSpecs
-import common.rich.RichFuture._
-import common.rich.collections.RichTraversableOnce._
 import org.scalatest.{BeforeAndAfter, FreeSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import common.AuxSpecs
+import common.rich.RichFuture._
+import common.rich.collections.RichTraversableOnce._
 
 class ColumnMappersTest extends FreeSpec with AuxSpecs with BeforeAndAfter with StorageSpecs {
   private val cm = new ColumnMappers()

@@ -93,6 +93,11 @@ object RichT {
     @inline def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
 
     def coerceIn(min: T, max: T)(implicit o: Ordering[T]): T = if ($ < min) min else if ($ > max) max else $
+
+    @inline def requiring(p: T => Boolean): T = {require(p($)); $}
+    @inline def requiring(p: T => Boolean, msg: => Any): T = {require(p($), msg); $}
+    @inline def requiring(b: Boolean): T = {require(b); $}
+    @inline def requiring(b: Boolean, msg: => Any): T = {require(b, msg); $}
   }
 
   implicit class lazyT[T]($: => T) {

@@ -2,7 +2,7 @@ package common.storage
 
 import slick.jdbc.{JdbcProfile, JdbcType}
 
-import scala.collection.generic.CanBuildFrom
+import scala.collection.BuildFrom
 import scala.language.higherKinds
 import scala.reflect.ClassTag
 
@@ -13,15 +13,16 @@ class ColumnMappers(implicit d: JdbcProfile) {
     lazy val values = EnumUtils.values
     MappedColumnType.base[E, Int](_.ordinal, values.apply)
   }
-  implicit def traversable[T, F[X] <: Traversable[X]](implicit ssEv: StringSerializable[T],
-      fromSeq: CanBuildFrom[Nothing, T, F[T]],
-      ct: ClassTag[F[T]]): JdbcType[F[T]] =
+  implicit def iterable[T, F[X] <: Iterable[X]](implicit ssEv: StringSerializable[T],
+      fromSeq: BuildFrom[Seq[T], T, F[T]],
+      ct1: ClassTag[F[T]],
+      ct2: ClassTag[T],
+  ): JdbcType[F[T]] =
     MappedColumnType.base[F[T], String](
       value => value.toSeq.map(ssEv.stringify).mkString(ssEv.separator),
       s => {
-        val builder = fromSeq.apply()
-        if (s.nonEmpty)
-          s.split(ssEv.separator).map(ssEv.parse).foreach(builder.+=)
-        builder.result()
+        val builder = fromSeq.newBuilder(Array[T]())
+        val elements = if (s.nonEmpty) s.split(ssEv.separator).map(ssEv.parse) else Array[T]()
+        builder.addAll(elements).result()
       })
 }

@@ -19,12 +19,12 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
     verifyConsistency
   }
 
-  override def +=(kv: (K, V)) = {
+  override def addOne(kv: (K, V)): this.type = {
     keyToIndex(kv._1) = kv._2
     checkMemory
     this
   }
-  override def -=(key: K) = {
+  override def subtractOne(key: K): this.type = {
     keyToIndex.remove(key)
     verifyConsistency
     this

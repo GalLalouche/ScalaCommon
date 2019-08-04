@@ -55,7 +55,7 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
   }
 
   "foreachWithInBetween performs the selectedActionInBetween each foreach" in {
-    val actual = mutable.MutableList[String]()
+    val actual = mutable.ListBuffer[String]()
     List(1, 2, 3).foreachWithBetween(actual += _.toString, () => actual += "|")
     actual.mkString("") shouldBe "1|2|3"
   }

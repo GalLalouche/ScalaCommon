@@ -1,31 +1,36 @@
 package common.rich.func
 
 import org.scalatest.FreeSpec
-import rx.lang.scala.Observable
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scalaz.std.vector.vectorInstance
+import scalaz.Functor
 import common.rich.func.MoreFunctorSyntax._
-import common.rich.func.MoreObservableInstances._
 
 import common.AuxSpecs
-import common.rich.RichFuture._
-import common.rich.RichObservable._
+
+object MoreFunctorSyntaxTest {
+  private case class Box[A](a: A)
+  private object Box {
+    implicit object FunctorEv extends Functor[Box] {
+      override def map[A, B](fa: Box[A])(f: A => B) = Box(f(fa.a))
+    }
+  }
+}
 
 class MoreFunctorSyntaxTest extends FreeSpec with AuxSpecs {
+  import MoreFunctorSyntaxTest._
+
   "listen" in {
     var sum = 0
-    val $: Observable[Int] = Observable.just(1, 2, 3, 4).listen(sum += _)
-    var product = 1
-    $.foreach(product *= _)
-    sum shouldReturn 10
-    product shouldReturn 24
+    val $: Box[Int] = Box(42).listen(sum += _)
+    val y = $.a * 10
+    sum shouldReturn 42
+    y shouldReturn 420
   }
   "unzip" in {
-    val (o1, o2): (Observable[Int], Observable[Int]) = Observable.just(1 -> 2, 3 -> 4).unzip
-    o1.toFuture[Vector].get shouldReturn Vector(1, 3)
-    o2.toFuture[Vector].get shouldReturn Vector(2, 4)
+    val (o1, o2): (Box[Int], Box[Int]) = Box(1 -> 2).unzip
+    o1 shouldReturn Box(1)
+    o2 shouldReturn Box(2)
   }
   "ifNone" in {
     Vector(None, Some(3), None).ifNone(42) shouldReturn Vector(42, 3, 42)

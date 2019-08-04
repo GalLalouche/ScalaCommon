@@ -44,7 +44,7 @@ object RichMap {
     def upsert[V2 >: V : Semigroup](k: K, v: => V2): Map[K, V2] =
       $.updated(k, $.get(k).asInstanceOf[Option[V2]].mapHeadOrElse(_ ⊹ v, v))
     def mergeIntersecting(other: Map[K, V]): Map[K, V] =
-      $.filterKeys(other.contains).map(e => (e._1, e._2 ⊹ other(e._1)))
+      $.view.filterKeys(other.contains).map(e => (e._1, e._2 ⊹ other(e._1))).toMap
   }
   implicit class richPlusMap[K, V[_] : Plus, A]($: Map[K, V[A]]) {
     private val asSemigroup = richSemigroupMap($)(Plus[V].semigroup)
