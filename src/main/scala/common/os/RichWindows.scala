@@ -31,7 +31,7 @@ object RichWindows extends RichOs {
     cmdList
         .tail
         .filter(_.length > 1)
-        .toStream
+        .to(LazyList)
         .map(e => {
           List(e.substring(0, secondIndex - 2),
             e.substring(secondIndex, thirdIndex - 2),

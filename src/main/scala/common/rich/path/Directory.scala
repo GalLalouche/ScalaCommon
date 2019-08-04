@@ -55,11 +55,11 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
     this
   }
   /** Returns all files that are not directories nested inside this directory (in any given depth). */
-  def deepFiles: Stream[File] = files.toStream ++ dirs.flatMap(_.deepFiles)
+  def deepFiles: LazyList[File] = files.to(LazyList) ++ dirs.flatMap(_.deepFiles)
   /** Returns all directories nested inside this directory (in any given depth). */
-  def deepDirs: Stream[Directory] = dirs.toStream ++ dirs.flatMap(_.deepDirs)
+  def deepDirs: LazyList[Directory] = dirs.to(LazyList) ++ dirs.flatMap(_.deepDirs)
   /** Returns all files and directories nested inside this directory (in any given depth). */
-  def deepPaths: Stream[File] = files.toStream ++ dirs.flatMap(_.deepPaths)
+  def deepPaths: LazyList[File] = files.to(LazyList) ++ dirs.flatMap(_.deepPaths)
 
   /**
    * Clones the directory, creating a copy of it suffixed with "clone" by default.

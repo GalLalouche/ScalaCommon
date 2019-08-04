@@ -64,5 +64,5 @@ object RichInt {
     }
   }
   @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
-  lazy val primes: Stream[Int] = Stream from 2 filter (_.isPrime)
+  def primes: LazyList[Int] = LazyList from 2 filter (_.isPrime)
 }

@@ -7,7 +7,7 @@ import org.scalatest.FreeSpec
 class RichIterableTest extends FreeSpec with AuxSpecs {
   "length comparisons" - {
     val $ = Vector(1, 2, 3)
-    val inf = Stream.continually(5)
+    val inf = LazyList.continually(5)
     "checkLength" in {
       $.checkLength(2) shouldReturn RichIterable.Larger
       $.checkLength(3) shouldReturn RichIterable.Equal
