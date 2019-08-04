@@ -4,7 +4,7 @@ import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
 import common.rich.RichT._
-import common.rich.collections.RichTraversableOnce._
+import common.rich.collections.RichIterableOnce._
 import common.rich.primitives.RichBoolean._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Matchers, Suite}
@@ -21,16 +21,16 @@ trait AuxSpecs extends Matchers {self: Suite =>
     throw e
   }
   // More information on errors.
-  implicit class RichShouldTraversable[T]($: Traversable[T]) {
+  implicit class RichShouldIterable[T]($: Iterable[T]) {
     private val ProperExceptionDepth = 2
     def shouldContain(first: T, last: T*): Unit = {
       val expected = first :: last.toList
-      val missing = expected.filterNot(e => $.exists(_ == e))
+      val missing = expected.filterNot($.contains)
       if (missing.nonEmpty)
         throwProperDepthException(s"${$} doesn't contain $missing.", ProperExceptionDepth)
     }
 
-    def shouldSetEqual(other: Traversable[T]): Unit = {
+    def shouldSetEqual(other: Iterable[T]): Unit = {
       val otherSet = other.toSet
       val actualSet = $.toSet
       val extra = actualSet &~ otherSet
@@ -47,14 +47,14 @@ trait AuxSpecs extends Matchers {self: Suite =>
       }
     }
 
-    private def simplify[A](xs: Traversable[(A, Int)]): String = xs.map {
+    private def simplify[A](xs: Iterable[(A, Int)]): String = xs.map {
       case (x, 1) => x
       case (x, n) => s"$x[$n]"
     }.mkString("MultiSet(", ", ", ")")
     private def diff[A](f1: Map[A, Int], f2: Map[A, Int]): Map[A, Int] = f1.map {
       case (k, v) => k -> (v - f2.getOrElse(k, 0))
     }.filter(_._2 > 0)
-    def shouldMultiSetEqual(other: Traversable[T]): Unit = {
+    def shouldMultiSetEqual(other: Iterable[T]): Unit = {
       val otherFreqs = other.frequencies
       val actualFreqs = $.frequencies
       val extra = diff(actualFreqs, otherFreqs)

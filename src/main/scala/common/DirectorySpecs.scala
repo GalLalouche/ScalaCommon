@@ -1,16 +1,14 @@
 package common
 
-import common.rich.RichT._
-import common.rich.collections.RichTraversableOnce._
-import common.rich.path.RichFile._
-import common.rich.path.{Directory, RichFile, RichPath, TempDirectory}
 import org.scalatest.{BeforeAndAfter, Suite}
 
-/**
- * Several helping methods and fixtures for testing classes that works with IO
- */
-trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
-  self: Suite =>
+import common.rich.RichT._
+import common.rich.collections.RichIterableOnce._
+import common.rich.path.{Directory, RichFile, RichPath, TempDirectory}
+import common.rich.path.RichFile._
+
+/** Helper methods and fixtures for testing classes that works with IO. */
+trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {self: Suite =>
   after {
     if (tempDir.exists())
       tempDir.clear()
@@ -28,7 +26,7 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
 
   def assertSameContents(dir1: Directory, dir2: Directory, assertSameName: Boolean = false): Unit = {
     if (assertSameName) assert(dir1.name == dir2.name, "Directories have different names")
-    def mapByName[P <: RichPath[_]](ps: TraversableOnce[P]): Map[String, P] =
+    def mapByName[P <: RichPath[_]](ps: IterableOnce[P]): Map[String, P] =
       ps.mapBy(_.name)
     val dir1Files = dir1.files
     val dir2Files = dir1.files map RichFile.apply mapTo mapByName
@@ -52,5 +50,5 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
       assert(dir2Subdir.isDefined, s"<$dir2> has no sub directory with name <$subdir1Name>")
       assertSameContents(dir1Subdir, dir2Subdir.get, assertSameName = true)
     })
- }
+  }
 }

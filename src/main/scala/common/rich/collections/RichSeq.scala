@@ -131,7 +131,7 @@ object RichSeq {
       override def updated[V1 >: S](key: T, value: V1) =
         $.map {case (x, y) => if (x == key) x -> value else x -> y}.asMap
     }
-    def toMultiMap: Map[T, Seq[S]] = RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
+    def toMultiMap: Map[T, Seq[S]] = RichIterableOnce.richIterableOnce($).toMultiMap(_._1, _._2)
   }
 
   implicit class richSeqTuplesTriplets[T, S, U](private val $: Seq[(T, S, U)]) extends AnyVal {

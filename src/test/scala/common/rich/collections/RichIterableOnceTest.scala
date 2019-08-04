@@ -1,13 +1,13 @@
 package common.rich.collections
 
 import common.AuxSpecs
-import common.rich.collections.RichTraversableOnce._
+import common.rich.collections.RichIterableOnce._
 import org.scalatest.FreeSpec
 import scalaz.Semigroup
 
 import scala.collection.mutable
 
-class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
+class RichIterableOnceTest extends FreeSpec with AuxSpecs {
   "filterNot" in {
     1.to(5).filterNot(_ % 2 == 0).toVector shouldReturn Vector(1, 3, 5)
   }
@@ -22,7 +22,7 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
   }
 
   "joinWhere" - {
-    "returns an empty traversable if one of the traversables is empty" in {
+    "returns an empty iterable if one of the iterables is empty" in {
       List(1, 2, 3).join(List[String]()).where((_, _) => true).toList shouldBe 'empty
       List[Int]().join(List[String]("1", "2", "3")).where((_, _) => true).toList shouldBe 'empty
     }
@@ -101,10 +101,10 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     "returns the single element when one exists" in {
       List(1).single shouldReturn 1
     }
-    "throws an exception on empty traversable" in {
+    "throws an exception on empty iterable" in {
       a[NoSuchElementException] should be thrownBy Nil.single
     }
-    "throws an exception on a traversable with more than 1 element" in {
+    "throws an exception on a iterable with more than 1 element" in {
       an[UnsupportedOperationException] should be thrownBy List(1, 2).single
     }
   }

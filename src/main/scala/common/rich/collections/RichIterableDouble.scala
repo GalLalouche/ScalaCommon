@@ -1,7 +1,7 @@
 package common.rich.collections
 
-object RichTraversableDouble {
-  implicit class richTraversableDouble($: Traversable[Double]) {
+object RichIterableDouble {
+  implicit class richIterableDouble($: Iterable[Double]) {
     require($.nonEmpty)
 
     def mean: Double = $.sum / $.size
@@ -40,7 +40,7 @@ object RichTraversableDouble {
       (s($.size / 2) + s(($.size - 1) / 2)) / 2
     }
     def decimal: Double = sorted($.size / 10)
-    def medianAbsoluteDeviation: Double = new richTraversableDouble($ map (_ - median) map Math.abs).median
+    def medianAbsoluteDeviation: Double = new richIterableDouble($ map (_ - median) map Math.abs).median
 
     def fixedSizeBins(binSize: Double): Seq[Long] = {
       require(binSize > 0)
@@ -64,5 +64,5 @@ object RichTraversableDouble {
     }
   }
 
-  implicit class richInt($: Traversable[Int]) extends richTraversableDouble($.map(_.toDouble))
+  implicit class richInt($: Iterable[Int]) extends richIterableDouble($.map(_.toDouble))
 }

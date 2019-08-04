@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import common.AuxSpecs
 import common.rich.RichFuture._
-import common.rich.collections.RichTraversableOnce._
+import common.rich.collections.RichIterableOnce._
 
 class ColumnMappersTest extends FreeSpec with AuxSpecs with BeforeAndAfter with StorageSpecs {
   private val cm = new ColumnMappers()
