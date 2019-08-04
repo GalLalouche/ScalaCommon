@@ -1,15 +1,16 @@
 package common.rich.func
 
-import common.rich.func.ToMoreMonadErrorOps._
-import common.rich.primitives.RichBoolean._
-import scalaz.syntax.ToFoldableOps
-import scalaz.{Foldable, MonadError, PlusEmpty}
-
 import scala.Ordering.Implicits._
 import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
 
-trait ToMoreFoldableOps extends ToFoldableOps {
+import scalaz.{Foldable, MonadError, PlusEmpty}
+
+import common.rich.primitives.RichBoolean._
+
+object ToMoreFoldableOps {
+  import scalaz.syntax.foldable._
+
   implicit class toMoreFoldableOps[A, F[_] : Foldable]($: F[A]) {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
@@ -49,5 +50,3 @@ trait ToMoreFoldableOps extends ToFoldableOps {
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
   }
 }
-
-object ToMoreFoldableOps extends ToMoreFoldableOps

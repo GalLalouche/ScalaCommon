@@ -5,7 +5,7 @@ import scala.util.{Failure, Success, Try}
 import scalaz.{MonadError, MonadPlus}
 import scalaz.std.TryInstances
 
-trait MoreTryInstances {
+object MoreTryInstances {
   implicit object TryMonadPlus extends TryInstances with MonadPlus[Try] with MonadError[Try, Throwable] {
     override def bind[A, B](fa: Try[A])(f: A => Try[B]): Try[B] = fa.flatMap(f)
     override def empty[A]: Try[A] = Failure(new NoSuchElementException)
@@ -16,5 +16,3 @@ trait MoreTryInstances {
       if (fa.isSuccess) fa else fa.recoverWith {case e: Throwable => f(e)}
   }
 }
-
-object MoreTryInstances extends MoreTryInstances

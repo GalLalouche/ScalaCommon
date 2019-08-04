@@ -1,11 +1,12 @@
 package common.rich.func
 
 import scala.language.higherKinds
-import scalaz.std.SetInstances
-import scalaz.{Foldable, MonadPlus, Monoid}
 
-trait MoreSetInstances extends SetInstances {
-  implicit object SetMonadPlus extends MonadPlus[Set]/*Kinda*/ with Foldable[Set] {
+import scalaz.{Foldable, MonadPlus, Monoid}
+import scalaz.std.SetInstances
+
+object MoreSetInstances {
+  implicit object SetMonadPlus extends MonadPlus[Set] /*Kinda*/ with Foldable[Set] {
     override def bind[A, B](fa: Set[A])(f: A => Set[B]) = fa flatMap f
     override def point[A](a: => A) = Set(a)
     override def empty[A] = Set.empty
@@ -19,5 +20,3 @@ trait MoreSetInstances extends SetInstances {
     override def foldLeft[A, B](fa: Set[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
-
-object MoreSetInstances extends MoreSetInstances

@@ -1,15 +1,17 @@
 package common.rich.func
 
+import org.scalatest.FreeSpec
+import rx.lang.scala.Observable
+
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scalaz.std.vector.vectorInstance
+import common.rich.func.MoreObservableInstances._
+import common.rich.func.ToMoreFunctorOps._
+
 import common.AuxSpecs
 import common.rich.RichFuture._
 import common.rich.RichObservable._
-import common.rich.func.MoreObservableInstances._
-import common.rich.func.ToMoreFunctorOps._
-import org.scalatest.FreeSpec
-import rx.lang.scala.Observable
-import scalaz.std.vector.vectorInstance
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs {
   "listen" in {

@@ -1,12 +1,14 @@
 package common.rich.func
 
-import common.rich.RichT._
-import scalaz.syntax.ToFunctorOps
-import scalaz.{Functor, OptionT}
-
 import scala.language.higherKinds
 
-trait ToMoreFunctorOps extends ToFunctorOps {
+import scalaz.{Functor, OptionT}
+
+import common.rich.RichT._
+
+object ToMoreFunctorOps {
+  import scalaz.syntax.functor._
+
   implicit class toMoreFunctorOps[F[_] : Functor, A]($: F[A]) {
     def listen(f: A => Any): F[A] = $.map(_ <| f)
     def toOptionTF[B](f: A => Option[B]): OptionT[F, B] = OptionT($.map(f))
@@ -16,5 +18,3 @@ trait ToMoreFunctorOps extends ToFunctorOps {
       $.map(b => if (ev(b)) whenTrue else whenFalse)
   }
 }
-
-object ToMoreFunctorOps extends ToMoreFunctorOps

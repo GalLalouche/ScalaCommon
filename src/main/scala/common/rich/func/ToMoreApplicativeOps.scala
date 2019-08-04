@@ -1,11 +1,12 @@
 package common.rich.func
 
-import scalaz.Applicative
-import scalaz.syntax.ToApplicativeOps
-
 import scala.language.higherKinds
 
-trait ToMoreApplicativeOps extends ToApplicativeOps {
+import scalaz.Applicative
+
+object ToMoreApplicativeOps {
+  import scalaz.syntax.applicative._
+
   implicit class toMoreApplicativeUnitOps[F[_] : Applicative]($: F[Unit]) {
     /**
      *  Enabling if X in for comprehensions, e.g.,
@@ -17,5 +18,3 @@ trait ToMoreApplicativeOps extends ToApplicativeOps {
     def withFilter(p: Unit => Boolean): F[Unit] = $ whenM p()
   }
 }
-
-object ToMoreApplicativeOps extends ToMoreApplicativeOps

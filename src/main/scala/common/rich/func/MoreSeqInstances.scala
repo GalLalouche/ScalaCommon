@@ -1,9 +1,10 @@
 package common.rich.func
 
 import scala.language.higherKinds
+
 import scalaz.{Foldable, MonadPlus, Monoid}
 
-trait MoreSeqInstances {
+object MoreSeqInstances {
   implicit object SeqMonadPlus extends MonadPlus[Seq] with Foldable[Seq] {
     override def bind[A, B](fa: Seq[A])(f: A => Seq[B]) = fa flatMap f
     override def point[A](a: => A) = Seq(a)
@@ -18,5 +19,3 @@ trait MoreSeqInstances {
     override def foldLeft[A, B](fa: Seq[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
   }
 }
-
-object MoreSeqInstances extends MoreSeqInstances

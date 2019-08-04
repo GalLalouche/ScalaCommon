@@ -1,14 +1,14 @@
 package common.rich.func
 
-import common.rich.RichT._
-
 import scala.language.higherKinds
 
 import scalaz.{-\/, \/, \/-, MonadError}
 import scalaz.std.option.optionInstance
-import scalaz.syntax.ToMonadErrorOps
 
-trait ToMoreMonadErrorOps extends ToMonadErrorOps {
+import common.rich.RichT._
+
+object ToMoreMonadErrorOps {
+  import scalaz.syntax.monadError._
   import common.rich.func.ToMoreFoldableOps._
 
   class FilteredException(str: String) extends NoSuchElementException(str)
@@ -62,5 +62,3 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps {
     }
   }
 }
-
-object ToMoreMonadErrorOps extends ToMoreMonadErrorOps

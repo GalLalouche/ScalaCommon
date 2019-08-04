@@ -5,7 +5,7 @@ import scala.languageFeature.higherKinds
 import scalaz.syntax.{ToApplicativeOps, ToFunctorOps}
 import scalaz.{Applicative, Traverse}
 
-trait MoreTraverseInstances {
+object MoreTraverseInstances {
   implicit def traversableTraverse[F[X] <: Traversable[X] with GenericTraversableTemplate[X, F]]: Traverse[F] =
     new Traverse[F] with ToApplicativeOps with ToFunctorOps {
       override def traverseImpl[G[_], A, B](fa: F[A])(f: A => G[B])(implicit app: Applicative[G]): G[F[B]] =
@@ -14,5 +14,3 @@ trait MoreTraverseInstances {
         fa./:(fa.genericBuilder[B].η)((builder, x) => (builder ⊛ f(x)) (_ += _)) ∘ (_.result)
     }
 }
-
-object MoreTraverseInstances extends MoreTraverseInstances
