@@ -5,16 +5,18 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 
 import scala.concurrent.{ExecutionContext, Future}
-import scalaz.std.FutureInstances
-import scalaz.syntax.ToFunctorOps
+
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.functor._
 
 abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) extends
-    StorageTemplate[Key, Value] with ToFunctorOps with FutureInstances {
+    StorageTemplate[Key, Value] {
   protected type Profile <: JdbcProfile
   protected val profile: JdbcProfile
   protected val db: Profile#Backend#Database
 
   import profile.api._
+
   protected type Id
   protected implicit def btt: BaseTypedType[Id]
   protected type Entity

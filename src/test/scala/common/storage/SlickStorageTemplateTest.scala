@@ -1,15 +1,13 @@
 package common.storage
 
-import common.AuxSpecs
-import common.rich.RichFuture._
 import org.scalatest.{BeforeAndAfter, FreeSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scalaz.std.FutureInstances
-import scalaz.syntax.ToBindOps
 
-class SlickStorageTemplateTest extends FreeSpec with AuxSpecs with BeforeAndAfter
-    with ToBindOps with FutureInstances {
+import common.AuxSpecs
+import common.rich.RichFuture._
+
+class SlickStorageTemplateTest extends FreeSpec with AuxSpecs with BeforeAndAfter {
   private val table = new TestTable
   before {
     table.utils.clearOrCreateTable().get

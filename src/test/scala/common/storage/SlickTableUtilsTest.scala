@@ -1,18 +1,18 @@
 package common.storage
 
-import common.AuxSpecs
-import common.rich.RichFuture._
 import org.scalatest.{BeforeAndAfter, FreeSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import scalaz.std.FutureInstances
-import scalaz.syntax.ToBindOps
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind._
 
-class SlickTableUtilsTest extends FreeSpec with AuxSpecs with BeforeAndAfter
-    with ToBindOps with FutureInstances {
+import common.AuxSpecs
+import common.rich.RichFuture._
+
+class SlickTableUtilsTest extends FreeSpec with AuxSpecs with BeforeAndAfter {
   private val table = new TestTable
-  private val $ = table.utils
+  private val $: TableUtilsTemplate = table.utils
   before {
     $.dropTable().get
   }
@@ -20,7 +20,6 @@ class SlickTableUtilsTest extends FreeSpec with AuxSpecs with BeforeAndAfter
     $.dropTable().get
   }
   "utils" - {
-    val $ = table.utils
     "does table exists" - {
       "no by default" in {
         $.doesTableExist.get shouldReturn false
