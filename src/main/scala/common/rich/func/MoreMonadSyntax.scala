@@ -4,11 +4,11 @@ import scala.language.higherKinds
 
 import scalaz.{Monad, OptionT}
 
-object ToMoreMonadOps {
+object MoreMonadSyntax {
   import scalaz.syntax.monad._
   import scalaz.Leibniz.===
 
-  implicit class toMoreMonadOps[F[_] : Monad, A]($: F[A]) {
+  implicit class moreMonadSyntax[F[_] : Monad, A]($: F[A]) {
     private def pure[B](e: B) = Monad.apply.pure(e)
     def toOptionTF2[B](f: A => OptionT[F, B]): OptionT[F, B] =
       OptionT($.map(Option(_))).flatMap(f)
@@ -17,9 +17,9 @@ object ToMoreMonadOps {
   }
 
   //TODO move below
-  implicit class toMoreOptionMonadOps[A, F[_] : Monad]($: F[Option[A]]) {
+  implicit class moreMonadOptionSyntax[A, F[_] : Monad]($: F[Option[A]]) {
     import scalaz.std.option.optionInstance
-    import ToMoreFoldableOps._
+    import MoreFoldableSyntax._
 
     private def pure[B](e: B): F[B] = implicitly[Monad[F]].pure(e)
     def mFilterOpt(p: A => F[Boolean]): F[Option[A]] = for {

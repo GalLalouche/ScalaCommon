@@ -6,14 +6,14 @@ import rx.lang.scala.Observable
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scalaz.std.vector.vectorInstance
+import common.rich.func.MoreFunctorSyntax._
 import common.rich.func.MoreObservableInstances._
-import common.rich.func.ToMoreFunctorOps._
 
 import common.AuxSpecs
 import common.rich.RichFuture._
 import common.rich.RichObservable._
 
-class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs {
+class MoreFunctorSyntaxTest extends FreeSpec with AuxSpecs {
   "listen" in {
     var sum = 0
     val $: Observable[Int] = Observable.just(1, 2, 3, 4).listen(sum += _)

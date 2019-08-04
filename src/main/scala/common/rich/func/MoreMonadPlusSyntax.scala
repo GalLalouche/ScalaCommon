@@ -8,10 +8,10 @@ import scalaz.MonadPlus
 
 import common.rich.RichT._
 
-object ToMoreMonadPlusOps {
+object MoreMonadPlusSyntax {
   import scalaz.syntax.monadPlus._
 
-  implicit class toMoreMonadPlusOps[A, F[_] : MonadPlus]($: F[A]) {
+  implicit class moreMonadPlusSyntax[A, F[_] : MonadPlus]($: F[A]) {
     def tryMap[B](f: A => B): F[B] =
       $.map(e => Try(f(e)))
           .filter(_.isSuccess)

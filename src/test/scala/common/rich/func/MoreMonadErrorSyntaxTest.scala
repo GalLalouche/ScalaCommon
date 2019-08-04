@@ -1,12 +1,14 @@
 package common.rich.func
 
+import org.scalatest.FreeSpec
+
+import scalaz.MonadError
+import common.rich.func.MoreMonadErrorSyntax._
+
 import common.AuxSpecs
 import common.rich.RichT._
-import common.rich.func.ToMoreMonadErrorOps._
-import org.scalatest.FreeSpec
-import scalaz.MonadError
 
-private object ToMoreMonadErrorOpsTest {
+private object MoreMonadErrorSyntaxTest {
   private sealed trait BoxOrMsg[+T] {
     def get: T
     def getFailure: String
@@ -61,13 +63,13 @@ private object ToMoreMonadErrorOpsTest {
   }
 }
 
-class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
-  import common.rich.func.ToMoreMonadErrorOpsTest._
+class MoreMonadErrorSyntaxTest extends FreeSpec with AuxSpecs {
+  import common.rich.func.MoreMonadErrorSyntaxTest._
 
   private lazy val unusedError: String = ???
   private def is(expected: Int)(actual: Int) =
     if (actual == expected) None else Some(s"Is not $expected")
-  "toMoreMonadErrorOps" - {
+  "MoreMonadErrorSyntax" - {
     val success: BoxOrMsg[Int] = Box(42)
     val failure: BoxOrMsg[Int] = Msg("failure")
     "handleErrorFlat" - {
@@ -174,7 +176,7 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
     }
   }
 
-  "toMoreMonadErrorThrowableOps" - {
+  "MoreMonadErrorThrowableSyntax" - {
     val success: ContainerOrError[Int] = Container(42)
     val failure: ContainerOrError[Int] = Error(new RuntimeException("failure"))
     "filterEquals" - {

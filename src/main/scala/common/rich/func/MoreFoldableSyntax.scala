@@ -8,10 +8,10 @@ import scalaz.{Foldable, MonadError, PlusEmpty}
 
 import common.rich.primitives.RichBoolean._
 
-object ToMoreFoldableOps {
+object MoreFoldableSyntax {
   import scalaz.syntax.foldable._
 
-  implicit class toMoreFoldableOps[A, F[_] : Foldable]($: F[A]) {
+  implicit class moreFoldableSyntax[A, F[_] : Foldable]($: F[A]) {
     def doForEach(f: A => Unit): F[A] = {
       // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
       var list: List[A] = Nil
@@ -24,7 +24,7 @@ object ToMoreFoldableOps {
     def foldMapPE[M[_] : PlusEmpty, B](f: A => M[B]): M[B] =
       Foldable[F].foldMap($)(f)(PlusEmpty[M].monoid)
     def foldLeftME[M[_], B, S](f: A => M[B], b: M[B])(implicit ev: MonadError[M, S]): M[B] = {
-      import ToMoreMonadErrorOps._
+      import MoreMonadErrorSyntax._
       Foldable[F].foldLeft($, b)(_ orElseTry f(_))
     }
     def mapHeadOrElse[B](f: A => B, default: => B): B = headOpt.fold(default)(f)

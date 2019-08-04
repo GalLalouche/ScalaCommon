@@ -5,10 +5,10 @@ import scala.language.higherKinds
 import scalaz.{Applicative, MonadPlus, Traverse}
 import scalaz.syntax.traverse._
 
-object ToTraverseMonadPlusOps {
+object MoreTraverseMonadPlusSyntax {
   import scalaz.syntax.monadPlus._
 
-  implicit class toTraverseMonadPlusOps[F[_] : MonadPlus : Traverse, A](f: F[A]) {
+  implicit class moreTraverseMonadPlusSyntax[F[_] : MonadPlus : Traverse, A](f: F[A]) {
     import scalaz.syntax.applicative._
 
     def filterTraverse[G[_] : Applicative](p: A => G[Boolean]): G[F[A]] =

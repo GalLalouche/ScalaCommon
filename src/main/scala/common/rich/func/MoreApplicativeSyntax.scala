@@ -4,10 +4,10 @@ import scala.language.higherKinds
 
 import scalaz.Applicative
 
-object ToMoreApplicativeOps {
+object MoreApplicativeSyntax {
   import scalaz.syntax.applicative._
 
-  implicit class toMoreApplicativeUnitOps[F[_] : Applicative]($: F[Unit]) {
+  implicit class moreApplicativeUnitSyntax[F[_] : Applicative]($: F[Unit]) {
     /**
      *  Enabling if X in for comprehensions, e.g.,
      *  for {

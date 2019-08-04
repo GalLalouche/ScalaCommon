@@ -7,12 +7,12 @@ import scalaz.std.option.optionInstance
 
 import common.rich.RichT._
 
-object ToMoreMonadErrorOps {
+object MoreMonadErrorSyntax {
   import scalaz.syntax.monadError._
-  import common.rich.func.ToMoreFoldableOps._
+  import common.rich.func.MoreFoldableSyntax._
 
   class FilteredException(str: String) extends NoSuchElementException(str)
-  implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
+  implicit class moreMonadErrorSyntax[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
     def handleErrorFlat(f: S => A): F[A] = $.handleError(f andThen (F.pure(_)))
     def orElse(other: => A): F[A] = orElseTry(F pure other)
     def orElseTry(other: => F[A]): F[A] = $ handleError other.const
@@ -35,7 +35,7 @@ object ToMoreMonadErrorOps {
       result <- if (predValue) F pure e else F raiseError error(e)
     } yield result
   }
-  implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(implicit F: MonadError[F, Throwable]) {
+  implicit class moreMonadErrorThrowable[F[_], A]($: F[A])(implicit F: MonadError[F, Throwable]) {
     def filterEquals(other: => A): F[A] =
       filterWithMessageF(_ == other, e =>
         s"Expected: <$other>,\n" +

@@ -6,10 +6,10 @@ import scalaz.{Functor, OptionT}
 
 import common.rich.RichT._
 
-object ToMoreFunctorOps {
+object MoreFunctorSyntax {
   import scalaz.syntax.functor._
 
-  implicit class toMoreFunctorOps[F[_] : Functor, A]($: F[A]) {
+  implicit class moreFunctorSyntax[F[_] : Functor, A]($: F[A]) {
     def listen(f: A => Any): F[A] = $.map(_ <| f)
     def toOptionTF[B](f: A => Option[B]): OptionT[F, B] = OptionT($.map(f))
     def unzip[B, C](implicit ev: A <:< (B, C)): (F[B], F[C]) = $.map(_._1) -> $.map(_._2)

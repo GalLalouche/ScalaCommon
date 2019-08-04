@@ -1,11 +1,13 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.func.ToMoreMonadOps._
 import org.scalatest.FreeSpec
-import scalaz.Monad
 
-private object ToMoreMonadOpsTest {
+import scalaz.Monad
+import common.rich.func.MoreMonadSyntax._
+
+import common.AuxSpecs
+
+private object MoreMonadSyntaxTest {
   private case class Box[+A](a: A)
 
   private implicit object BoxMonad extends Monad[Box] {
@@ -14,8 +16,8 @@ private object ToMoreMonadOpsTest {
   }
 }
 
-class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs {
-  import common.rich.func.ToMoreMonadOpsTest.Box
+class MoreMonadSyntaxTest extends FreeSpec with AuxSpecs {
+  import common.rich.func.MoreMonadSyntaxTest.Box
 
   private val none: Box[Option[Int]] = Box(None)
   private val some: Box[Option[Int]] = Box(Some(42))

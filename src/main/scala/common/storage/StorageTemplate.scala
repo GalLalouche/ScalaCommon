@@ -1,6 +1,6 @@
 package common.storage
 
-import common.rich.func.ToMoreFoldableOps._
+import common.rich.func.MoreFoldableSyntax._
 import scalaz.std.option.optionInstance
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind._

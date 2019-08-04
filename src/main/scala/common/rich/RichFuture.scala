@@ -1,6 +1,6 @@
 package common.rich
 
-import common.rich.func.ToMoreFunctorOps._
+import common.rich.func.MoreFunctorSyntax._
 import scalaz.std.scalaFuture.futureInstance
 
 import scala.concurrent.duration.Duration

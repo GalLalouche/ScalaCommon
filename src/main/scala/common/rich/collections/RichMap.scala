@@ -2,7 +2,7 @@ package common.rich.collections
 
 import java.util
 
-import common.rich.func.ToMoreFoldableOps._
+import common.rich.func.MoreFoldableSyntax._
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
