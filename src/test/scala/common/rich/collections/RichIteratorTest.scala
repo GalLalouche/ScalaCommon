@@ -12,7 +12,7 @@ import common.rich.collections.RichIterator._
 class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
   override val timeLimit = 2 seconds
   private def compareIterators[T](actual: Iterator[T], expected: IterableOnce[T]): Unit =
-    actual.toVector shouldReturn expected.toVector
+    actual.toVector shouldReturn expected.iterator.toVector
 
   "verifyForAll" - {
     "throws an exception if f is not satisfied" in {

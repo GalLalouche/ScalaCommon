@@ -6,7 +6,7 @@ import scalaz.{Monad, OptionT}
 
 object MoreMonadSyntax {
   import scalaz.syntax.monad._
-  import scalaz.Leibniz.===
+  import scalaz.===
 
   implicit class moreMonadSyntax[F[_] : Monad, A]($: F[A]) {
     private def pure[B](e: B) = Monad.apply.pure(e)

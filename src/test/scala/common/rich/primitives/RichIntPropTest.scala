@@ -1,23 +1,24 @@
 package common.rich.primitives
 
+import org.scalacheck.{Arbitrary, Gen}
+import org.scalatest.PropSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+
 import common.AuxSpecs
 import common.rich.primitives.RichBoolean._
 import common.rich.primitives.RichInt._
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.PropSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
+class RichIntPropTest extends PropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 5)
   private implicit val arbSmallPositive: Arbitrary[Int] = Arbitrary(Gen.choose(1, 1000))
   private def nProp(propName: String, prop: Int => Unit): Unit =
     property(propName) {
-      forAll { n: Int => prop(n) }
+      forAll {n: Int => prop(n)}
     }
   private def nkProp(propName: String, prop: (Int, Int) => Unit): Unit =
     property(propName) {
-      forAll { (n: Int, k: Int) => prop(n, k) }
+      forAll {(n: Int, k: Int) => prop(n, k)}
     }
 
   nProp("n! is divided by all numbers from 1 to n", n => {

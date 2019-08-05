@@ -24,7 +24,7 @@ class ImmutableUnionFind[A] private(
     val differentSet = paths1.head != paths2.head
     val destination = paths1.head
     // Shorten the paths by setting the set index of all indices in the path to the same parent.
-    val shortened = paths1.iterator.++(paths2.iterator)./:(parents)(_.updated(_, destination))
+    val shortened = paths1.iterator.++(paths2.iterator).foldLeft(parents)(_.updated(_, destination))
     new ImmutableUnionFind[A](shortened, index, numberOfSets.mapIf(differentSet).to(_ - 1))
   }
 }
@@ -32,7 +32,7 @@ class ImmutableUnionFind[A] private(
 object ImmutableUnionFind {
   def apply[A](a1: A, a2: A, as: A*): ImmutableUnionFind[A] = apply(a2 :: a1 :: as.toList)
   def apply[A](as: IterableOnce[A]): ImmutableUnionFind[A] = {
-    val vector = as.toVector
+    val vector = as.iterator.toVector
     new ImmutableUnionFind[A](vector.indices.toVector, vector.zipWithIndex.toMap, vector.size)
   }
 }

@@ -1,5 +1,5 @@
 package common.storage;
 
 enum TestEnum {
-  FOO, BAR, BAZZ, QUUX;
+  FOO, BAR, BAZZ, QUUX
 }

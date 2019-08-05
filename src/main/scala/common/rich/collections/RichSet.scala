@@ -3,8 +3,8 @@ package common.rich.collections
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import common.rich.primitives.RichBoolean._
 

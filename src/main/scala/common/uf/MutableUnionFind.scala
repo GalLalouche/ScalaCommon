@@ -37,7 +37,7 @@ class MutableUnionFind[A] private(parents: Array[Int], override protected val in
 object MutableUnionFind {
   def apply[A](a1: A, a2: A, as: A*): MutableUnionFind[A] = apply(a2 :: a1 :: as.toList)
   def apply[A](as: IterableOnce[A]): MutableUnionFind[A] = {
-    val vector = as.toVector
+    val vector = as.iterator.toVector
     new MutableUnionFind[A](vector.indices.toArray, vector.zipWithIndex.toMap)
   }
 }

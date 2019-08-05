@@ -3,14 +3,15 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
-import common.rich.RichT._
-import common.rich.collections.RichIterableOnce._
-import common.rich.primitives.RichBoolean._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Matchers, Suite}
 import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.duration.Duration
+
+import common.rich.RichT._
+import common.rich.collections.RichIterableOnce._
+import common.rich.primitives.RichBoolean._
 
 /** Several helping methods and fixtures for testing */
 trait AuxSpecs extends Matchers {self: Suite =>

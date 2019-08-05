@@ -13,7 +13,7 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
     assert(keyToIndex.size <= maxSize, s"size was ${keyToIndex.size} when maxSize is $maxSize")
   }
 
-  private def checkMemory: Unit = {
+  private def checkMemory(): Unit = {
     if (keyToIndex.size > maxSize)
       this -= keyToIndex.head._1
     verifyConsistency
@@ -21,7 +21,7 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
 
   override def addOne(kv: (K, V)): this.type = {
     keyToIndex(kv._1) = kv._2
-    checkMemory
+    checkMemory()
     this
   }
   override def subtractOne(key: K): this.type = {

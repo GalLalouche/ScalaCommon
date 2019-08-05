@@ -1,16 +1,17 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichSet._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.util.Buildable
 import org.scalactic.anyvals.PosZInt._
 import org.scalatest.PropSpec
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
-  implicit override val generatorDrivenConfig =
+import common.AuxSpecs
+import common.rich.collections.RichSet._
+
+class RichSetTest extends PropSpec with AuxSpecs with ScalaCheckPropertyChecks {
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSize = 10, sizeRange = 1000)
 
   private implicit def BuildableSet[T]: Buildable[T, Set[T]] = new Buildable[T, Set[T]] {
@@ -19,7 +20,7 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
   private implicit val genSet: Gen[Set[Int]] = Gen.buildableOf(arbitrary[Int])
 
   property("Sets can be neither <= nor >=") {
-    forAll { set: Set[Int] =>
+    forAll {set: Set[Int] =>
       whenever(set.size >= 3) {
         val subsetSize = set.size / 2 + 1
         val asList = set.toList
@@ -33,21 +34,21 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
     }
   }
   property("The empty set is <= for all sets") {
-    forAll { xs: Set[Int] => {
+    forAll {xs: Set[Int] => {
       Set.empty <= xs shouldReturn true
     }
     }
   }
 
   property("All sets are <= and >= themselves") {
-    forAll { $: Set[Int] =>
+    forAll {$: Set[Int] =>
       $ <= $ shouldReturn true
       $ >= $ shouldReturn true
     }
   }
 
   property("< is both <= and =") {
-    forAll { xs: Set[Int] =>
+    forAll {xs: Set[Int] =>
       whenever(xs.nonEmpty) {
         xs.tail < xs shouldReturn true
         xs < xs shouldReturn false
