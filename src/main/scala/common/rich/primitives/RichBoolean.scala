@@ -8,4 +8,7 @@ object RichBoolean {
     @inline def xor(other: Boolean): Boolean = b != other
     @inline def ⊕(other: Boolean): Boolean = xor(other)
   }
+
+  def or[A](p1: A => Boolean, rest: (A => Boolean)*): A => Boolean = a => p1(a) || rest.exists(_ (a))
+  def and[A](p1: A => Boolean, rest: (A => Boolean)*): A => Boolean = a => p1(a) && rest.forall(_ (a))
 }
