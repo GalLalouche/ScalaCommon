@@ -1,8 +1,9 @@
 package common.rich
 
+import org.scalatest.{FreeSpec, Matchers}
+
 import common.AuxSpecs
 import common.rich.RichT._
-import org.scalatest.{FreeSpec, Matchers}
 
 class RichTTest extends FreeSpec with AuxSpecs with Matchers {
   "RichT" - {
@@ -143,7 +144,30 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
       3.coerceIn(0, 2) shouldReturn 2
       3.coerceIn(7, 8) shouldReturn 7
     }
+
+    "ifNotThenThrow" - {
+      val e = MyException("foobar")
+      def fe(i: Int) = MyException(i.toString)
+      "const boolean, const exception" in {
+        3.ifNot(true).thenThrow(e) shouldReturn 3
+        intercept[MyException] {3 ifNot (false) thenThrow e} shouldReturn e
+      }
+      "dependent boolean, const exception" in {
+        3.ifNot(_ > 2).thenThrow(e) shouldReturn 3
+        intercept[MyException] {3 ifNot (_ > 4) thenThrow e} shouldReturn e
+      }
+      "const boolean, dependent exception" in {
+        3.ifNot(true).thenThrow(fe _) shouldReturn 3
+        intercept[MyException] {3 ifNot (false) thenThrow fe _} shouldReturn MyException("3")
+      }
+      "dependent boolean, dependent exception" in {
+        3.ifNot(_ > 2).thenThrow(e) shouldReturn 3
+        intercept[MyException] {3 ifNot (_ > 4) thenThrow fe _} shouldReturn MyException("3")
+      }
+    }
   }
+
+  private case class MyException(s: String) extends Exception(s)
 
   "lazyT" - {
     "const" - {

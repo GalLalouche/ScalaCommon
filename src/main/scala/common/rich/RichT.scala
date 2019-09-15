@@ -1,9 +1,9 @@
 package common.rich
 
-import common.rich.primitives.RichBoolean._
-
 import scala.Ordering.Implicits._
 import scala.util.Try
+
+import common.rich.primitives.RichBoolean._
 
 object RichT {
   private val primitiveMappings: Map[Class[_], Class[_]] = Map(
@@ -93,6 +93,14 @@ object RichT {
     @inline def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
 
     def coerceIn(min: T, max: T)(implicit o: Ordering[T]): T = if ($ < min) min else if ($ > max) max else $
+
+    def ifNot(p: T => Boolean) = new __Thrower($, p($))
+    def ifNot(b: Boolean) = new __Thrower($, b)
+  }
+
+  class __Thrower[T]($: T, b: Boolean) {
+    def thenThrow(f: T => Throwable): T = if (b) $ else throw f($)
+    def thenThrow(e: => Throwable): T = if (b) $ else throw e
   }
 
   implicit class lazyT[T]($: => T) {
