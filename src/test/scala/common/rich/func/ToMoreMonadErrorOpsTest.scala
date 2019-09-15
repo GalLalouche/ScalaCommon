@@ -162,6 +162,23 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
         failure.mapError(_.toUpperCase).getFailure shouldReturn "FAILURE"
       }
     }
+    "collectError" - {
+      "success" in {
+        success.collectError(PartialFunction.empty).get shouldReturn 42
+      }
+      "failure" - {
+        "no match" in {
+          failure.collectError {
+            case "foobar" => ???
+          }.getFailure shouldReturn "failure"
+        }
+        "matches" in {
+          failure.collectError {
+            case "failure" => "foobar"
+          }.getFailure shouldReturn "foobar"
+        }
+      }
+    }
     "listenError" - {
       "success" in {
         success.listenError(_ => ???).get

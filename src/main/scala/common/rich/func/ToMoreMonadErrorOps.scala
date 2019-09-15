@@ -1,12 +1,12 @@
 package common.rich.func
 
-import common.rich.RichT._
-
 import scala.language.higherKinds
 
 import scalaz.{-\/, \/, \/-, MonadError}
 import scalaz.std.option.optionInstance
 import scalaz.syntax.ToMonadErrorOps
+
+import common.rich.RichT._
 
 trait ToMoreMonadErrorOps extends ToMonadErrorOps {
   import common.rich.func.ToMoreFoldableOps._
@@ -21,6 +21,8 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps {
     def filterWithF(p: A => Boolean, error: A => S): F[A] =
       mapEither(e => if (p(e)) \/-(e) else -\/(error(e)))
     def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
+    def collectError(f: PartialFunction[S, S]): F[A] =
+      $ handleError (e => f.lift(e).getOrElse(e) |> F.raiseError)
     def listenError(f: S => Any): F[A] = mapError(_ applyAndReturn f)
     def filterMap(f: A => Option[S]): F[A] = mapEither(e => f(e).mapHeadOrElse(-\/.apply, \/-(e)))
     def mapEither[B](f: A => S \/ B): F[B] = for {
