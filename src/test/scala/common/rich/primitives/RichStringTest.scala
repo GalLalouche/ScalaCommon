@@ -19,6 +19,11 @@ class RichStringTest extends FreeSpec with AuxSpecs {
     }
   }
 
+  "isWhitespaceOrEmpty" in {
+    " \t\t \n\t ".isWhitespaceOrEmpty shouldReturn true
+    "foo bar".isWhitespaceOrEmpty shouldReturn false
+  }
+
   "smartSplit" - {
     "returns an empty string if the last item is the delimiter" in {
       "a,".smartSplit(',') shouldReturn Seq("a", "")
