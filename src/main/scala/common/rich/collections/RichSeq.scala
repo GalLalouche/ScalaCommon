@@ -1,11 +1,11 @@
 package common.rich.collections
 
-import common.rich.RichT._
-
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.reflect.ClassTag
 import scala.util.Random
+
+import common.rich.RichT._
 
 object RichSeq {
   class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
@@ -114,6 +114,9 @@ object RichSeq {
       case Nil => List(List(t))
       case x :: xs => if (p(t)) List(t) :: x.reverse :: xs else (t :: x) :: xs
     }).reverse
+
+    def pairSliding: Iterator[(T, T)] =
+      if ($.size <= 1) Iterator.empty else $.sliding(2).map(e => e(0) -> e(1))
   }
 
   implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
