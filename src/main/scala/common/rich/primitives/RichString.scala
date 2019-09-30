@@ -82,6 +82,9 @@ object RichString {
     def doesNotMatch(p: Pattern): Boolean = matches(p).isFalse
     def replaceAll(p: Pattern, replacement: String): String = p.matcher($).replaceAll(replacement)
 
+    def removeAll(p: Pattern): String = replaceAll(p, "")
+    def removeAll(regex: String): String = removeAll(Pattern compile regex)
+
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
   }
 

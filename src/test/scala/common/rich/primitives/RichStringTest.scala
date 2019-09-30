@@ -76,6 +76,10 @@ class RichStringTest extends FreeSpec with AuxSpecs {
     "foobar".replaceAll(Pattern.compile(".b"), "xx") shouldReturn "foxxar"
   }
 
+  "removeAll" in {
+    "foobar".removeAll(Pattern.compile(".b")) shouldReturn "foar"
+  }
+
   "dropAfterLast" - {
     "no character returns same string" in {
       "foobar" dropAfterLast 'q' shouldReturn "foobar"
