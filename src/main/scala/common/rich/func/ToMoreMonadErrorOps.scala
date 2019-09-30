@@ -5,13 +5,13 @@ import scala.language.higherKinds
 import scalaz.{-\/, \/, \/-, MonadError}
 import scalaz.std.option.optionInstance
 import scalaz.syntax.ToMonadErrorOps
+import common.rich.func.ToMoreMonadErrorOps.FilteredException
 
 import common.rich.RichT._
 
 trait ToMoreMonadErrorOps extends ToMonadErrorOps {
   import common.rich.func.ToMoreFoldableOps._
 
-  class FilteredException(str: String) extends NoSuchElementException(str)
   implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {
     def handleErrorFlat(f: S => A): F[A] = $.handleError(f andThen (F.pure(_)))
     def orElse(other: => A): F[A] = orElseTry(F pure other)
@@ -37,6 +37,7 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps {
       result <- if (predValue) F pure e else F raiseError error(e)
     } yield result
   }
+
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($: F[A])(implicit F: MonadError[F, Throwable]) {
     def filterEquals(other: => A): F[A] =
       filterWithMessageF(_ == other, e =>
@@ -65,4 +66,6 @@ trait ToMoreMonadErrorOps extends ToMonadErrorOps {
   }
 }
 
-object ToMoreMonadErrorOps extends ToMoreMonadErrorOps
+object ToMoreMonadErrorOps extends ToMoreMonadErrorOps {
+  class FilteredException(str: String) extends NoSuchElementException(str)
+}
