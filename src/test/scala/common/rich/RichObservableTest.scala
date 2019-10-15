@@ -2,27 +2,45 @@ package common.rich
 
 import java.util.NoSuchElementException
 
-import common.AuxSpecs
-import common.rich.RichFuture._
 import org.scalatest.{FreeSpec, OneInstancePerTest}
+import org.scalatest.concurrent.{Signaler, ThreadSignaler, TimeLimitedTests}
+import org.scalatest.time.SpanSugar._
+import rx.lang.scala.{Observable, Observer, Subject}
 import rx.lang.scala.subjects.PublishSubject
-import rx.lang.scala.{Observable, Subject}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
-class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
-  import RichObservable._
+import common.AuxSpecs
+import common.rich.RichFuture._
+import common.rich.RichObservable._
+
+class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest with TimeLimitedTests {
+  override val timeLimit = 1 seconds
+  override val defaultTestSignaler: Signaler = ThreadSignaler
 
   private val sub = PublishSubject[Int]()
-  "toFuture" in {
-    val future = sub.toFuture[List]
-    sub.onNext(1)
-    sub.onNext(2)
-    sub.onNext(3)
-    sub.onCompleted()
-    future.get shouldReturn List(1, 2, 3)
+  "toFuture" - {
+    "success" in {
+      val future = sub.toFuture[List]
+      sub.onNext(1)
+      sub.onNext(2)
+      sub.onNext(3)
+      sub.onCompleted()
+      future.get shouldReturn List(1, 2, 3)
+    }
+    "failure" in {
+      val error = new Exception("foobar")
+      val future = sub.toFuture[List]
+      sub.onNext(1)
+      sub.onNext(2)
+      sub.onNext(3)
+      sub.onError(error)
+      future.getFailure shouldReturn error
+    }
   }
+
   "firstFuture" - {
     "non empty" in {
       val future = sub.firstFuture
@@ -37,11 +55,56 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       future.getFailure shouldBe a[NoSuchElementException]
     }
   }
+
   "flattenElements" in {
     val x: Observable[Int] = Observable.just(List(1, 2, 3, 4)).flattenElements
     val actual = ArrayBuffer[Int]()
     x.doOnNext(actual.+=).subscribe()
     actual shouldReturn ArrayBuffer(1, 2, 3, 4)
+  }
+
+  "subscribeWithNotification" - {
+    "Does not complete" in {
+      val o = Observable[Int](obs => {
+        obs.onNext(1)
+        obs.onNext(2)
+        obs.onNext(3)
+      })
+      val actual = ArrayBuffer[Int]()
+      val f = o.subscribeWithNotification(new Observer[Int] {
+        override def onNext(value: Int): Unit = actual += value
+      })
+      Thread sleep 200
+      f.isCompleted shouldReturn false
+      actual shouldReturn ArrayBuffer(1, 2, 3)
+    }
+    "Completes" in {
+      val o = Observable[Int](obs => {
+        obs.onNext(1)
+        obs.onNext(2)
+        obs.onNext(3)
+        obs.onCompleted()
+      })
+      val actual = ArrayBuffer[Int]()
+      o.subscribeWithNotification(new Observer[Int] {
+        override def onNext(value: Int): Unit = actual += value
+      }).get
+      actual shouldReturn ArrayBuffer(1, 2, 3)
+    }
+    "Failure" in {
+      val error = new Exception("foobar")
+      val o = Observable[Int](obs => {
+        obs.onNext(1)
+        obs.onNext(2)
+        obs.onNext(3)
+        obs.onError(error)
+      })
+      val actual = ArrayBuffer[Int]()
+      o.subscribeWithNotification(new Observer[Int] {
+        override def onNext(value: Int): Unit = actual += value
+      }).getFailure shouldReturn error
+      actual shouldReturn ArrayBuffer(1, 2, 3)
+    }
   }
 
   "register" - {
@@ -110,7 +173,7 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       val source1 = PublishSubject[Int]()
       val source2 = PublishSubject[Int]()
       val buffer = ArrayBuffer[Int]()
-      val sub = RichObservable.concat(Vector(source1, source2)).subscribe(buffer.+=(_))
+      val sub = RichObservable.concat(Vector(source1, source2)).subscribe(buffer += _)
       source1.onNext(1)
       source2.onNext(2)
       sub.unsubscribe()

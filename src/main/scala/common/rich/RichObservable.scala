@@ -30,6 +30,26 @@ object RichObservable {
       p.future
     }
 
+    /**
+     * Subscribes, but also returns a future that will complete when this Observable completes.
+     * If the observable calls onError, the failure will propagate to the future.
+     */
+    def subscribeWithNotification(observer: Observer[A]): Future[Unit] = {
+      val promise = Promise[Unit]()
+      $.subscribe(new Observer[A] {
+        override def onNext(value: A): Unit = observer.onNext(value)
+        override def onError(error: Throwable): Unit = {
+          observer.onError(error)
+          promise.failure(error)
+        }
+        override def onCompleted(): Unit = {
+          observer.onCompleted()
+          promise.success(())
+        }
+      })
+      promise.future
+    }
+
     def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] =
       $.flatMapIterable(ev)
   }
