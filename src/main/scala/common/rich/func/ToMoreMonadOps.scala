@@ -3,12 +3,13 @@ package common.rich.func
 import scala.language.higherKinds
 
 import scalaz.{Monad, OptionT}
-import scalaz.syntax.ToMonadOps
+import scalaz.syntax.bind.ToBindOps
+import scalaz.syntax.functor.ToFunctorOps
 
-trait ToMoreMonadOps extends ToMonadOps {
+trait ToMoreMonadOps {
   import scalaz.Leibniz.===
 
-  implicit class toMoreMonadOps[F[_]: Monad, A]($: F[A]) {
+  implicit class toMoreMonadOps[F[_] : Monad, A]($: F[A]) {
     private def pure[B](e: B) = Monad.apply.pure(e)
     def toOptionTF2[B](f: A => OptionT[F, B]): OptionT[F, B] =
       OptionT($.map(Option(_))).flatMap(f)
@@ -17,9 +18,10 @@ trait ToMoreMonadOps extends ToMonadOps {
   }
 
   //TODO move below
-  implicit class toMoreOptionMonadOps[A, F[_]: Monad]($: F[Option[A]]) {
-    import ToMoreFoldableOps._
+  implicit class toMoreOptionMonadOps[A, F[_] : Monad]($: F[Option[A]]) {
     import scalaz.std.option.optionInstance
+    import ToMoreFoldableOps._
+
     private def pure[B](e: B): F[B] = implicitly[Monad[F]].pure(e)
     def mFilterOpt(p: A => F[Boolean]): F[Option[A]] = for {
       e <- $

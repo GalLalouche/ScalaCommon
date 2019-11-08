@@ -4,12 +4,15 @@ import scala.language.higherKinds
 
 import scalaz.{-\/, \/, \/-, MonadError}
 import scalaz.std.option.optionInstance
-import scalaz.syntax.ToMonadErrorOps
+import scalaz.syntax.monadError.ToMonadErrorOps
+import scalaz.syntax.monad.ToMonadOps
+import scalaz.syntax.bind.ToBindOps
+import scalaz.syntax.functor.ToFunctorOps
 import common.rich.func.ToMoreMonadErrorOps.FilteredException
 
 import common.rich.RichT._
 
-trait ToMoreMonadErrorOps extends ToMonadErrorOps {
+trait ToMoreMonadErrorOps {
   import common.rich.func.ToMoreFoldableOps._
 
   implicit class toMoreMonadErrorOps[F[_], A, S]($: F[A])(implicit F: MonadError[F, S]) {

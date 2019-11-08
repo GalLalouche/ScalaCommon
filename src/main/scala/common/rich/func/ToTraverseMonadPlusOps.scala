@@ -1,10 +1,10 @@
 package common.rich.func
 
-import common.rich.func.ToMoreMonadPlusOps._
-import scalaz.syntax.traverse._
-import scalaz.{Applicative, MonadPlus, Traverse}
-
 import scala.language.higherKinds
+
+import scalaz.{Applicative, MonadPlus, Traverse}
+import scalaz.syntax.monadPlus.ToMonadPlusOps
+import scalaz.syntax.traverse.ToTraverseOps
 
 trait ToTraverseMonadPlusOps {
   implicit class toTraverseMonadPlusOps[F[_] : MonadPlus : Traverse, A](f: F[A]) {

@@ -1,14 +1,16 @@
 package common.rich.func
 
-import common.rich.RichT._
-
 import scala.collection.mutable
 import scala.language.higherKinds
 import scala.util.Try
-import scalaz.MonadPlus
-import scalaz.syntax.ToMonadPlusOps
 
-trait ToMoreMonadPlusOps extends ToMonadPlusOps {
+import scalaz.MonadPlus
+import scalaz.syntax.functor.ToFunctorOps
+import scalaz.syntax.monadPlus.ToMonadPlusOps
+
+import common.rich.RichT._
+
+trait ToMoreMonadPlusOps {
   implicit class toMoreMonadPlusOps[A, F[_] : MonadPlus]($: F[A]) {
     def tryMap[B](f: A => B): F[B] =
       $.map(e => Try(f(e)))

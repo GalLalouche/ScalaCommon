@@ -1,11 +1,11 @@
 package common.rich.func
 
-import scalaz.Applicative
-import scalaz.syntax.ToApplicativeOps
-
 import scala.language.higherKinds
 
-trait ToMoreApplicativeOps extends ToApplicativeOps {
+import scalaz.Applicative
+import scalaz.syntax.applicative.ToApplicativeOps
+
+trait ToMoreApplicativeOps {
   implicit class toMoreApplicativeUnitOps[F[_] : Applicative]($: F[Unit]) {
     /**
      *  Enabling if X in for comprehensions, e.g.,
