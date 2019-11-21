@@ -1,23 +1,46 @@
 package common.rich
 
-import common.AuxSpecs
-import common.rich.RichFuture._
-import org.scalatest.FreeSpec
+import org.scalatest.{FreeSpec, OneInstancePerTest}
 
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
 
-class RichFutureTest extends FreeSpec with AuxSpecs {
-  val success: Future[Int] = Future successful 1
-  val exception = new Exception("Derp")
-  val failure: Future[Int] = Future failed exception
+import common.AuxSpecs
+import common.rich.RichFuture._
+
+class RichFutureTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
+  private val success: Future[Int] = Future successful 1
+  private val exception = new Exception("Derp")
+  private val failure: Future[Int] = Future failed exception
   def shouldFail(f: Future[Any]) = {
     Await.ready(f, Duration.Inf)
     val t = f.value.get
     t.isFailure shouldReturn true
   }
+  def invoked(f: (=> Any) => Future[_]): Unit = {
+    var x = 0
+    f {x += 1}.toTry.get
+    x shouldReturn 1
+  }
+  def notInvoked(f: (=> Any) => Future[_]): Unit = {
+    var x = 0
+    f {x += 1}.toTry.get
+    x shouldReturn 0
+  }
   "RichFuture" - {
+    "|<" - {
+      "success" in invoked(success.|<)
+      "failure" in invoked(failure.|<)
+    }
+    "onSuccessful" - {
+      "success" in invoked(success.onSuccessful)
+      "failure" in notInvoked(failure.onSuccessful)
+    }
+    "onFailed" - {
+      "success" in notInvoked(success.onFailed)
+      "failure" in invoked(failure.onFailed)
+    }
     "get" - {
       "success" in {
         val f = Future {

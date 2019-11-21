@@ -1,18 +1,23 @@
 package common.rich
 
-import common.rich.func.ToMoreFunctorOps._
-import scalaz.std.scalaFuture.futureInstance
-
-import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
+import scalaz.std.scalaFuture.futureInstance
+import common.rich.func.ToMoreFunctorOps._
+
+import common.rich.RichT._
+
 object RichFuture {
-  implicit class richFuture[T]($: Future[T])(implicit ec: ExecutionContext) {
-    def get: T = Await.result($, Duration.Inf)
+  implicit class richFuture[A]($: Future[A])(implicit ec: ExecutionContext) {
+    def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
+    def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if(t.isSuccess) f else ()))
+    def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if(t.isFailure) f else ()))
+    def get: A = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)
-      val triedT: Try[T] = $.value.get
+      val triedT: Try[A] = $.value.get
       try {
         triedT.failed.get
       } catch {
@@ -21,12 +26,12 @@ object RichFuture {
       }
     }
 
-    def consumeTry(c: Try[T] => Any): Future[T] = toTry listen c flatMap {
+    def consumeTry(c: Try[A] => Any): Future[A] = toTry listen c flatMap {
       case Success(t) => Future.successful(t)
       case Failure(e) => Future.failed(e)
     }
-    def toTry: Future[Try[T]] = {
-      val p = Promise[Try[T]]()
+    def toTry: Future[Try[A]] = {
+      val p = Promise[Try[A]]()
       $ onComplete p.success
       p.future
     }
