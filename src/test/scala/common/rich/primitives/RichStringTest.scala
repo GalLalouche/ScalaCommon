@@ -8,15 +8,15 @@ import common.AuxSpecs
 import common.rich.primitives.RichString._
 
 class RichStringTest extends FreeSpec with AuxSpecs {
-  "removeTrailingQuotes" - {
-    "dos nothing when no quotes" in {
-      "foobar".withoutTrailingQuotes shouldReturn "foobar"
+  "unquote" - {
+    "does nothing when no quotes" in {
+      "foobar".unquote shouldReturn "foobar"
     }
     "removes a single pair of quotes" in {
-      "\"foobar\"".withoutTrailingQuotes shouldReturn "foobar"
+      "\"foobar\"".unquote shouldReturn "foobar"
     }
     "removes more than a single, unmatching quotes" in {
-      "\"foobar\"\"".withoutTrailingQuotes shouldReturn "foobar"
+      "\"foobar\"\"".unquote shouldReturn "foobar"
     }
   }
 

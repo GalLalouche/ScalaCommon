@@ -12,7 +12,7 @@ import common.rich.path.RichFile.richFile
 
 object RichString {
   implicit class richString(private val $: String) extends AnyVal {
-    def withoutTrailingQuotes: String = replaceAll(WrappingQuotes, "")
+    def unquote: String = replaceAll(WrappingQuotes, "")
     def isWhitespaceOrEmpty: Boolean = $.trim.isEmpty
     def appendTo(f: File): Unit = f appendLine $
 
