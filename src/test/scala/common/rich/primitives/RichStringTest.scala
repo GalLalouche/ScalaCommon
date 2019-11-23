@@ -19,6 +19,9 @@ class RichStringTest extends FreeSpec with AuxSpecs {
       "\"foobar\"\"".unquote shouldReturn "foobar"
     }
   }
+  "quote" in {
+    "foobar".quote shouldReturn "\"foobar\""
+  }
 
   "isWhitespaceOrEmpty" in {
     " \t\t \n\t ".isWhitespaceOrEmpty shouldReturn true
