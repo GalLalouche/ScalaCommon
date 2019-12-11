@@ -3,19 +3,20 @@ package common
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
-import common.rich.RichT._
-import common.rich.collections.RichTraversableOnce._
-import common.rich.primitives.RichBoolean._
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.{Matchers, Suite}
+import org.scalatest.{Assertion, Matchers, Succeeded, Suite}
 import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.duration.Duration
 
+import common.rich.RichT._
+import common.rich.collections.RichTraversableOnce._
+import common.rich.primitives.RichBoolean._
+
 /** Several helping methods and fixtures for testing */
 trait AuxSpecs extends Matchers {self: Suite =>
   // Since the parameter means jack shit it seems.
-  private def throwProperDepthException(message: String, depth: Int): Unit = {
+  private def throwProperDepthException(message: String, depth: Int): Nothing = {
     val e = new TestFailedException(message, 0)
     e.setStackTrace(Thread.currentThread.getStackTrace.drop(depth + 1))
     throw e
@@ -27,7 +28,7 @@ trait AuxSpecs extends Matchers {self: Suite =>
       val expected = first :: last.toList
       val missing = expected.filterNot(e => $.exists(_ == e))
       if (missing.nonEmpty)
-        throwProperDepthException(s"${$} doesn't contain $missing.", ProperExceptionDepth)
+        throwProperDepthException(s"${$} doesn't contain ${missing.mkString("[", ",", "]")}.", ProperExceptionDepth)
     }
 
     def shouldSetEqual(other: Traversable[T]): Unit = {
@@ -86,7 +87,7 @@ trait AuxSpecs extends Matchers {self: Suite =>
 
   // Type-safe equality checking.
   implicit class RichShould[T]($: T) {
-    def shouldReturn(t: T) {
+    def shouldReturn(t: T): Assertion = {
       try $ should ===(t)
       catch {
         case e: TestFailedException => throwProperDepthException(e.getMessage, 2)
@@ -134,6 +135,15 @@ trait AuxSpecs extends Matchers {self: Suite =>
           case _ => ()
         }
       }
+    }
+  }
+
+  implicit class richAssertion($: => Assertion) {
+    def &&(other: => Assertion): Assertion = assert($ == Succeeded && other == Succeeded)
+    def ||(other: => Assertion): Assertion = try {
+      $
+    } catch {
+      case _: TestFailedException => other
     }
   }
 
