@@ -2,65 +2,67 @@ package common.rich
 
 import java.util.NoSuchElementException
 
-import org.scalatest.{FreeSpec, OneInstancePerTest}
-import org.scalatest.concurrent.{Signaler, ThreadSignaler, TimeLimitedTests}
-import org.scalatest.time.SpanSugar._
-import rx.lang.scala.{Observable, Observer, Subject}
+import org.scalatest.{Assertion, AsyncFreeSpec}
+import rx.lang.scala.{Observable, Observer}
 import rx.lang.scala.subjects.PublishSubject
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.language.postfixOps
+
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.functor.ToFunctorOps
 
 import common.AuxSpecs
 import common.rich.RichFuture._
 import common.rich.RichObservable._
 
-class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest with TimeLimitedTests {
-  override val timeLimit = 1 seconds
-  override val defaultTestSignaler: Signaler = ThreadSignaler
-
-  private val sub = PublishSubject[Int]()
+class RichObservableTest extends AsyncFreeSpec with AuxSpecs {
+  private def createSubject = PublishSubject[Int]()
+  private def mapFailure(f: Future[_], ass: Throwable => Assertion): Future[Assertion] =
+    f.toTry.map(_.failed.get).map(ass)
   "toFuture" - {
     "success" in {
-      val future = sub.toFuture[List]
+      val sub = createSubject
+      val future = sub.toFuture[Vector]
       sub.onNext(1)
       sub.onNext(2)
       sub.onNext(3)
       sub.onCompleted()
-      future.get shouldReturn List(1, 2, 3)
+      future.map(_ shouldReturn Vector(1, 2, 3))
     }
     "failure" in {
+      val sub = createSubject
       val error = new Exception("foobar")
-      val future = sub.toFuture[List]
+      val future = sub.toFuture[Vector]
       sub.onNext(1)
       sub.onNext(2)
       sub.onNext(3)
       sub.onError(error)
-      future.getFailure shouldReturn error
+      mapFailure(future, _ shouldReturn error)
     }
   }
 
   "firstFuture" - {
     "non empty" in {
+      val sub = createSubject
       val future = sub.firstFuture
       sub.onNext(1)
       sub.onNext(2)
       sub.onNext(3)
-      future.get shouldReturn 1
+      future.map(_ shouldReturn 1)
     }
     "empty" in {
+      val sub = createSubject
       val future = sub.firstFuture
       sub.onCompleted()
-      future.getFailure shouldBe a[NoSuchElementException]
+      mapFailure(future, _ shouldBe a[NoSuchElementException])
     }
   }
 
   "flattenElements" in {
-    val x: Observable[Int] = Observable.just(List(1, 2, 3, 4)).flattenElements
-    val actual = ArrayBuffer[Int]()
-    x.doOnNext(actual.+=).subscribe()
-    actual shouldReturn ArrayBuffer(1, 2, 3, 4)
+    val x: Observable[Int] = Observable.just(Vector(1, 2, 3, 4)).flattenElements
+    x.toFuture[Vector].map(_ shouldReturn Vector(1, 2, 3, 4))
   }
 
   "subscribeWithNotification" - {
@@ -88,8 +90,7 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       val actual = ArrayBuffer[Int]()
       o.subscribeWithNotification(new Observer[Int] {
         override def onNext(value: Int): Unit = actual += value
-      }).get
-      actual shouldReturn ArrayBuffer(1, 2, 3)
+      }).>|(actual shouldReturn ArrayBuffer(1, 2, 3))
     }
     "Failure" in {
       val error = new Exception("foobar")
@@ -100,22 +101,22 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
         obs.onError(error)
       })
       val actual = ArrayBuffer[Int]()
-      o.subscribeWithNotification(new Observer[Int] {
-        override def onNext(value: Int): Unit = actual += value
-      }).getFailure shouldReturn error
-      actual shouldReturn ArrayBuffer(1, 2, 3)
+      mapFailure(
+        o.subscribeWithNotification(new Observer[Int] {
+          override def onNext(value: Int): Unit = actual += value
+        }), _.shouldReturn(error) && actual.shouldReturn(ArrayBuffer(1, 2, 3)))
     }
   }
 
   "register" - {
     "explicit emitter" in {
-      val source = Subject[Int]()
-      val $ = RichObservable.register(source.foreach)
+      val sub = createSubject
+      val $ = RichObservable.register(sub.foreach)
       val actual = ArrayBuffer[Int]()
       $.foreach(actual.+=)
-      source.onNext(1)
-      source.onNext(2)
-      source.onNext(3)
+      sub.onNext(1)
+      sub.onNext(2)
+      sub.onNext(3)
       actual shouldReturn ArrayBuffer(1, 2, 3)
     }
     "lazy emitter" in {
@@ -155,23 +156,25 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
 
   "concat" - {
     "empty" in {
-      RichObservable.concat(Vector[Observable[Int]]()).toFuture.get shouldReturn Vector[Int]()
+      RichObservable.concat(Vector[Observable[Int]]()).toFuture.map(_ shouldReturn Vector[Int]())
     }
     "simple" in {
-      RichObservable.concat(Vector(Observable.just(1), Observable.just(2))).toFuture.get shouldReturn Vector(1, 2)
+      RichObservable.concat(Vector(Observable.just(1), Observable.just(2))).toFuture
+          .map(_ shouldReturn Vector(1, 2))
     }
     "reusable" in {
       val v = Vector(Observable.just(1), Observable.just(2))
       val $ = RichObservable.concat(v)
-      $.toFuture.get shouldReturn Vector(1, 2)
-      $.toFuture.get shouldReturn Vector(1, 2)
+      $.toFuture.map(_ shouldReturn Vector(1, 2))
+      $.toFuture.map(_ shouldReturn Vector(1, 2))
     }
     "large list" in {
-      RichObservable.concat(1.to(10000).map(Observable.just(_))).toFuture.get shouldReturn 1.to(10000).toVector
+      RichObservable.concat(1.to(10000).map(Observable.just(_))).toFuture
+          .map(_ shouldReturn 1.to(10000).toVector)
     }
-    "unsubscribe" in {
-      val source1 = PublishSubject[Int]()
-      val source2 = PublishSubject[Int]()
+    "unsubscribes" in {
+      val source1 = createSubject
+      val source2 = createSubject
       val buffer = ArrayBuffer[Int]()
       val sub = RichObservable.concat(Vector(source1, source2)).subscribe(buffer += _)
       source1.onNext(1)
@@ -179,6 +182,10 @@ class RichObservableTest extends FreeSpec with AuxSpecs with OneInstancePerTest 
       sub.unsubscribe()
       source1.onNext(3)
       source2.onNext(4)
+      Future {
+        Thread sleep 200
+        buffer shouldReturn ArrayBuffer(1, 2)
+      }
     }
   }
 }
