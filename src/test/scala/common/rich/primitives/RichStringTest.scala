@@ -79,6 +79,18 @@ class RichStringTest extends FreeSpec with AuxSpecs {
     "foobar".replaceAll(Pattern.compile(".b"), "xx") shouldReturn "foxxar"
   }
 
+  "simpleReplace" - {
+    "no match" in {
+      "foobarbazz".simpleReplace("", "xyy") shouldReturn "foobarbazz"
+    }
+    "actual" in {
+      "foobarbazz".simpleReplace("ba", "xyy") shouldReturn "fooxyyrxyyzz"
+    }
+  }
+  "simpleRemove" in {
+    "foobarbazz".simpleRemove("ba") shouldReturn "foorzz"
+  }
+
   "removeAll" in {
     "foobar".removeAll(Pattern.compile(".b")) shouldReturn "foar"
   }

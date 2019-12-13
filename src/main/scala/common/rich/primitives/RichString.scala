@@ -87,6 +87,11 @@ object RichString {
     def removeAll(regex: String): String = removeAll(Pattern compile regex)
 
     def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
+
+    /** Performs a literal string replace with compiling a regular expression. */
+    def simpleReplace(search: String, replace: String): String = StringUtils.replace($, search, replace)
+    /** Performs a literal string removal with compiling a regular expression. */
+    def simpleRemove(search: String): String = simpleReplace(search, "")
   }
 
   private val WrappingQuotes = Pattern compile """^["']+|["']+$"""
