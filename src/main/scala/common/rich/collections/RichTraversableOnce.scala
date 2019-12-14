@@ -1,16 +1,17 @@
 package common.rich.collections
 
+import scala.collection.TraversableOnce
+import scala.math.log10
+
+import scalaz.{Functor, Semigroup}
+import scalaz.std.anyVal._
+import scalaz.std.list._
+import scalaz.std.vector.vectorInstance
+
 import common.rich.RichT._
 import common.rich.RichTuple._
 import common.rich.collections.RichMap._
 import common.rich.primitives.RichBoolean._
-import scalaz.std.anyVal._
-import scalaz.std.list._
-import scalaz.std.vector.vectorInstance
-import scalaz.{Functor, Semigroup}
-
-import scala.collection.TraversableOnce
-import scala.math.log10
 
 object RichTraversableOnce {
   class __Joiner[A, B] private[RichTraversableOnce]($: TraversableOnce[A], other: TraversableOnce[B]) {
@@ -114,12 +115,18 @@ object RichTraversableOnce {
 
     def join[B](other: TraversableOnce[B]) = new __Joiner($, other)
 
-    def single: A = {
+    /** Throws if size != 1. */
+    def single: A = singleOpt.get
+    /** Returns None if empty, but throws if size > 1. */
+    def singleOpt: Option[A] = {
       val i = $.toIterator
+      if (i.hasNext.isFalse)
+        return None
       val next = i.next()
       if (i.hasNext)
-        throw new UnsupportedOperationException("Traversable contained more than a single element")
-      next
+        throw new UnsupportedOperationException(
+          s"Traversable contained more than a single element ($next and ${i.next} at least)")
+      Some(next)
     }
 
     def contains(a: A): Boolean = $.exists(_ == a)
