@@ -33,6 +33,7 @@ object RichT {
     /** Converts this into an Option; this also works for null, beautifully enough :D */
     @inline def opt: Option[T] = Option($)
     @inline def optFilter(p: T => Boolean): Option[T] = if ($ == null) None else if (p($)) Some($) else None
+    @inline def optMap[S](p: T => Boolean, f: T => S): Option[S] = optFilter(p).map(f)
     /** When you really want a fluent API. */
     @inline def mapTo[S](f: T => S): S = f($)
     /** For the F# lovers in the audience. */
