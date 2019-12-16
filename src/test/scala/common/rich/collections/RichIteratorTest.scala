@@ -2,8 +2,6 @@ package common.rich.collections
 
 import java.util
 
-import common.AuxSpecs
-import common.rich.collections.RichIterator._
 import org.scalatest.FreeSpec
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.SpanSugar._
@@ -11,6 +9,9 @@ import org.scalatest.time.SpanSugar._
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Random
+
+import common.AuxSpecs
+import common.rich.collections.RichIterator._
 
 class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
   override val timeLimit = 2 seconds
@@ -80,9 +81,17 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       Iterator(1, 2, 3).lastOption() shouldReturn Some(3)
     }
   }
+  "headOption" - {
+    "returns Some if non-empty" in {
+      Iterator(1, 2, 3).headOption() shouldReturn Some(1)
+    }
+    "throws an exception on empty traversable" in {
+      Iterator.empty.headOption() shouldReturn None
+    }
+  }
 
   "par" ignore {
-    "create threads to run a map request" ignore {
+    "create threads to run a map request" in {
       val set = new mutable.HashSet[Object]()
       val r = new Random()
       Iterator.fill(100)(r.nextDouble).par().foreach(_ => set.synchronized {
@@ -91,15 +100,15 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       set.size should be > 1
     }
 
-    "returns the items ignore order" ignore {
+    "returns the items ignore order" in {
       Iterator(1, 2, 3, 4, 5, 6).par().map(_ * 2).toVector shouldReturn Vector(2, 4, 6, 8, 10, 12)
     }
 
-    "works on lists of size 10" ignore {
+    "works on lists of size 10" in {
       (1 to 10).iterator.par().map(_ * 2).toVector shouldReturn (2 to 20 by 2).toVector
     }
 
-    "runs work ignore parallel and be faster than a serialize execution" ignore {
+    "runs work ignore parallel and be faster than a serialize execution" in {
       val list = (1 to 100).toVector
       val serTime = time {
         list.iterator.foreach(_ => Thread.sleep(1))
@@ -110,7 +119,7 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       serTime.toDouble / parTime should be >= 1.5
     }
 
-    "runs maps ignore parallel" ignore {
+    "runs maps ignore parallel" in {
       val list = (1 to 100).toVector
       var x: Any = null
       val serTime = time {
@@ -129,7 +138,7 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       x shouldReturn (list map (_ * 2))
     }
 
-    "works on range" ignore {
+    "works on range" in {
       val set = new util.HashSet[Int]()
       (1 to 100).iterator.par().foreach(set.synchronized(set.add(_)))
     }

@@ -1,11 +1,12 @@
 package common.rich.collections
 
 import common.rich.primitives.RichBoolean._
-
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.ParSeq
 import scala.collection.AbstractIterator
+
+import common.rich.RichT._
 
 object RichIterator {
   private class ParIterator[T]($: Iterator[T], windowSize: Int) extends Iterator[T] {
@@ -119,6 +120,7 @@ object RichIterator {
       aux($.next())
     }
 
+    def headOption(): Option[A] = $.optMap(_.hasNext, _.next())
     def lastOption(): Option[A] = if ($.hasNext) Some(last()) else None
   }
 }
