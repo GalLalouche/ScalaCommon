@@ -72,7 +72,7 @@ class RichMapTest extends FreeSpec with AuxSpecs with ListInstances with StringI
   "richFoldableMap" - {
     val $ = Map("foo" -> List(1, 2, 3), "bar" -> List(4, 5))
     "flattenValues" in {
-      $.flattenValues shouldSetEqual Set("foo" -> 1, "foo" -> 2, "foo" -> 3, "bar" -> 4, "bar" -> 5)
+      $.flattenValues shouldContainExactly("foo" -> 1, "foo" -> 2, "foo" -> 3, "bar" -> 4, "bar" -> 5)
     }
     "totalSize" in {
       $.totalSizeSlow shouldReturn 5
