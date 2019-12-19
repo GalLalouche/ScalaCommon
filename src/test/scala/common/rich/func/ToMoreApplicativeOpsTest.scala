@@ -1,12 +1,14 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.func.ToMoreApplicativeOps._
 import org.scalatest.FreeSpec
-import scalaz.Writer
-import scalaz.std.StringInstances
 
-class ToMoreApplicativeOpsTest extends FreeSpec with AuxSpecs with StringInstances {
+import scalaz.Writer
+import scalaz.std.string.stringInstance
+import common.rich.func.ToMoreApplicativeOps._
+
+import common.AuxSpecs
+
+class ToMoreApplicativeOpsTest extends FreeSpec with AuxSpecs {
   "withFilter" - {
     type StringWriter[A] = Writer[String, A]
     def writer: StringWriter[Unit] = Writer("foo", ())
