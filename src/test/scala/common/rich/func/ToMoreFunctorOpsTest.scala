@@ -1,17 +1,17 @@
 package common.rich.func
 
 import common.AuxSpecs
-import common.rich.RichFuture._
 import common.rich.RichObservable._
 import common.rich.func.MoreObservableInstances._
 import common.rich.func.ToMoreFunctorOps._
-import org.scalatest.FreeSpec
+import org.scalatest.{AsyncFreeSpec, FreeSpec}
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind.ToBindOpsUnapply
 import rx.lang.scala.Observable
+
 import scalaz.std.vector.vectorInstance
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreFunctorOpsTest extends AsyncFreeSpec with AuxSpecs {
   "listen" in {
     var sum = 0
     val $: Observable[Int] = Observable.just(1, 2, 3, 4).listen(sum += _)
@@ -22,8 +22,8 @@ class ToMoreFunctorOpsTest extends FreeSpec with AuxSpecs {
   }
   "unzip" in {
     val (o1, o2): (Observable[Int], Observable[Int]) = Observable.just(1 -> 2, 3 -> 4).unzip
-    o1.toFuture[Vector].get shouldReturn Vector(1, 3)
-    o2.toFuture[Vector].get shouldReturn Vector(2, 4)
+    o1.toFuture[Vector].map(_ shouldReturn Vector(1, 3)) >>
+        o2.toFuture[Vector].map(_ shouldReturn Vector(2, 4))
   }
   "ifNone" in {
     Vector(None, Some(3), None).ifNone(42) shouldReturn Vector(42, 3, 42)

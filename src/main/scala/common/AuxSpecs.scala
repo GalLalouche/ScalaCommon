@@ -11,6 +11,9 @@ import org.scalatest.exceptions.TestFailedException
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.functor.ToFunctorOps
+
 import common.rich.RichFuture._
 import common.rich.RichT._
 import common.rich.collections.RichTraversableOnce._
@@ -131,6 +134,7 @@ trait AuxSpecs extends Matchers {self: Suite =>
     }
   }
   implicit class richFutureSpecs[A]($: Future[_])(implicit ec: ExecutionContext) {
+    def shouldNotFail(): Future[Assertion] = $ >| Succeeded
     def shouldFail(): Future[Assertion] = {
       val stackTrace = Thread.currentThread.getStackTrace.drop(2)
       $.toTry.map {t =>

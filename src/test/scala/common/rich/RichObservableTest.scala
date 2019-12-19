@@ -2,7 +2,7 @@ package common.rich
 
 import java.util.NoSuchElementException
 
-import org.scalatest.{Assertion, AsyncFreeSpec}
+import org.scalatest.AsyncFreeSpec
 import rx.lang.scala.{Observable, Observer}
 import rx.lang.scala.subjects.PublishSubject
 
@@ -14,13 +14,10 @@ import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
 
 import common.AuxSpecs
-import common.rich.RichFuture._
 import common.rich.RichObservable._
 
 class RichObservableTest extends AsyncFreeSpec with AuxSpecs {
   private def createSubject = PublishSubject[Int]()
-  private def mapFailure(f: Future[_], ass: Throwable => Assertion): Future[Assertion] =
-    f.toTry.map(_.failed.get).map(ass)
   "toFuture" - {
     "success" in {
       val sub = createSubject
@@ -39,7 +36,7 @@ class RichObservableTest extends AsyncFreeSpec with AuxSpecs {
       sub.onNext(2)
       sub.onNext(3)
       sub.onError(error)
-      mapFailure(future, _ shouldReturn error)
+      future.checkFailure(_ shouldReturn error)
     }
   }
 
@@ -56,7 +53,7 @@ class RichObservableTest extends AsyncFreeSpec with AuxSpecs {
       val sub = createSubject
       val future = sub.firstFuture
       sub.onCompleted()
-      mapFailure(future, _ shouldBe a[NoSuchElementException])
+      future.checkFailure(_ shouldBe a[NoSuchElementException])
     }
   }
 
@@ -101,10 +98,9 @@ class RichObservableTest extends AsyncFreeSpec with AuxSpecs {
         obs.onError(error)
       })
       val actual = ArrayBuffer[Int]()
-      mapFailure(
-        o.subscribeWithNotification(new Observer[Int] {
-          override def onNext(value: Int): Unit = actual += value
-        }), _.shouldReturn(error) && actual.shouldReturn(ArrayBuffer(1, 2, 3)))
+      o.subscribeWithNotification(new Observer[Int] {
+        override def onNext(value: Int): Unit = actual += value
+      }).checkFailure(_.shouldReturn(error) && actual.shouldReturn(ArrayBuffer(1, 2, 3)))
     }
   }
 

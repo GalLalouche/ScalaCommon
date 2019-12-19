@@ -1,14 +1,17 @@
 package common.storage
 
-import common.AuxSpecs
-import common.rich.RichFuture._
-import org.scalatest.{FreeSpec, OneInstancePerTest}
+import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
+import org.scalatest.OptionValues._
 
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class StorageTemplateTest extends FreeSpec with OneInstancePerTest with AuxSpecs {
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind._
+
+import common.AuxSpecs
+
+class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AuxSpecs {
   private val existingValues = mutable.HashMap[Int, Int]()
   private val $ = new StorageTemplate[Int, Int]() {
     override protected def internalDelete(k: Int) = Future successful existingValues.remove(k)
@@ -27,45 +30,43 @@ class StorageTemplateTest extends FreeSpec with OneInstancePerTest with AuxSpecs
   "store" - {
     "has existing value throws" in {
       existingValues += 1 -> 2
-      an[Exception] should be thrownBy $.store(1, 4).get
-      existingValues(1) shouldReturn 2
+      $.store(1, 4).shouldFail() >| (existingValues(1) shouldReturn 2)
     }
     "no existing value should insert the value and return true" in {
-      $.store(1, 4).get
-      existingValues(1) shouldReturn 4
+      $.store(1, 4) >| (existingValues(1) shouldReturn 4)
     }
   }
   "forceStore" - {
     "has existing value returns old value" in {
       existingValues += 1 -> 2
-      $.forceStore(1, 4).get shouldReturn Some(2)
-      existingValues(1) shouldReturn 4
+      $.forceStore(1, 4).map(_ shouldReturn Some(2)) >|
+          (existingValues(1) shouldReturn 4)
     }
     "has no existing value returns None" in {
-      $.forceStore(1, 4).get shouldReturn None
-      existingValues(1) shouldReturn 4
+      $.forceStore(1, 4).map(_ shouldReturn None) >|
+          (existingValues(1) shouldReturn 4)
     }
   }
   "mapStore" - {
     "has no existing value uses default" in {
-      $.mapStore(1, _ => ???, 2).get shouldReturn None
-      existingValues(1) shouldReturn 2
+      $.mapStore(1, _ => ???, 2).map(_ shouldReturn None) >|
+          (existingValues(1) shouldReturn 2)
     }
     "maps existing value if present" in {
       existingValues += 1 -> 2
-      $.mapStore(1, _ * 2, ???).get shouldReturn Option(2)
-      existingValues(1) shouldReturn 4
+      $.mapStore(1, _ * 2, ???).map(_ shouldReturn Option(2)) >|
+          (existingValues(1) shouldReturn 4)
     }
   }
   "delete" - {
     "existing value" in {
       existingValues += 1 -> 2
-      $.delete(1).get.get shouldReturn 2
-      $.load(1).get shouldReturn None
+      $.delete(1).map(_.value shouldReturn 2) >>
+          $.load(1).map(_ shouldReturn None)
     }
     "no existing value" in {
-      $.delete(1).get shouldReturn None
-      $.load(1).get shouldReturn None
+      $.delete(1).map(_ shouldReturn None) >>
+          $.load(1).map(_ shouldReturn None)
     }
   }
 }

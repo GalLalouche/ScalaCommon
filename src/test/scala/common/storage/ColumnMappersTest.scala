@@ -1,13 +1,17 @@
 package common.storage
 
-import common.AuxSpecs
+import org.scalatest.{AsyncFreeSpec, BeforeAndAfter}
+
+import scala.concurrent.Future
+
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind.ToBindOpsUnapply
+
 import common.rich.RichFuture._
+import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
-import org.scalatest.{BeforeAndAfter, FreeSpec}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class ColumnMappersTest extends FreeSpec with AuxSpecs with BeforeAndAfter with StorageSpecs {
+class ColumnMappersTest extends AsyncFreeSpec with AuxSpecs with BeforeAndAfter with StorageSpecs {
   private val cm = new ColumnMappers()
   import cm._
   import profile.api._
@@ -19,17 +23,16 @@ class ColumnMappersTest extends FreeSpec with AuxSpecs with BeforeAndAfter with 
   }
 
   private val table = TableQuery[Rows]
-  db.run(table.schema.create).get
-  before {
-    db.run(table.delete).get
-  }
+  private def setup(): Future[_] = db.run(table.schema.create).toTry >> db.run(table.delete)
 
   "Can save and load" in {
-    db.run(table += (TestEnum.BAZZ, List(4, 8, 15, 16, 23, 42))).get
-    db.run(table.result).get.single shouldReturn(TestEnum.BAZZ, List(4, 8, 15, 16, 23, 42))
+    setup() >>
+        db.run(table += (TestEnum.BAZZ, List(4, 8, 15, 16, 23, 42))) >>
+        db.run(table.result).map(_.single shouldReturn (TestEnum.BAZZ -> List(4, 8, 15, 16, 23, 42)))
   }
   "Can handle empty lists" in {
-    db.run(table += (TestEnum.BAR, Nil)).get
-    db.run(table.result).get.single shouldReturn(TestEnum.BAR, Nil)
+    setup() >>
+        db.run(table += (TestEnum.BAR, Nil)) >>
+        db.run(table.result).map(_.single shouldReturn (TestEnum.BAR -> Nil))
   }
 }

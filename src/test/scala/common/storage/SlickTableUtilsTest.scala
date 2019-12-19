@@ -1,88 +1,81 @@
 package common.storage
 
-import org.scalatest.{BeforeAndAfter, FreeSpec}
+import org.scalatest.{AsyncFreeSpec, BeforeAndAfter}
+import org.scalatest.OptionValues._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
-import common.AuxSpecs
 import common.rich.RichFuture._
+import common.AuxSpecs
 
-class SlickTableUtilsTest extends FreeSpec with AuxSpecs with BeforeAndAfter {
+class SlickTableUtilsTest extends AsyncFreeSpec with AuxSpecs with BeforeAndAfter {
   private val table = new TestTable
   private val $ = table.utils
-  before {
-    $.dropTable().get
-  }
-  after {
-    $.dropTable().get
-  }
+  private def setup(): Future[_] = $.dropTable().toTry
+
   "utils" - {
-    val $ = table.utils
     "does table exists" - {
       "no by default" in {
-        $.doesTableExist.get shouldReturn false
+        setup() >> $.doesTableExist.map(_ shouldReturn false)
       }
       "yes after creation" in {
-        $.createTable().get
-        $.doesTableExist.get shouldReturn true
+        setup() >> $.createTable() >> $.doesTableExist.map(_ shouldReturn true)
       }
       "no after drop" in {
-        $.createTable()
-            .>>($.dropTable())
-            .>>($.doesTableExist).get shouldReturn false
+        setup() >> $.createTable() >> $.dropTable() >> $.doesTableExist.map(_ shouldReturn false)
       }
       "yes after clear" in {
-        $.createTable()
-            .>>($.clearTable())
-            .>>($.doesTableExist).get shouldReturn true
+        setup() >> $.createTable() >> $.clearTable() >> $.doesTableExist.map(_ shouldReturn true)
       }
     }
     "create" - {
       "should not throw when table doesn't exist" in {
-        $.createTable().get
+        setup() >> $.createTable().shouldNotFail()
       }
       "should fail when table exists" in {
-        $.createTable().get
-        an[Exception] should be thrownBy $.createTable().get
+        setup() >> $.createTable() >> $.createTable().shouldFail()
       }
       "succeed after drop" in {
-        $.createTable()
-            .>>($.dropTable())
-            .>>($.createTable()).get
+        setup() >> $.createTable() >> $.dropTable() >> $.createTable().shouldNotFail()
       }
     }
     "createTableIfNotExists" - {
       "exists" in {
-        $.createTable().>>($.createTableIfNotExists()).get shouldReturn false
-        $.doesTableExist.get shouldReturn true
+        setup() >>
+            $.createTable() >>
+            $.createTableIfNotExists().map(_ shouldReturn false) >>
+            $.doesTableExist.map(_ shouldReturn true)
       }
       "does not exist" in {
-        $.doesTableExist.get shouldReturn false
-        $.createTableIfNotExists().get shouldReturn true
-        $.doesTableExist.get shouldReturn true
+        setup() >>
+            $.doesTableExist.map(_ shouldReturn false) >>
+            $.createTableIfNotExists().map(_ shouldReturn true) >>
+            $.doesTableExist.map(_ shouldReturn true)
       }
     }
     "clear" - {
       "when table throws" in {
-        an[Exception] should be thrownBy $.clearTable().get
+        setup() >>
+            $.clearTable().shouldFail()
       }
       "when table exists, clears the table" in {
-        $.createTable().get
-        table.store(2, "foo").get
-        table.load(2).get.get shouldReturn "foo"
-        $.clearTable().get
-        table.load(2).get shouldReturn None
+        setup() >>
+            $.createTable() >>
+            table.store(2, "foo") >>
+            table.load(2).map(_.value shouldReturn "foo") >>
+            $.clearTable() >>
+            table.load(2).map(_ shouldReturn None)
       }
     }
     "drop" - {
       "should fail if table does not exist" in {
-        $.dropTable().get shouldReturn false
+        setup() >> $.dropTable().map(_ shouldReturn false)
       }
       "should succeed if table exists" in {
-        $.createTable().>>($.dropTable()).get shouldReturn true
+        setup() >> $.createTable() >> $.dropTable().map(_ shouldReturn true)
       }
     }
   }
