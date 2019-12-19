@@ -9,9 +9,9 @@ import scala.concurrent.Future
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind._
 
-import common.AuxSpecs
+import common.{AsyncAuxSpecs, AuxSpecs}
 
-class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AuxSpecs {
+class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AsyncAuxSpecs {
   private val existingValues = mutable.HashMap[Int, Int]()
   private val $ = new StorageTemplate[Int, Int]() {
     override protected def internalDelete(k: Int) = Future successful existingValues.remove(k)
