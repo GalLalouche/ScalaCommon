@@ -15,11 +15,15 @@ class RichOptionTest extends FreeSpec with AuxSpecs {
         an[IndexOutOfBoundsException] should be thrownBy None.getOrThrow(new IndexOutOfBoundsException)
       }
     }
-    "with message" in {
-      val caught = intercept[NoSuchElementException] {
-        None.getOrThrow("foobar")
+    "with message" - {
+      "when Some" in {
+        lazy val unusedErrorMessage: String = ???
+        Option(1) getOrThrow unusedErrorMessage shouldReturn 1
       }
-      caught.getMessage shouldReturn "foobar"
+      "when None" in {
+        val e = intercept[NoSuchElementException] {None.getOrThrow("foobar")}
+        e.getMessage shouldReturn "foobar"
+      }
     }
   }
 }
