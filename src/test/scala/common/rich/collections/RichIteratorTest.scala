@@ -73,6 +73,24 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
   }
 
+  "apply" - {
+    "throws IndexOutOfBoundsException when index is negative" in {
+      an[IndexOutOfBoundsException] shouldBe thrownBy {Iterator.empty.apply(-1)}
+    }
+    "throws IndexOutOfBoundsException when index is too large" in {
+      an[IndexOutOfBoundsException] shouldBe thrownBy {Iterator.empty.apply(1)}
+    }
+    "returns element at index 0" in {
+      Iterator(1, 2, 3).apply(0) shouldReturn 1
+    }
+    "returns element at index 1" in {
+      Iterator(1, 2, 3).apply(1) shouldReturn 2
+    }
+    "returns element at index 2" in {
+      Iterator(1, 2, 3).apply(2) shouldReturn 3
+    }
+  }
+
   "lastOption" - {
     "None on empty" in {
       Iterator.empty.lastOption() shouldReturn None
