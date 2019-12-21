@@ -1,19 +1,21 @@
 package common.storage
 
-import org.scalatest.{AsyncFreeSpec, BeforeAndAfter}
+import org.scalatest.AsyncFreeSpec
 import org.scalatest.OptionValues._
+
+import scala.concurrent.Future
 
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
-import common.rich.RichFuture._
-import common.AsyncAuxSpecs
+import common.{AsyncAuxSpecs, BeforeAndAfterAllAsync, BeforeAndAfterEachAsync}
 
-class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndAfter {
+class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
+    with BeforeAndAfterAllAsync with BeforeAndAfterEachAsync {
   private val table = new TestTable
-  private val $ = table.utils
+  private val $: TableUtilsTemplate = table.utils
 
-  override def withFixture(test: NoArgAsyncTest) = runBefore($.dropTable().toTry)(test)
+  override def afterEach(): Future[_] = $.dropTable()
 
   "utils" - {
     "does table exists" - {

@@ -35,7 +35,7 @@ trait AuxSpecs extends Matchers {self: Suite =>
     private val ProperExceptionDepth = 2
     def shouldContain(first: T, rest: T*): Assertion = {
       val expected = first +: rest
-      val missing = expected.filterNot(e => $.exists(_ == e))
+      val missing = expected.filterNot($.contains)
       throwIf(
         missing.nonEmpty, s"${$} does not contain ${missing.mkString("[", ",", "]")}.", ProperExceptionDepth)
     }

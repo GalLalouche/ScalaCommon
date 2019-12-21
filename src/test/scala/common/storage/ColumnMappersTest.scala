@@ -1,15 +1,16 @@
 package common.storage
 
-import org.scalatest.{AsyncFreeSpec, BeforeAndAfter}
+import org.scalatest.AsyncFreeSpec
 
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
+import common.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 import common.rich.RichFuture._
-import common.AsyncAuxSpecs
 import common.rich.collections.RichTraversableOnce._
 
-class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndAfter with StorageSpecs {
+class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs
+    with BeforeAndAfterEachAsync with StorageSpecs {
   private val cm = new ColumnMappers()
   import cm._
   import profile.api._
@@ -22,7 +23,7 @@ class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndA
 
   private val table = TableQuery[Rows]
 
-  override def withFixture(test: NoArgAsyncTest) = runBefore(db.run(table.schema.create).toTry >> db.run(table.delete))(test)
+  override def beforeEach() = db.run(table.schema.create).toTry >> db.run(table.delete)
 
   "Can save and load" in {
     db.run(table += (TestEnum.BAZZ, List(4, 8, 15, 16, 23, 42))) >>

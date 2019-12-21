@@ -28,5 +28,4 @@ trait AsyncAuxSpecs extends AuxSpecs {self: AsyncTestSuite =>
     }
     def checkFailure(f: Throwable => Assertion): Future[Assertion] = $.toTry.map(_.failure.exception).map(f)
   }
-  def runBefore(f: => Future[_])($: NoArgAsyncTest) = new FutureOutcome(f >> $().toFuture)
 }
