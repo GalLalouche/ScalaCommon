@@ -1,6 +1,7 @@
 package common.rich.collections
 
 import org.scalatest.FreeSpec
+import org.scalatest.OptionValues._
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -119,6 +120,19 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     }
     "throws an exception on a traversable with more than 1 element" in {
       an[UnsupportedOperationException] should be thrownBy Vector(1, 2).single
+    }
+  }
+
+  "mapFirst" - {
+    "empty returns None" in {
+      Vector[Int]().mapFirst(_ => Some(1)) shouldReturn None
+    }
+    "If all None, returns None" in {
+      Vector(1, 2, 3).mapFirst(_ => None) shouldReturn None
+    }
+    "Returns first Some" in {
+      Iterator.iterate(1)(_ + 1).mapFirst(e => if (e > 10) Some((e * e).toString) else None)
+          .value shouldReturn "121"
     }
   }
 

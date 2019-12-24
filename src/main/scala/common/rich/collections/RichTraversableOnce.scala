@@ -10,6 +10,7 @@ import scalaz.std.vector.vectorInstance
 
 import common.rich.RichT._
 import common.rich.RichTuple._
+import common.rich.collections.RichIterator._
 import common.rich.collections.RichMap._
 import common.rich.primitives.RichBoolean._
 
@@ -128,6 +129,8 @@ object RichTraversableOnce {
           s"Traversable contained more than a single element ($next and ${i.next} at least)")
       Some(next)
     }
+
+    def mapFirst[B](f: A => Option[B]): Option[B] = $.toIterator.flatMap(f(_)).headOption()
 
     def contains(a: A): Boolean = $.exists(_ == a)
 
