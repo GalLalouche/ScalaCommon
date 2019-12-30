@@ -1,6 +1,6 @@
-package common
+package common.test
 
-import org.scalatest.{AsyncTestSuite, AsyncTestSuiteMixin, FutureOutcome, SuiteMixin}
+import org.scalatest.{AsyncTestSuite, AsyncTestSuiteMixin, FutureOutcome}
 
 import scala.concurrent.Future
 

@@ -4,8 +4,9 @@ import java.io.{File, PrintStream}
 import java.nio.file.FileAlreadyExistsException
 import java.util.Scanner
 
-import common.{AuxSpecs, DirectorySpecs}
 import org.scalatest._
+
+import common.test.{AuxSpecs, DirectorySpecs}
 
 class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
   private val f = tempFile

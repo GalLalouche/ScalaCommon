@@ -1,8 +1,9 @@
 package common.rich.collections
 
-import common.AuxSpecs
 import org.scalatest.FreeSpec
-import RichStream._
+
+import common.rich.collections.RichStream._
+import common.test.AuxSpecs
 
 class RichStreamTest extends FreeSpec with AuxSpecs {
   "tailOpt" - {

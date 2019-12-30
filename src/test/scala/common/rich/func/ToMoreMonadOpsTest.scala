@@ -1,9 +1,11 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.func.ToMoreMonadOps._
 import org.scalatest.FreeSpec
+
 import scalaz.Monad
+import common.rich.func.ToMoreMonadOps._
+
+import common.test.AuxSpecs
 
 private object ToMoreMonadOpsTest {
   private case class Box[+A](a: A)

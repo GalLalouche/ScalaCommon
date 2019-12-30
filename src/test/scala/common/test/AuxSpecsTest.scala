@@ -1,4 +1,4 @@
-package common
+package common.test
 
 import org.scalatest.{Assertion, AsyncFreeSpec, Succeeded}
 import org.scalatest.exceptions.TestFailedException

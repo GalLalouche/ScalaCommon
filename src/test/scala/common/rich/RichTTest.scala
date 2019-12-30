@@ -2,8 +2,8 @@ package common.rich
 
 import org.scalatest.{FreeSpec, Matchers}
 
-import common.AuxSpecs
 import common.rich.RichT._
+import common.test.AuxSpecs
 
 class RichTTest extends FreeSpec with AuxSpecs with Matchers {
   "RichT" - {

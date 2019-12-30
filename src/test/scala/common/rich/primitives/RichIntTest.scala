@@ -1,8 +1,9 @@
 package common.rich.primitives
 
-import common.AuxSpecs
-import common.rich.primitives.RichInt._
 import org.scalatest.FreeSpec
+
+import common.rich.primitives.RichInt._
+import common.test.AuxSpecs
 
 class RichIntTest extends FreeSpec with AuxSpecs {
   "factorial works with small numbers" in {

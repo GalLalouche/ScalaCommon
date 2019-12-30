@@ -2,13 +2,14 @@ package common.rich.collections
 
 import java.lang.Math.abs
 
-import common.AuxSpecs
-import common.rich.collections.RichVector._
 import org.scalacheck.Gen
 import org.scalatest.PropSpec
 import org.scalatest.prop.PropertyChecks
 
 import scala.util.Random
+
+import common.rich.collections.RichVector._
+import common.test.AuxSpecs
 
 class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
   private def randomNumber = (Random.nextDouble * 1000) - 1000

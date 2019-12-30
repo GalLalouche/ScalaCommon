@@ -7,8 +7,8 @@ import scala.concurrent.Future
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
 
-import common.AuxSpecs
 import common.rich.RichFuture._
+import common.test.AuxSpecs
 
 class RichFutureAsyncTest extends AsyncFreeSpec with AuxSpecs with OneInstancePerTest {
   private def success: Future[Int] = Future successful 1

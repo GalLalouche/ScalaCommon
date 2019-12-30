@@ -2,10 +2,11 @@ package common.rich
 
 import java.io.ByteArrayOutputStream
 
-import common.AuxSpecs
+import org.scalatest.FreeSpec
+
 import common.rich.RichInputStream._
 import common.rich.primitives.RichString._
-import org.scalatest.FreeSpec
+import common.test.AuxSpecs
 
 class RichInputStreamTest extends FreeSpec with AuxSpecs {
   "asString" in "foobar".toInputStream.asString.shouldReturn("foobar")

@@ -13,8 +13,8 @@ import scala.language.postfixOps
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
 
-import common.AsyncAuxSpecs
 import common.rich.RichObservable._
+import common.test.AsyncAuxSpecs
 
 class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
   private def createSubject = PublishSubject[Int]()

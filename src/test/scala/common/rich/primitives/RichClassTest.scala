@@ -1,10 +1,11 @@
 package common.rich.primitives
 
-import common.AuxSpecs
-import common.rich.primitives.RichClass._
 import org.scalatest.FreeSpec
 
 import scala.reflect.ClassTag
+
+import common.rich.primitives.RichClass._
+import common.test.AuxSpecs
 
 class RichClassTest extends FreeSpec with AuxSpecs {
   "richClass" - {

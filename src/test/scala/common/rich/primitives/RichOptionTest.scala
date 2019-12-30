@@ -1,8 +1,9 @@
 package common.rich.primitives
 
-import common.AuxSpecs
-import common.rich.primitives.RichOption._
 import org.scalatest.FreeSpec
+
+import common.rich.primitives.RichOption._
+import common.test.AuxSpecs
 
 class RichOptionTest extends FreeSpec with AuxSpecs {
   "getOrThrow" - {

@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
-import common.{AsyncAuxSpecs, BeforeAndAfterAllAsync, BeforeAndAfterEachAsync}
+import common.test.{AsyncAuxSpecs, BeforeAndAfterAllAsync, BeforeAndAfterEachAsync}
 
 class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
     with BeforeAndAfterAllAsync with BeforeAndAfterEachAsync {

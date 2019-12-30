@@ -9,7 +9,7 @@ import scala.concurrent.Future
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind._
 
-import common.AsyncAuxSpecs
+import common.test.AsyncAuxSpecs
 
 class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AsyncAuxSpecs {
   private val existingValues = mutable.HashMap[Int, Int]()

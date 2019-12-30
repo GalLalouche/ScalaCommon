@@ -1,9 +1,11 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.func.ToMoreMonadPlusOps._
 import org.scalatest.FreeSpec
+
 import scalaz.std.list.listInstance
+import common.rich.func.ToMoreMonadPlusOps._
+
+import common.test.AuxSpecs
 
 class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
   "select" - {

@@ -1,7 +1,6 @@
 package common.storage
 
 import slick.ast.{BaseTypedType, ScalaBaseType}
-import slick.jdbc.H2Profile
 
 import scala.concurrent.ExecutionContext
 

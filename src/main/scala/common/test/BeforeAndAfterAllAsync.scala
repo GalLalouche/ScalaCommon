@@ -1,4 +1,4 @@
-package common
+package common.test
 
 import org.scalatest.{Args, AsyncTestSuite, AsyncTestSuiteMixin, Status}
 

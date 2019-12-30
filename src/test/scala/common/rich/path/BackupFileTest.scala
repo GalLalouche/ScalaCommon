@@ -1,7 +1,8 @@
 package common.rich.path
 
-import common.{AuxSpecs, DirectorySpecs}
 import org.scalatest._
+
+import common.test.{AuxSpecs, DirectorySpecs}
 
 class BackupFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
   private val f = tempFile.appendLine("Foobar")

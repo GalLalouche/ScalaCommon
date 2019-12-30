@@ -1,11 +1,12 @@
 package common.rich.primitives
 
-import common.AuxSpecs
-import common.rich.primitives.RichBoolean._
-import common.rich.primitives.RichInt._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.PropSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+
+import common.rich.primitives.RichBoolean._
+import common.rich.primitives.RichInt._
+import common.test.AuxSpecs
 
 class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =

@@ -4,6 +4,8 @@ import org.scalatest.FreeSpec
 
 import scala.util.Random
 
+import common.test.AuxSpecs
+
 class PercentageTest extends FreeSpec with AuxSpecs {
   "constructor throws on values out of bounds" in {
     an[IllegalArgumentException] shouldBe thrownBy {Percentage(-1e-5)}

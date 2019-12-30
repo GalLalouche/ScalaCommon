@@ -10,8 +10,8 @@ import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Random
 
-import common.AuxSpecs
 import common.rich.collections.RichIterator._
+import common.test.AuxSpecs
 
 class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
   override val timeLimit = 2 seconds

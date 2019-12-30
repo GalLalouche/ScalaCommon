@@ -1,8 +1,9 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichList._
 import org.scalatest.FreeSpec
+
+import common.rich.collections.RichList._
+import common.test.AuxSpecs
 
 class RichListTest extends FreeSpec with AuxSpecs {
   "headTailOpt" - {

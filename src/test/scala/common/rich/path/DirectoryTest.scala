@@ -3,12 +3,13 @@ package common.rich.path
 import java.io.File
 import java.nio.file.FileAlreadyExistsException
 
-import common.DirectorySpecs
-import common.rich.path.RichFile._
-import common.rich.path.RichPath.poorPath
 import org.scalatest.{BeforeAndAfter, FreeSpec, OneInstancePerTest}
 
 import scala.language.postfixOps
+
+import common.rich.path.RichFile._
+import common.rich.path.RichPath.poorPath
+import common.test.DirectorySpecs
 
 class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest with BeforeAndAfter {
   // yeah yeah, it uses DirectorySpecs which uses Directory

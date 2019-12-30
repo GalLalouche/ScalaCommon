@@ -4,8 +4,8 @@ import org.scalatest.{BeforeAndAfter, FreeSpec}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import common.AuxSpecs
 import common.rich.RichFuture._
+import common.test.AuxSpecs
 
 class SlickStorageTemplateTest extends FreeSpec with AuxSpecs with BeforeAndAfter {
   private val table = new TestTable

@@ -4,8 +4,8 @@ import java.util.regex.Pattern
 
 import org.scalatest.FreeSpec
 
-import common.AuxSpecs
 import common.rich.primitives.RichString._
+import common.test.AuxSpecs
 
 class RichStringTest extends FreeSpec with AuxSpecs {
   "unquote" - {

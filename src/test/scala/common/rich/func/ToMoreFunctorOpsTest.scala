@@ -1,15 +1,16 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.RichObservable._
-import common.rich.func.MoreObservableInstances._
-import common.rich.func.ToMoreFunctorOps._
-import org.scalatest.{AsyncFreeSpec, FreeSpec}
-import scalaz.std.scalaFuture.futureInstance
-import scalaz.syntax.bind.ToBindOpsUnapply
+import org.scalatest.AsyncFreeSpec
 import rx.lang.scala.Observable
 
+import scalaz.std.scalaFuture.futureInstance
 import scalaz.std.vector.vectorInstance
+import scalaz.syntax.bind.ToBindOpsUnapply
+import common.rich.func.MoreObservableInstances._
+import common.rich.func.ToMoreFunctorOps._
+
+import common.rich.RichObservable._
+import common.test.AuxSpecs
 
 class ToMoreFunctorOpsTest extends AsyncFreeSpec with AuxSpecs {
   "listen" in {

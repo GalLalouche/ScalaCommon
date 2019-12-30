@@ -2,6 +2,8 @@ package common
 
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
+import common.test.AuxSpecs
+
 class LazyMapTests extends FreeSpec with AuxSpecs with OneInstancePerTest {
   "ctor" - {
     "should fail on null" in {

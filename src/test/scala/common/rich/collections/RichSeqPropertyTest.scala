@@ -1,11 +1,12 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichSeq.richSeq
 import org.scalatest.PropSpec
 import org.scalatest.prop.PropertyChecks
 
 import scala.util.Random
+
+import common.rich.collections.RichSeq.richSeq
+import common.test.AuxSpecs
 
 class RichSeqPropertyTest extends PropSpec with PropertyChecks with AuxSpecs {
   property("shuffle is a permutation") {

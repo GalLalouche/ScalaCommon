@@ -1,7 +1,8 @@
 package common.uf
 
-import common.AuxSpecs
 import org.scalatest.FreeSpec
+
+import common.test.AuxSpecs
 
 abstract class UnionFindTest extends FreeSpec with AuxSpecs {
   private val vector = Vector("foo", "bar", "bazz", "quux", "moo")

@@ -2,6 +2,8 @@ package common
 
 import org.scalatest.FreeSpec
 
+import common.test.AuxSpecs
+
 class BuilderTest extends FreeSpec with AuxSpecs {
   class TestBuilder(map: Map[String, Any]) extends Builder[TestBuilder](map) {
     def this() = this(Map("foo" -> "bar"))

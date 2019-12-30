@@ -2,6 +2,8 @@ package common
 
 import org.scalatest.FreeSpec
 
+import common.test.AuxSpecs
+
 class LRUCacheTest extends FreeSpec with AuxSpecs {
   "C'tor" - {
     "throw except for negative maxSize" in {

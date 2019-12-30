@@ -1,8 +1,10 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.func.TuplePLenses.{tuple2First, tuple2Second}
 import org.scalatest.FreeSpec
+
+import common.rich.func.TuplePLenses.{tuple2First, tuple2Second}
+
+import common.test.AuxSpecs
 
 class TuplePLensesTest extends FreeSpec with AuxSpecs {
   "tuple2First" in {

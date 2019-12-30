@@ -5,9 +5,9 @@ import org.scalatest.AsyncFreeSpec
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
-import common.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 import common.rich.RichFuture._
 import common.rich.collections.RichTraversableOnce._
+import common.test.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 
 class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs
     with BeforeAndAfterEachAsync with StorageSpecs {

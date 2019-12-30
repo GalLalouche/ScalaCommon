@@ -1,11 +1,12 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichSeq.richSeq
-import common.rich.collections.RichTraversableDouble._
 import org.scalatest.FreeSpec
 
 import scala.util.Random
+
+import common.rich.collections.RichSeq.richSeq
+import common.rich.collections.RichTraversableDouble._
+import common.test.AuxSpecs
 
 class RichTraversableDoubleTest extends FreeSpec with AuxSpecs {
   "mean returns the mean" in {

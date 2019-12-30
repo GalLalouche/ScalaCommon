@@ -2,8 +2,8 @@ package common.rich.collections
 
 import org.scalatest.FreeSpec
 
-import common.AuxSpecs
 import common.rich.collections.RichSeq.richSeq
+import common.test.AuxSpecs
 
 class RichSeqTest extends FreeSpec with AuxSpecs {
   "shift" - {

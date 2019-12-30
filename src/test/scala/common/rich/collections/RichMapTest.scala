@@ -8,8 +8,8 @@ import scalaz.std.list.listInstance
 import scalaz.std.string.stringInstance
 import common.rich.func.MoreSetInstances._
 
-import common.AuxSpecs
 import common.rich.collections.RichMap._
+import common.test.AuxSpecs
 
 class RichMapTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
   "richJavaMap" - {

@@ -1,8 +1,9 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichIterable._
 import org.scalatest.FreeSpec
+
+import common.rich.collections.RichIterable._
+import common.test.AuxSpecs
 
 class RichIterableTest extends FreeSpec with AuxSpecs {
   "length comparisons" - {

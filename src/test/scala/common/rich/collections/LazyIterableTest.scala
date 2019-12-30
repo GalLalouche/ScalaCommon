@@ -1,8 +1,9 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.RichT._
 import org.scalatest.FreeSpec
+
+import common.rich.RichT._
+import common.test.AuxSpecs
 
 class LazyIterableTest extends FreeSpec with AuxSpecs {
   "iterateOptionally" in {

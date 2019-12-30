@@ -9,7 +9,7 @@ import scalaz.std.option.optionInstance
 import scalaz.syntax.traverse.ToTraverseOps
 import common.rich.func.MoreTraverseInstances._
 
-import common.AuxSpecs
+import common.test.AuxSpecs
 
 class MoreTraverseInstancesTest extends FreeSpec with AuxSpecs {
   private def test[T[_] : Traverse](f: Seq[Int] => T[Int]): Unit = {

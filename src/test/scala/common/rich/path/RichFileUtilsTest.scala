@@ -2,9 +2,10 @@ package common.rich.path
 
 import java.nio.file.FileAlreadyExistsException
 
-import common.DirectorySpecs
-import common.rich.path.RichFile._
 import org.scalatest.{FreeSpec, OneInstancePerTest}
+
+import common.rich.path.RichFile._
+import common.test.DirectorySpecs
 
 class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
   lazy val dir2 = TempDirectory()

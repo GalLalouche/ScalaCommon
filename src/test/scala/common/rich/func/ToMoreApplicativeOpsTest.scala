@@ -6,7 +6,7 @@ import scalaz.Writer
 import scalaz.std.string.stringInstance
 import common.rich.func.ToMoreApplicativeOps._
 
-import common.AuxSpecs
+import common.test.AuxSpecs
 
 class ToMoreApplicativeOpsTest extends FreeSpec with AuxSpecs {
   "withFilter" - {

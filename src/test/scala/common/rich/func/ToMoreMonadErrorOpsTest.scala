@@ -1,10 +1,12 @@
 package common.rich.func
 
-import common.AuxSpecs
-import common.rich.RichT._
-import common.rich.func.ToMoreMonadErrorOps._
 import org.scalatest.FreeSpec
+
 import scalaz.MonadError
+import common.rich.func.ToMoreMonadErrorOps._
+
+import common.rich.RichT._
+import common.test.AuxSpecs
 
 private object ToMoreMonadErrorOpsTest {
   private sealed trait BoxOrMsg[+T] {

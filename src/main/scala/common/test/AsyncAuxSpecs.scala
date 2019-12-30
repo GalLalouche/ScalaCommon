@@ -1,13 +1,13 @@
-package common
+package common.test
 
-import org.scalatest.{Assertion, AsyncTestSuite, FutureOutcome, Succeeded}
+import org.scalatest.{Assertion, AsyncTestSuite, Succeeded}
 import org.scalatest.TryValues._
 import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.Future
 
 import scalaz.std.scalaFuture.futureInstance
-import scalaz.syntax.bind._
+import scalaz.syntax.functor.ToFunctorOps
 
 import common.rich.RichFuture._
 

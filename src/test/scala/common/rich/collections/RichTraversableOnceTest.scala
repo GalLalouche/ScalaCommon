@@ -7,8 +7,8 @@ import scala.collection.mutable.ArrayBuffer
 
 import scalaz.Semigroup
 
-import common.AuxSpecs
 import common.rich.collections.RichTraversableOnce._
+import common.test.AuxSpecs
 
 class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
   "filterNot" in {

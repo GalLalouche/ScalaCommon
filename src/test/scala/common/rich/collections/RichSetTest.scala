@@ -1,13 +1,14 @@
 package common.rich.collections
 
-import common.AuxSpecs
-import common.rich.collections.RichSet._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.util.Buildable
 import org.scalactic.anyvals.PosZInt._
 import org.scalatest.PropSpec
 import org.scalatest.prop.PropertyChecks
+
+import common.rich.collections.RichSet._
+import common.test.AuxSpecs
 
 class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
   implicit override val generatorDrivenConfig =

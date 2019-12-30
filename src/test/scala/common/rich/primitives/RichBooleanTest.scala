@@ -2,8 +2,8 @@ package common.rich.primitives
 
 import org.scalatest.FreeSpec
 
-import common.AuxSpecs
 import common.rich.primitives.RichBoolean._
+import common.test.AuxSpecs
 
 class RichBooleanTest extends FreeSpec with AuxSpecs {
   "richBoolean" - {

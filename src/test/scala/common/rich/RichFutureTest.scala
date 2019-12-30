@@ -6,8 +6,8 @@ import org.scalatest.FreeSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import common.AuxSpecs
 import common.rich.RichFuture._
+import common.test.AuxSpecs
 
 class RichFutureTest extends FreeSpec with AuxSpecs {
   private implicit val ec: ExecutionContext =

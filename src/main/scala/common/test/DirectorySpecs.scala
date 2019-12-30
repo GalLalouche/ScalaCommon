@@ -1,16 +1,16 @@
-package common
+package common.test
 
-import common.rich.RichT._
-import common.rich.collections.RichTraversableOnce._
-import common.rich.path.RichFile._
-import common.rich.path.{Directory, RichFile, RichPath, TempDirectory}
 import org.scalatest.{BeforeAndAfter, Suite}
+
+import common.rich.collections.RichTraversableOnce._
+import common.rich.path.{Directory, RichFile, RichPath, TempDirectory}
+import common.rich.RichT._
+import common.rich.path.RichFile._
 
 /**
  * Several helping methods and fixtures for testing classes that works with IO
  */
-trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
-  self: Suite =>
+trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {self: Suite =>
   after {
     if (tempDir.exists())
       tempDir.clear()
@@ -52,5 +52,5 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {
       assert(dir2Subdir.isDefined, s"<$dir2> has no sub directory with name <$subdir1Name>")
       assertSameContents(dir1Subdir, dir2Subdir.get, assertSameName = true)
     })
- }
+  }
 }
