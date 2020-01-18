@@ -92,6 +92,8 @@ object RichString {
     def simpleReplace(search: String, replace: String): String = StringUtils.replace($, search, replace)
     /** Performs a literal string removal with compiling a regular expression. */
     def simpleRemove(search: String): String = simpleReplace(search, "")
+
+    def split(p: Pattern): Array[String] = p split $
   }
 
   private val WrappingQuotes = Pattern compile """^["']+|["']+$"""
