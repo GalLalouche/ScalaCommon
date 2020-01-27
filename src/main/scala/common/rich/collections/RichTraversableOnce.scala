@@ -1,9 +1,10 @@
 package common.rich.collections
 
 import scala.collection.TraversableOnce
+import scala.language.higherKinds
 import scala.math.log10
 
-import scalaz.{Functor, Semigroup}
+import scalaz.{Functor, Monad, Semigroup}
 import scalaz.std.anyVal._
 import scalaz.std.list._
 import scalaz.std.vector.vectorInstance
@@ -131,6 +132,19 @@ object RichTraversableOnce {
     }
 
     def mapFirst[B](f: A => Option[B]): Option[B] = $.toIterator.flatMap(f(_)).headOption()
+    def mapFirstF[G[_] : Monad, B](f: A => G[Option[B]]): G[Option[B]] = {
+      val iterator = $.toIterator
+      def aux(): G[Option[B]] =
+        if (iterator.hasNext.isFalse)
+          implicitly[Monad[G]].pure(None)
+        else {
+          implicitly[Monad[G]].bind(f(iterator.next)) {
+            case None => aux()
+            case e => implicitly[Monad[G]].pure(e)
+          }
+        }
+      aux()
+    }
 
     def contains(a: A): Boolean = $.exists(_ == a)
 

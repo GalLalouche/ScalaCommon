@@ -5,9 +5,10 @@ import org.scalatest.OptionValues._
 
 import scala.collection.mutable.ArrayBuffer
 
-import scalaz.Semigroup
+import scalaz.{Id, Semigroup}
 
 import common.rich.collections.RichTraversableOnce._
+import common.rich.RichT._
 import common.test.AuxSpecs
 
 class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
@@ -133,6 +134,17 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     "Returns first Some" in {
       Iterator.iterate(1)(_ + 1).mapFirst(e => if (e > 10) Some((e * e).toString) else None)
           .value shouldReturn "121"
+    }
+  }
+  "mapFirstF" - {
+    "Empty Traverse returns None" in {
+      Vector.empty[Int].mapFirstF[Id.Id, Int](_ => ???) shouldReturn None
+    }
+    "Maps to None returns None" in {
+      Vector(1, 2, 3).mapFirstF[Id.Id, Int](_ => None) shouldReturn None
+    }
+    "Returns first non empty" in {
+      Stream.iterate("a")(_ + "a").mapFirstF[Id.Id, Int](e => e.length.optFilter(_ >= 5)) shouldReturn Some(5)
     }
   }
 
