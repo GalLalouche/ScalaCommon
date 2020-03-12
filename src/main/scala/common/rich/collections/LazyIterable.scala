@@ -1,8 +1,11 @@
 package common.rich.collections
 
-import common.rich.collections.RichIterator._
+import scala.language.higherKinds
 
-import scalaz.MonadPlus
+import common.rich.collections.RichIterator._
+import scalaz.std.stream.unfoldForestM
+import scalaz.syntax.monad._
+import scalaz.{Applicative, Monad, MonadPlus}
 
 /** Like Iterable, but its higher order methods don't invoke a builder. */
 class LazyIterable[+A](_iterator: => Iterator[A]) {
@@ -37,6 +40,14 @@ object LazyIterable {
   def iterate[A](a: => A)(f: A => A): LazyIterable[A] = new LazyIterable[A](Iterator.iterate(a)(f))
   def iterateOptionally[A](a: => A)(f: A => Option[A]): LazyIterable[A] =
     new LazyIterable[A](Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get))
+  import common.rich.RichT._
+  def iterateOptionallyM[A, M[_] : Monad](a: => A)(f: A => M[Option[A]]): M[LazyIterable[A]] = {
+    unfoldForestM[A, A, M](Stream(a))(a => f(a).map(e => (a, e match {
+      case None => Stream()
+      case Some(e) => Stream(e)
+    }))).map(_.head.flatten.iterator)
+        .map(new LazyIterable(_))
+  }
   def continually[A](a: => A): LazyIterable[A] = new LazyIterable[A](Iterator.continually(a))
   def apply[A](as: A*): LazyIterable[A] = from(as.iterator)
 
