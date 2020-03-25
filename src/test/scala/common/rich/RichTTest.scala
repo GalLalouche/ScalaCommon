@@ -3,6 +3,7 @@ package common.rich
 import org.scalatest.{FreeSpec, Matchers}
 
 import common.rich.RichT._
+import common.rich.RichTTest.MyException
 import common.test.AuxSpecs
 
 class RichTTest extends FreeSpec with AuxSpecs with Matchers {
@@ -50,37 +51,15 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
     }
 
     "only if" - {
-      "int" - {
-        "false" in {
-          5.onlyIf(false) shouldReturn 0
-        }
-        "true" in {
-          5.onlyIf(true) shouldReturn 5
-        }
+      "false" in {
+        5.onlyIf(false) shouldReturn None
       }
-      "double" - {
-        "false" in {
-          5.0.onlyIf(false) shouldReturn 0.0
-        }
-        "true" in {
-          5.0.onlyIf(true) shouldReturn 5.0
-        }
+      "true" in {
+        5.onlyIf(true) shouldReturn Some(5)
       }
-      "string" - {
-        "false" in {
-          "foobar".onlyIf(false) shouldReturn ""
-        }
-        "true" in {
-          "foobar".onlyIf(true) shouldReturn "foobar"
-        }
-      }
-      "classes" - {
-        "false" in {
-          List(1, 2, 3).onlyIf(false) shouldReturn null
-        }
-        "true" in {
-          List(1, 2, 3).onlyIf(true) shouldReturn List(1, 2, 3)
-        }
+      "Is lazy" in {
+        def nothing: Any = ???
+        nothing.onlyIf(false) shouldReturn None
       }
     }
 
@@ -167,8 +146,6 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
     }
   }
 
-  private case class MyException(s: String) extends Exception(s)
-
   "lazyT" - {
     "const" - {
       "returns t" in {
@@ -208,4 +185,8 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
       }
     }
   }
+}
+
+object RichTTest {
+  private case class MyException(s: String) extends Exception(s)
 }

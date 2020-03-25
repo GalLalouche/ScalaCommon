@@ -18,6 +18,8 @@ object RichT {
     java.lang.Short.TYPE -> classOf[java.lang.Short],
   )
 
+  // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
+  // This is used instead of a local class for performance.
   class __Mapper[T] private[RichT](e: T, p: T => Boolean) {
     @inline def to(f: T => T): T = if (p(e)) f(e) else e
     @inline def to(t: => T): T = if (p(e)) t else e
@@ -41,22 +43,6 @@ object RichT {
 
     @inline def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
     @inline def mapIf(p: Boolean): __Mapper[T] = new __Mapper[T]($, p.const)
-
-    // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
-    // This is used instead of a local class for performance.
-
-    /** Returns this if the condition is true; if not, returns the default value */
-    def onlyIf(b: Boolean): T = (
-        if (b) $
-        else $ match {
-          case _: Int => 0
-          case _: Long => 0L
-          case _: Double => 0.0
-          case _: Float => 0.0f
-          case _: String => ""
-          case _: Any => null
-        }).asInstanceOf[T]
-    def onlyIfNot(b: Boolean): T = onlyIf(b.isFalse)
 
     /** Apply some function to this and returns this. Side effects galore! */
     @inline def applyAndReturn(f: T => Any): T = {
@@ -107,6 +93,10 @@ object RichT {
   implicit class lazyT[T]($: => T) {
     def const[S]: S => T = _ => $
     def partialConst[S]: PartialFunction[S, T] = {case _ => $}
+
+    /** Returns this if the condition is true; if not, returns the default value */
+    def onlyIf(b: Boolean): Option[T] = if (b) Some($) else None
+    def onlyIfNot(b: Boolean): Option[T] = onlyIf(b.isFalse)
   }
 
   implicit class anyRefT[T <: AnyRef](private val $: T) extends AnyVal {

@@ -9,6 +9,9 @@ import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.duration.Duration
 
+import scalaz.std.string.stringInstance
+import common.rich.func.ToMoreMonoidOps._
+
 import common.rich.collections.RichTraversableOnce._
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
@@ -54,10 +57,10 @@ trait AuxSpecs extends Matchers {self: Suite =>
         val base =
           s"${simplify(actualFreqs)} isn't the same as ${simplify(otherFreqs)}."
         val missingStr =
-          s"\nIt is missing: ${"      ".onlyIf(extra.nonEmpty)}${simplify(missing)}.".onlyIf(missing.nonEmpty)
+          s"\nIt is missing: ${"      ".monoidFilter(extra.nonEmpty)}${simplify(missing)}.".monoidFilter(missing.nonEmpty)
         val extraStr =
           s"\n${if (missing.nonEmpty) "And" else "It"} has extra items: ${simplify(extra)}."
-              .onlyIf(extra.nonEmpty)
+              .monoidFilter(extra.nonEmpty)
         // While it is missing a space, it only exists if missing is empty, so there's nothing to
         // horizontally-align anyway.
         base + missingStr + extraStr
