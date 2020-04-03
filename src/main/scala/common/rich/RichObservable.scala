@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import rx.lang.scala.{Observable, Observer}
 
 import scala.collection.generic.CanBuildFrom
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.higherKinds
 
 object RichObservable {
@@ -50,8 +50,14 @@ object RichObservable {
       promise.future
     }
 
-    def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] =
-      $.flatMapIterable(ev)
+    def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] = $.flatMapIterable(ev)
+
+    /** Note that if the future action fails, the returned Observable will fail as well. */
+    def doOnNextAsync(f: A => Future[_])(implicit ec: ExecutionContext): Observable[A] = $.flatMap(a =>
+      Observable
+          .from(f(a))
+          .map(_ => a)
+    )
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
