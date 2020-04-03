@@ -4,7 +4,7 @@ import scala.Ordering.Implicits._
 import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
 
-import scalaz.{Foldable, MonadError, PlusEmpty}
+import scalaz.{Applicative, Foldable, MonadError, Monoid, PlusEmpty}
 import scalaz.syntax.foldable.ToFoldableOps
 
 import common.rich.primitives.RichBoolean._
@@ -47,6 +47,11 @@ trait ToMoreFoldableOps {
       mb.toVector
     }
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
+    def asum[M[_], B](implicit applicativeEv: A =:= M[B],
+        applicative: Applicative[M],
+        monoid: Monoid[B],
+    ): M[B] =
+      Foldable[F].foldLeft($, applicative.pure(monoid.zero))(applicative.apply2(_, _)(monoid.append(_, _)))
   }
 }
 

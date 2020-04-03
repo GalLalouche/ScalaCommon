@@ -6,6 +6,9 @@ import scala.language.higherKinds
 
 import scalaz.Foldable
 import scalaz.std.list.listInstance
+import scalaz.std.option.optionInstance
+import scalaz.std.stream.streamInstance
+import scalaz.std.string.stringInstance
 import scalaz.std.vector.vectorInstance
 import common.rich.func.MoreIterableInstances._
 import common.rich.func.MoreSeqInstances._
@@ -44,6 +47,7 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   "headOpt" - {
     "empty" in {Seq().headOpt shouldReturn None}
     "nonEmpty" in {Seq(1, 2, 3).headOpt shouldReturn Some(1)}
+    "infinite" in {Stream.iterate(1)(_ + 1).headOpt shouldReturn Some(1)}
   }
 
   "topK" - {
@@ -59,5 +63,8 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   }
   "bottomK" in {
     Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
+  }
+  "asum" in {
+    Vector(Option("foo"), Option("moo"), Option("bar")).asum.get shouldReturn "foomoobar"
   }
 }
