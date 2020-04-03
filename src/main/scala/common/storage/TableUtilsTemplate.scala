@@ -1,15 +1,15 @@
 package common.storage
 
-import common.storage.TableUtils.{Cleared, ClearOrCreateResult, Created}
-
 import scala.concurrent.{ExecutionContext, Future}
 
-import scalaz.std.FutureInstances
-import scalaz.syntax.{ToBindOps, ToFunctorOps}
+import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind.ToBindOps
+import scalaz.syntax.functor.ToFunctorOps
+
+import common.storage.TableUtils.{Cleared, ClearOrCreateResult, Created}
 
 /** Provides overrides requiring an ExecutionContext since the TableUtils trait can't have implicit parameters. */
-abstract class TableUtilsTemplate(implicit ec: ExecutionContext) extends TableUtils
-    with FutureInstances with ToFunctorOps with ToBindOps {
+abstract class TableUtilsTemplate(implicit ec: ExecutionContext) extends TableUtils {
   override def createTableIfNotExists(): Future[Boolean] =
     doesTableExist.ifM(Future.successful(false), createTable() >| true)
   override def clearOrCreateTable(): Future[ClearOrCreateResult] =

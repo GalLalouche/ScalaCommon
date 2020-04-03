@@ -2,22 +2,23 @@ package common.rich.collections
 
 import java.util
 
-import common.rich.func.ToMoreFoldableOps._
-import common.rich.primitives.RichBoolean._
-import common.rich.RichT._
-
 import scala.language.higherKinds
 
 import scalaz.{Foldable, Plus, Semigroup}
-import scalaz.std.OptionInstances
-import scalaz.syntax.{ToFoldableOps, ToSemigroupOps}
+import scalaz.std.option.optionInstance
+import scalaz.syntax.foldable.ToFoldableOps
+import scalaz.syntax.semigroup.ToSemigroupOps
+import common.rich.func.ToMoreFoldableOps._
+
+import common.rich.primitives.RichBoolean._
+import common.rich.RichT._
 
 object RichMap {
   implicit class richJavaMap[K, V](private val $: util.Map[K, V]) {
     /** *Not* inherently thread-safe. Use ConcurrentHashMap if you need one. */
     def getOrPutIfAbsent(k: K, v: => V): V = {
       if ($.containsKey(k).isFalse) // Not using putIfAbsent since its strict in its argument
-        $.put(k, v)
+      $.put(k, v)
       $.get(k)
     }
 
@@ -37,8 +38,7 @@ object RichMap {
     }
   }
 
-  implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V])
-      extends ToSemigroupOps with OptionInstances {
+  implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V]) {
     def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
     def upsert[V2 >: V : Semigroup](kv: (K, V2)): Map[K, V2] = upsert(kv._1, kv._2)
     def upsert[V2 >: V : Semigroup](k: K, v: => V2): Map[K, V2] =
@@ -51,12 +51,12 @@ object RichMap {
     def merge(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup merge other
     def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup mergeIntersecting other
   }
-  implicit class richFoldableMap[K, V[_] : Foldable, A]($: Map[K, V[A]]) extends ToFoldableOps {
+  implicit class richFoldableMap[K, V[_] : Foldable, A]($: Map[K, V[A]]) {
     def flattenValues: Seq[(K, A)] = $.toSeq.flatMap(e => e._2.toList.map(e._1.->))
     /** Complexity: O(totalSize), which is pretty crappy */
     def totalSizeSlow: Int = $.values.map(_.length).sum
   }
-  implicit class richTraversableMap[K, A]($: Map[K, Traversable[A]]) extends ToFoldableOps {
+  implicit class richTraversableMap[K, A]($: Map[K, Traversable[A]]) {
     /** Potentially faster for traversables whose size operation is O(1), e.g., Vector or Set. */
     def totalSize: Int = $.values.map(_.size).sum
   }
