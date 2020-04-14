@@ -7,6 +7,7 @@ import org.scalatest.exceptions.TestFailedException
 import scala.concurrent.Future
 
 import scalaz.std.scalaFuture.futureInstance
+import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.OptionT
 
@@ -35,4 +36,15 @@ trait AsyncAuxSpecs extends AuxSpecs {self: AsyncTestSuite =>
     def mapValue(f: A => Assertion): Future[Assertion] = $.run.map(f apply _.value)
     def shouldEventuallyReturnNone(): Future[Assertion] = $.run.map(_ shouldReturn None)
   }
+  def checkAll(f1: => Future[Assertion], f2: => Future[Assertion]): Future[Assertion] =
+    f1 >> f2
+  def checkAll(
+      f1: => Future[Assertion], f2: => Future[Assertion], f3: => Future[Assertion]): Future[Assertion] =
+    f1 >> f2 >> f3
+  def checkAll(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+      f3: => Future[Assertion],
+      f4: => Future[Assertion],
+  ): Future[Assertion] = f1 >> f2 >> f3 >> f4
 }
