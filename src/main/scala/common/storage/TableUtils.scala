@@ -1,8 +1,8 @@
 package common.storage
 
-import common.storage.TableUtils.ClearOrCreateResult
-
 import scala.concurrent.Future
+
+import common.storage.TableUtils.ClearOrCreateResult
 
 /** SQL oriented functions for handling table creation and destruction. */
 trait TableUtils {

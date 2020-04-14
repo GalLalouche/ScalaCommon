@@ -1,11 +1,11 @@
 package common.storage
 
-import common.rich.func.ToMoreFoldableOps._
-import scalaz.std.option.optionInstance
+import scala.concurrent.{ExecutionContext, Future}
+
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind._
-
-import scala.concurrent.{ExecutionContext, Future}
+import scalaz.OptionT
+import common.rich.func.RichOptionT._
 
 /** Provides overrides since the TableUtils trait can't have implicit parameters. */
 abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extends Storage[Key, Value] {
@@ -13,12 +13,15 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
   protected def internalDelete(k: Key): Future[_]
   protected def internalForceStore(k: Key, v: Value): Future[_]
 
-  override def forceStore(k: Key, v: Value): Future[Option[Value]] = load(k) `<*ByName` internalForceStore(k, v)
-  override def store(k: Key, v: Value): Future[Unit] = storeMultiple(List(k -> v))
-  override def mapStore(k: Key, f: Value => Value, default: => Value): Future[Option[Value]] = for {
-    loadedValue <- load(k)
-    orDefault = loadedValue.mapHeadOrElse(f, default)
-    result <- forceStore(k, orDefault)} yield result
+  override def forceStore(k: Key, v: Value) =
+  // Since load can return None, it's necessary to run it so the internalForceStore will be computed.
+    OptionT(load(k).run `<*ByName` internalForceStore(k, v))
+  override def store(k: Key, v: Value) = storeMultiple(List(k -> v))
+  override def mapStore(k: Key, f: Value => Value, default: => Value) = for {
+    value <- load(k).map(f).|(default).liftSome
+    result <- forceStore(k, value)
+  } yield result
 
-  override def delete(k: Key): Future[Option[Value]] = load(k) `<*ByName` internalDelete(k)
+  override def delete(k: Key) = load(k) `<*ByName` internalDelete(k).liftSome
+  override def exists(k: Key): Future[Boolean] = load(k).isDefined
 }

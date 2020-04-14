@@ -8,6 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
+import common.rich.func.ToMoreFunctorOps._
 
 abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) extends
     StorageTemplate[Key, Value] {
@@ -35,7 +36,7 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
   override def storeMultiple(kvs: Seq[(Key, Value)]) =
     db.run(tableQuery ++= kvs.map(e => toEntity(e._1, e._2))).void
   override def load(k: Key) =
-    db.run(tableQuery.filter(toId(_) === extractId(k)).result).map(_.headOption map extractValue)
+    db.run(tableQuery.filter(toId(_) === extractId(k)).result).toOptionTF(_.headOption map extractValue)
 
   override def utils = new TableUtilsTemplate() {
     override def createTable(): Future[_] = db run tableQuery.schema.create

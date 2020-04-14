@@ -1,7 +1,6 @@
 package common.storage
 
 import org.scalatest.AsyncFreeSpec
-import org.scalatest.OptionValues._
 
 import scala.concurrent.Future
 
@@ -62,9 +61,9 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
       "when table exists, clears the table" in {
         $.createTable() >>
             table.store(2, "foo") >>
-            table.load(2).map(_.value shouldReturn "foo") >>
+            table.load(2).mapValue(_ shouldReturn "foo") >>
             $.clearTable() >>
-            table.load(2).map(_ shouldReturn None)
+            table.load(2).shouldEventuallyReturnNone()
       }
     }
     "drop" - {
