@@ -8,11 +8,12 @@ import scala.concurrent.Future
 
 import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
+import scalaz.OptionT
 
 import common.rich.RichFuture._
 
 trait AsyncAuxSpecs extends AuxSpecs {self: AsyncTestSuite =>
-  implicit class richFutureSpecs[A]($: Future[_]) {
+  implicit class richFutureSpecs($: Future[_]) {
     def shouldNotFail(): Future[Assertion] = $ >| Succeeded
     def shouldFail(): Future[Assertion] = {
       val stackTrace = Thread.currentThread.getStackTrace.drop(2)
@@ -27,5 +28,11 @@ trait AsyncAuxSpecs extends AuxSpecs {self: AsyncTestSuite =>
       }
     }
     def checkFailure(f: Throwable => Assertion): Future[Assertion] = $.toTry.map(_.failure.exception).map(f)
+  }
+  implicit class richOptionTFutureSpecs[A]($: OptionT[Future, A]) {
+    import org.scalatest.OptionValues._
+
+    def mapValue(f: A => Assertion): Future[Assertion] = $.run.map(f apply _.value)
+    def shouldEventuallyReturnNone(): Future[Assertion] = $.run.map(_ shouldReturn None)
   }
 }
