@@ -10,6 +10,7 @@ import org.scalatest.exceptions.TestFailedException
 import scala.concurrent.duration.Duration
 
 import scalaz.std.string.stringInstance
+import scalaz.Monoid
 import common.rich.func.ToMoreMonoidOps._
 
 import common.rich.collections.RichTraversableOnce._
@@ -139,4 +140,9 @@ trait AuxSpecs extends Matchers {self: Suite =>
 
   def getResourceFile(name: String): File = new File(getClass.getResource(name).getFile)
   implicit def genToArbitrary[A: Gen]: Arbitrary[A] = Arbitrary(implicitly[Gen[A]])
+
+  implicit object AssertionMonoid extends Monoid[Assertion] {
+    override def zero: Assertion = Succeeded
+    override def append(f1: Assertion, f2: => Assertion): Assertion = f1 && f2
+  }
 }
