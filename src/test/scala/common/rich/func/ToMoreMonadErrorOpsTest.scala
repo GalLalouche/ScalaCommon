@@ -2,70 +2,12 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
-import scalaz.MonadError
 import common.rich.func.ToMoreMonadErrorOps._
 
 import common.rich.RichT._
 import common.test.AuxSpecs
 
-private object ToMoreMonadErrorOpsTest {
-  private sealed trait BoxOrMsg[+T] {
-    def get: T
-    def getFailure: String
-  }
-  private case class Box[T](get: T) extends BoxOrMsg[T] {
-    override def getFailure: String = throw new Exception(s"Box <$this> isn't a failure")
-  }
-  private case class Msg(getFailure: String) extends BoxOrMsg[Nothing] {
-    override def get: Nothing = throw new Exception(s"Error <$this> isn't a box")
-  }
-  private object BoxOrMsg {
-    implicit object MonadErrorImpl extends MonadError[BoxOrMsg, String] {
-      override def raiseError[A](e: String): BoxOrMsg[A] = Msg(e)
-      override def handleError[A](fa: BoxOrMsg[A])(f: String => BoxOrMsg[A]): BoxOrMsg[A] =
-        fa match {
-          case b@Box(_) => b
-          case Msg(e) => f(e)
-        }
-      override def bind[A, B](fa: BoxOrMsg[A])(f: A => BoxOrMsg[B]): BoxOrMsg[B] =
-        fa match {
-          case e@Msg(_) => e
-          case Box(e) => f(e)
-        }
-      override def point[A](a: => A): BoxOrMsg[A] = Box(a)
-    }
-  }
-
-  private sealed trait ContainerOrError[+T] {
-    def get: T
-    def getFailure: Throwable
-  }
-  private case class Container[T](get: T) extends ContainerOrError[T] {
-    override def getFailure: Throwable = throw new Exception(s"Box <$this> isn't a failure")
-  }
-  private case class Error(getFailure: Throwable) extends ContainerOrError[Nothing] {
-    override def get: Nothing = throw new Exception(s"Error <$this> isn't a box")
-  }
-  private object ContainerOrError {
-    implicit object MonadErrorImpl extends MonadError[ContainerOrError, Throwable] {
-      override def raiseError[A](e: Throwable): ContainerOrError[A] = Error(e)
-      override def handleError[A](fa: ContainerOrError[A])(f: Throwable => ContainerOrError[A]) =
-        fa match {
-          case e@Container(_) => e
-          case Error(t) => f(t)
-        }
-      override def bind[A, B](fa: ContainerOrError[A])(f: A => ContainerOrError[B]) = fa match {
-        case e@Error(_) => e
-        case Container(e) => f(e)
-      }
-      override def point[A](a: => A): ContainerOrError[A] = Container(a)
-    }
-  }
-}
-
 class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
-  import common.rich.func.ToMoreMonadErrorOpsTest._
-
   private lazy val unusedError: String = ???
   private def is(expected: Int)(actual: Int) =
     if (actual == expected) None else Some(s"Is not $expected")
