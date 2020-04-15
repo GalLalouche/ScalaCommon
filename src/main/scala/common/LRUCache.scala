@@ -1,7 +1,7 @@
 package common
 
 /**
- * An mutable LRU Cache implementation
+ * A mutable LRU Cache implementation. *not* thread-safe.
  * @param maxSize the maximum size of the cache.
  */
 class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
@@ -13,7 +13,7 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
     assert(keyToIndex.size <= maxSize, s"size was ${keyToIndex.size} when maxSize is $maxSize")
   }
 
-  private def checkMemory: Unit = {
+  private def checkMemory(): Unit = {
     if (keyToIndex.size > maxSize)
       this -= keyToIndex.head._1
     verifyConsistency
@@ -21,7 +21,7 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
 
   override def +=(kv: (K, V)) = {
     keyToIndex(kv._1) = kv._2
-    checkMemory
+    checkMemory()
     this
   }
   override def -=(key: K) = {
@@ -32,7 +32,7 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
   override def iterator = keyToIndex.iterator
   override def get(key: K) = keyToIndex.get(key)
 
-  override def contains(key: K) = {
+  override def contains(key: K) =
     if (keyToIndex contains key) {
       val value = this (key)
       this -= key
@@ -40,5 +40,4 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
       true
     } else
       false
-  }
 }
