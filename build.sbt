@@ -24,6 +24,7 @@ lazy val scalaCommon = (project in file("."))
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
       ),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
+      addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
     ).settings(scalacOptions in(Compile, doc) ++= Vector(
   "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
 ))

@@ -22,16 +22,13 @@ object RichOptionT {
     def get(implicit ev: MonadError[F, Throwable]): F[A] = orError[Throwable](new NoSuchElementException)
   }
 
-  // I.e., Option[A] ~> OptionT[F, A]
-  def app[F[_] : Point]: Option ~> ({type λ[α] = OptionT[F, α]})#λ =
-    new (Option ~> ({type λ[α] = OptionT[F, α]})#λ) {
-      override def apply[A](fa: Option[A]) = OptionT(Point[F].point(fa))
-    }
+  def app[F[_] : Point]: Option ~> OptionT[F, *] = new (Option ~> OptionT[F, *]) {
+    override def apply[A](fa: Option[A]) = OptionT(Point[F].point(fa))
+  }
   // An alternative to OptionT.some that requires a point rather than a full Applicative.
-  def pointSome[F[_] : Point]: Id ~> ({type λ[α] = OptionT[F, α]})#λ =
-    new (Id ~> ({type λ[α] = OptionT[F, α]})#λ) {
-      override def apply[A](a: A) = OptionT(Point[F].point(Some(a)))
-    }
+  def pointSome[F[_] : Point]: Id ~> OptionT[F, *] = new (Id ~> OptionT[F, *]) {
+    override def apply[A](a: A) = OptionT(Point[F].point(Some(a)))
+  }
 
   def when[F[_] : Monad, A](b: Boolean)(a: => F[A]): OptionT[F, A] = whenM(b.pure)(a)
   def whenM[F[_] : Monad, A](bm: F[Boolean])(a: => F[A]): OptionT[F, A] = for {
