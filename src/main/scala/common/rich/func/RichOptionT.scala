@@ -2,7 +2,7 @@ package common.rich.func
 
 import scala.language.{higherKinds, reflectiveCalls}
 
-import scalaz.{~>, Functor, Monad, OptionT}
+import scalaz.{~>, Functor, Monad, MonadError, OptionT}
 import scalaz.Id.Id
 import scalaz.syntax.applicative.ApplicativeIdV
 import scalaz.syntax.functor.ToFunctorOps
@@ -15,6 +15,11 @@ object RichOptionT {
     def subFlatMap[B](f: A => Option[B])(implicit F: Functor[F]): OptionT[F, B] =
       OptionT(F.map($.run)(_ flatMap f))
     def ||||(other: => F[A])(implicit ev: Monad[F]): F[A] = $ getOrElseF other
+    def orError[S](s: => S)(implicit ev: MonadError[F, S]): F[A] = ev.bind($.run) {
+      case Some(value) => Monad[F].point(value)
+      case None => ev.raiseError(s)
+    }
+    def get(implicit ev: MonadError[F, Throwable]): F[A] = orError[Throwable](new NoSuchElementException)
   }
 
   // I.e., Option[A] ~> OptionT[F, A]
