@@ -2,9 +2,9 @@ package common.storage
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
+import common.rich.func.BetterFutureInstances._
 
 import common.storage.TableUtils.{Cleared, ClearOrCreateResult, Created}
 

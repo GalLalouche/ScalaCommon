@@ -2,8 +2,8 @@ package common.storage
 
 import org.scalatest.AsyncFreeSpec
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
+import common.rich.func.BetterFutureInstances._
 
 import common.rich.RichFuture._
 import common.rich.collections.RichTraversableOnce._

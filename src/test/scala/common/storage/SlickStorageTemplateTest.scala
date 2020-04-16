@@ -2,8 +2,8 @@ package common.storage
 
 import org.scalatest.AsyncFreeSpec
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind.ToBindOps
+import common.rich.func.BetterFutureInstances._
 
 import common.test.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 
@@ -36,9 +36,9 @@ class SlickStorageTemplateTest extends AsyncFreeSpec with AsyncAuxSpecs with Bef
     "forceStore" - {
       "returns None when no previous value existed" in {
         table.store(1, "foo") >> checkAll(
-            table.forceStore(2, "bar").shouldEventuallyReturnNone(),
-            table.load(1).mapValue(_ shouldReturn "foo"),
-            table.load(2).mapValue(_ shouldReturn "bar"),
+          table.forceStore(2, "bar").shouldEventuallyReturnNone(),
+          table.load(1).mapValue(_ shouldReturn "foo"),
+          table.load(2).mapValue(_ shouldReturn "bar"),
         )
       }
       "returns previous value when it existed" in {

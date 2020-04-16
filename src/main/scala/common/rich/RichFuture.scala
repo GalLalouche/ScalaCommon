@@ -4,7 +4,7 @@ import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
-import scalaz.std.scalaFuture.futureInstance
+import common.rich.func.BetterFutureInstances._
 import common.rich.func.ToMoreFunctorOps._
 
 import common.rich.RichT._
@@ -12,8 +12,8 @@ import common.rich.RichT._
 object RichFuture {
   implicit class richFuture[A]($: Future[A])(implicit ec: ExecutionContext) {
     def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
-    def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if(t.isSuccess) f else ()))
-    def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if(t.isFailure) f else ()))
+    def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isSuccess) f else ()))
+    def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isFailure) f else ()))
     def get: A = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)

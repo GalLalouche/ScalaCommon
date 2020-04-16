@@ -1,15 +1,15 @@
 package common.rich.func
 
-import scala.concurrent.Future
 import scala.language.higherKinds
+
+import scalaz.Applicative
 
 trait Point[F[_]] {
   def point[A](a: => A): F[A]
 }
-object Point extends PointLowPriorityImplicits {
-  // The default point for Future in Scalaz is async for some odd reason.
-  implicit object FuturePoint extends Point[Future] {
-    override def point[A](a: => A): Future[A] = Future.successful(a)
-  }
+object Point {
   @inline def apply[F[_]](implicit F: Point[F]): Point[F] = F
+  implicit def applicativeToPoint[F[_] : Applicative]: Point[F] = new Point[F] {
+    override def point[A](a: => A) = implicitly[Applicative[F]].point(a)
+  }
 }

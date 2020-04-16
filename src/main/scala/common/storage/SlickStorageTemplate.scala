@@ -6,8 +6,8 @@ import slick.jdbc.meta.MTable
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.functor.ToFunctorOps
+import common.rich.func.BetterFutureInstances._
 import common.rich.func.ToMoreFunctorOps._
 
 abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) extends

@@ -3,9 +3,9 @@ package common.rich.func
 import org.scalatest.AsyncFreeSpec
 import rx.lang.scala.Observable
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.std.vector.vectorInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
+import common.rich.func.BetterFutureInstances._
 import common.rich.func.MoreObservableInstances._
 import common.rich.func.ToMoreFunctorOps._
 

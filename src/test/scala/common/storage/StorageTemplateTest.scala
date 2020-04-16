@@ -5,8 +5,8 @@ import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
 import scala.collection.mutable
 import scala.concurrent.Future
 
-import scalaz.std.scalaFuture.futureInstance
 import scalaz.syntax.bind._
+import common.rich.func.BetterFutureInstances._
 import common.rich.func.RichOptionT
 
 import common.test.AsyncAuxSpecs

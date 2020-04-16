@@ -4,7 +4,7 @@ import org.scalatest.AsyncFreeSpec
 
 import scala.concurrent.Future
 
-import scalaz.std.scalaFuture.futureInstance
+import common.rich.func.BetterFutureInstances._
 
 import common.test.AsyncAuxSpecs
 
