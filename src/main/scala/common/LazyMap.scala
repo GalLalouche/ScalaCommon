@@ -10,8 +10,8 @@ import common.rich.RichT._
 class LazyMap[K, V] private(f: K => V, currentMap: Map[K, V]) extends Function[K, V] {
   /**
    * Gets the value for the key, and a (possibly-updated) map with an association with the key and value.
-   * If the key did not exist in the map, the updated map will be returned. Other wise, the current map will
-   * be returned.
+   * If the key did not exist in the map, the updated map will be returned. Otherwise, the current map will be
+   * returned.
    */
   def update(k: K): (V, LazyMap[K, V]) = {
     val currentValue = currentMap.get(k)

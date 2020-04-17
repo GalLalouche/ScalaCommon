@@ -1,4 +1,3 @@
 package common.os
 
-case class ProcessInfo(name: String, args: String, pid: Int) {
-}
+case class ProcessInfo(name: String, args: String, pid: Int)

@@ -2,19 +2,21 @@ package common.os
 
 import java.io.File
 
+import scala.sys.process._
+
 import common.rich.RichT._
 import common.rich.path.Directory
 import common.rich.path.RichFile._
 import common.rich.primitives.RichString._
 
-import scala.sys.process._
-
 object RichWindows extends RichOs {
   override def getAssociation(file: File): String = {
     val extension = file.extension
     val assoc = Process("cmd /c assoc ." + extension).!!.split("=")(1)
-    val macroedPath = Process("cmd /c ftype " + assoc).!!.split("=")(1).trim.captureWith( """.*?"?([^"]+)"?.*""".r)
-    val actualPath: String = macroedPath.substring(0, macroedPath.indexOf("%1").mapIf(_ < 0).to(macroedPath.length + 1) - 1)
+    val macroedPath =
+      Process("cmd /c ftype " + assoc).!!.split("=")(1).trim.captureWith(""".*?"?([^"]+)"?.*""".r)
+    val actualPath: String =
+      macroedPath.substring(0, macroedPath.indexOf("%1").mapIf(_ < 0).to(macroedPath.length + 1) - 1)
     Process("cmd /c dir \"" + actualPath + "\"").!!
         .split("\r?\n")
         .map(_.trim)
@@ -40,10 +42,8 @@ object RichWindows extends RichOs {
         }).map(e => ProcessInfo(e(0), e(1), e(2).toInt))
         .toVector
   }
-  override def kill(pid: Int) {
+  override def kill(pid: Int): Unit =
     Runtime.getRuntime.exec("taskkill /F /PID " + pid)
-  }
-  override def unzip(file: File, dir: Directory): Unit = {
+  override def unzip(file: File, dir: Directory): Unit =
     Seq("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.path).!!
-  }
 }

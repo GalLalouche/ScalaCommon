@@ -4,7 +4,7 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import scalaz.syntax.functor.ToFunctorOps
 import common.rich.func.BetterFutureInstances._
@@ -28,9 +28,9 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
   protected def toId(et: EntityTable): Rep[Id]
   protected def extractValue(e: Entity): Value
   /** If a previous value exists, override it. */
-  protected def internalForceStore(k: Key, v: Value): Future[_] =
+  override protected def internalForceStore(k: Key, v: Value) =
     db.run(tableQuery.insertOrUpdate(toEntity(k, v)))
-  protected def internalDelete(k: Key): Future[_] =
+  override protected def internalDelete(k: Key) =
     db.run(tableQuery.filter(toId(_) === extractId(k)).delete)
 
   override def storeMultiple(kvs: Seq[(Key, Value)]) =
@@ -39,10 +39,10 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
     db.run(tableQuery.filter(toId(_) === extractId(k)).result).toOptionTF(_.headOption map extractValue)
 
   override def utils = new TableUtilsTemplate() {
-    override def createTable(): Future[_] = db run tableQuery.schema.create
+    override def createTable() = db run tableQuery.schema.create
     override protected def forceDropTable() = db run tableQuery.schema.drop
-    override def clearTable(): Future[_] = db run tableQuery.delete
-    override def doesTableExist: Future[Boolean] =
+    override def clearTable() = db run tableQuery.delete
+    override def doesTableExist =
       db run MTable.getTables map (tables => tables.exists(_.name.name == tableQuery.baseTableRow.tableName))
   }
 }
