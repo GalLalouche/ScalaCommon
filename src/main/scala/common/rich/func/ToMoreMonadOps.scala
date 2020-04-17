@@ -3,16 +3,14 @@ package common.rich.func
 import scala.language.higherKinds
 
 import scalaz.Monad
+import scalaz.syntax.applicative.ApplicativeIdV
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 
 trait ToMoreMonadOps {
-  import scalaz.Leibniz.===
-
-  implicit class toMoreMonadOps[F[_] : Monad, A]($: F[A]) {
-    private def pure[B](e: B) = Monad.apply.pure(e)
-    def ifFalse(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = pure(Unit), ifFalse = f.void)
-    def ifTrue(f: F[_])(implicit ev: A === Boolean): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = pure(Unit))
+  implicit class toMonadBooleanOps[F[_] : Monad, A]($: F[Boolean]) {
+    def ifFalse(f: => F[_]): F[Unit] = $.ifM(ifTrue = ().pure, ifFalse = f.void)
+    def ifTrue(f: => F[_]): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = ().pure)
   }
 
   //TODO move below

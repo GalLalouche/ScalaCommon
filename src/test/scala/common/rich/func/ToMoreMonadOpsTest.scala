@@ -2,7 +2,9 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
-import scalaz.Monad
+import scalaz.{Monad, Writer}
+import scalaz.std.string.stringInstance
+import scalaz.WriterT.tell
 import common.rich.func.ToMoreMonadOps._
 
 import common.test.AuxSpecs
@@ -40,6 +42,20 @@ class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs {
     }
     "None" in {
       none.ifNoneTry(Box(42)).a shouldReturn 42
+    }
+  }
+
+  "conditionals" - {
+    type StringWriter[A] = Writer[String, A]
+    val writer: Writer[String, Unit] = tell("foo")
+    def wrap(b: Boolean) = Monad[StringWriter].point(b)
+    "ifTrue" - {
+      "true" in {wrap(true).ifTrue(writer).run._1 shouldReturn "foo"}
+      "false" in {wrap(false).ifTrue(???).run._1 shouldReturn ""}
+    }
+    "ifFalse" - {
+      "true" in {wrap(true).ifFalse(???).run._1 shouldReturn ""}
+      "false" in {wrap(false).ifFalse(writer).run._1 shouldReturn "foo"}
     }
   }
 }
