@@ -25,6 +25,7 @@ lazy val scalaCommon = (project in file("."))
       ),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
       addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
+      scalacOptions += "-Ypartial-unification",
     ).settings(scalacOptions in(Compile, doc) ++= Vector(
   "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
 ))
