@@ -28,6 +28,21 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
             .getFailure shouldBe a[NoSuchElementException]
       }
     }
+    "mFilterOpt" - {
+      val none: OptionT[BoxOrMsg, Int] = OptionT.none
+      val some: OptionT[BoxOrMsg, Int] = OptionT.some(42)
+      "None remains None" in {
+        none.mFilterOpt(_ => ???).run shouldReturn Box(None)
+      }
+      "Some" - {
+        "Pred is true returns self" in {
+          some.mFilterOpt(e => Box(e % 2 == 0)).run shouldReturn Box(Some(42))
+        }
+        "Pred is false returns None" in {
+          some.mFilterOpt(e => Box(e % 2 == 1)).run shouldReturn Box(None)
+        }
+      }
+    }
   }
 
   "conditionals" - {

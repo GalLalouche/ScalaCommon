@@ -5,10 +5,12 @@ import scala.language.{higherKinds, reflectiveCalls}
 import scalaz.{~>, Functor, Monad, MonadError, OptionT}
 import scalaz.Id.Id
 import scalaz.syntax.applicative.ApplicativeIdV
+import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.syntax.monad.ToMonadOps
 
 import common.rich.primitives.RichBoolean._
+import common.rich.RichT._
 
 object RichOptionT {
   implicit class richOptionT[F[_], A](private val $: OptionT[F, A]) extends AnyVal {
@@ -20,6 +22,11 @@ object RichOptionT {
       case None => ev.raiseError(s)
     }
     def get(implicit ev: MonadError[F, Throwable]): F[A] = orError[Throwable](new NoSuchElementException)
+
+    def mFilterOpt(p: A => F[Boolean])(implicit ev: Monad[F]): OptionT[F, A] = OptionT(for {
+      e <- $.run
+      b <- e.fold(false.pure)(p)
+    } yield e.filter(b.const))
   }
 
   def app[F[_] : Point]: Option ~> OptionT[F, *] = new (Option ~> OptionT[F, *]) {
