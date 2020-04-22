@@ -9,8 +9,8 @@ import scalaz.syntax.traverse.ToTraverseOps
 
 trait ToTraverseMonadPlusOps {
   implicit class toTraverseMonadPlusOps[F[_] : MonadPlus : Traverse, A](f: F[A]) {
-
-    def filterTraverse[G[_] : Applicative](p: A => G[Boolean]): G[F[A]] =
+    // Scalaz only provides functions for List and Vector for some reason.
+    def filterM[G[_] : Applicative](p: A => G[Boolean]): G[F[A]] =
       f.traverse(e => p(e).map(e -> _)).map(_.filter(_._2).tmap(_._1))
   }
 }
