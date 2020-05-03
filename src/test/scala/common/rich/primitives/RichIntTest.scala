@@ -46,6 +46,18 @@ class RichIntTest extends FreeSpec with AuxSpecs {
     5 perm 5 shouldReturn 120
   }
 
+  "padLeftZeros" - {
+    "throws if actual size is larger than minSize" in {
+      an[IllegalArgumentException] shouldBe thrownBy {123.padLeftZeros(2)}
+    }
+    "does nothing if length is already minSize" in {
+      123.padLeftZeros(3) shouldReturn "123"
+    }
+    "pads left" in {
+      123.padLeftZeros(5) shouldReturn "00123"
+    }
+  }
+
   "primes returns a stream of primes" in {
     RichInt.primes.take(10).toList shouldReturn List(2, 3, 5, 7, 11, 13, 17, 19, 23, 29)
   }

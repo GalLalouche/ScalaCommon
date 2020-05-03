@@ -1,7 +1,8 @@
 package common.rich.primitives
 
 import scala.annotation.tailrec
-import RichBoolean._
+
+import common.rich.primitives.RichBoolean._
 
 object RichInt {
   implicit class Rich(private val n: Int) extends AnyVal {
@@ -61,6 +62,15 @@ object RichInt {
       var $ = BigInt(1)
       (1 to other).foreach(_ => $ *= n)
       $
+    }
+
+    /** Throws if actual string length > minSize */
+    def padLeftZeros(minSize: Int): String = {
+      val $ = n.toString
+      val length = $.length
+      if (length > minSize)
+        throw new IllegalArgumentException(s"${$} is longer than <$minSize>")
+      "0".*(minSize - length) + $
     }
   }
   @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
