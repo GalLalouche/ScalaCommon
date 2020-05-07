@@ -4,10 +4,9 @@ import scala.language.higherKinds
 
 import scalaz.{-\/, \/, \/-, MonadError}
 import scalaz.std.option.optionInstance
-import scalaz.syntax.monadError.ToMonadErrorOps
-import scalaz.syntax.monad.ToMonadOps
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
+import scalaz.syntax.monadError.ToMonadErrorOps
 import common.rich.func.ToMoreMonadErrorOps.FilteredException
 
 import common.rich.RichT._
@@ -25,7 +24,12 @@ trait ToMoreMonadErrorOps {
       mapEither(e => if (p(e)) \/-(e) else -\/(error(e)))
     def mapError(f: S => S): F[A] = $ handleError f.andThen(F.raiseError)
     def collectError(f: PartialFunction[S, S]): F[A] =
-      $ handleError (e => f.lift(e).getOrElse(e) |> F.raiseError)
+      $.handleError(e => f.lift(e).getOrElse(e) |> F.raiseError)
+    def collectHandle(f: PartialFunction[S, A]): F[A] = collectHandleF(f.andThen(F.pure(_)))
+    def collectHandleF(f: PartialFunction[S, F[A]]): F[A] = foldEitherF {
+      case -\/(a) => f.lift(a) getOrElse F.raiseError(a)
+      case \/-(b) => F.pure(b)
+    }
     def listenError(f: S => Any): F[A] = mapError(_ applyAndReturn f)
     def filterMap(f: A => Option[S]): F[A] = mapEither(e => f(e).mapHeadOrElse(-\/.apply, \/-(e)))
     def mapEither[B](f: A => S \/ B): F[B] = for {

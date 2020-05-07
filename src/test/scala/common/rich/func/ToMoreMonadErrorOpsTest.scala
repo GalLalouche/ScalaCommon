@@ -1,5 +1,7 @@
 package common.rich.func
 
+import java.net.ConnectException
+
 import org.scalatest.FreeSpec
 
 import common.rich.func.ToMoreMonadErrorOps._
@@ -20,6 +22,29 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
       }
       "failure" in {
         failure.handleErrorFlat(_.length).get shouldReturn 7
+      }
+    }
+    "collectHandle" - {
+      "success" in {
+        success.collectHandle {case _ => ???}.get shouldReturn 42
+      }
+      "failure" - {
+        "partial doesn't handle" in {
+          failure.collectHandle {
+            case "foobar" => 54
+          }.getFailure shouldReturn "failure"
+        }
+        "partial handles" in {
+          failure.collectHandle {
+            case "failure" => 54
+          }.get shouldReturn 54
+        }
+        "Exception" in {
+          val e: ContainerOrError[Int] = Error(new ConnectException("Failed to connect"))
+          e.collectHandle {
+            case _: ConnectException => 42
+          }.get shouldReturn 42
+        }
       }
     }
     "orElse" - {
