@@ -79,13 +79,13 @@ object RichIterator {
      */
     def withPercentage(size: Int): Iterator[A] = {
       var lastPercentage = 0
-      withCounter(i => {
+      withCounter {i =>
         val currentPercentage = i * 100 / size
         if (currentPercentage > lastPercentage) {
           lastPercentage = currentPercentage
           Some(s"$currentPercentage% done")
         } else None
-      })
+      }
     }
 
     def zipWithIndex: Iterator[(A, Int)] = new AbstractIterator[(A, Int)] {

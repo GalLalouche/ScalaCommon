@@ -33,14 +33,14 @@ trait ToMoreFoldableOps {
     /** O(n * log(k)), where n is the size of the foldable. */
     def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
       val q = new java.util.PriorityQueue[A](k, ord.compare)
-      doForEach(next => {
+      doForEach {next =>
         if (q.size < k)
           q.add(next)
         else if (q.peek < next) {
           q.poll()
           q.add(next)
         }
-      })
+      }
       val mb = new ListBuffer[A]()
       while (q.isEmpty.isFalse)
         q.poll() +=: mb

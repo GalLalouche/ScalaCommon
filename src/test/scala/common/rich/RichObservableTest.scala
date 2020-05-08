@@ -67,11 +67,11 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "subscribeWithNotification" - {
       "Does not complete" in {
-        val o = Observable[Int](obs => {
+        val o = Observable[Int] {obs =>
           obs.onNext(1)
           obs.onNext(2)
           obs.onNext(3)
-        })
+        }
         val actual = ArrayBuffer[Int]()
         val f = o.subscribeWithNotification(new Observer[Int] {
           override def onNext(value: Int): Unit = actual += value
@@ -81,12 +81,12 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         actual shouldReturn ArrayBuffer(1, 2, 3)
       }
       "Completes" in {
-        val o = Observable[Int](obs => {
+        val o = Observable[Int] {obs =>
           obs.onNext(1)
           obs.onNext(2)
           obs.onNext(3)
           obs.onCompleted()
-        })
+        }
         val actual = ArrayBuffer[Int]()
         o.subscribeWithNotification(new Observer[Int] {
           override def onNext(value: Int): Unit = actual += value
@@ -94,12 +94,12 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
       }
       "Failure" in {
         val error = new Exception("foobar")
-        val o = Observable[Int](obs => {
+        val o = Observable[Int] {obs =>
           obs.onNext(1)
           obs.onNext(2)
           obs.onNext(3)
           obs.onError(error)
-        })
+        }
         val actual = ArrayBuffer[Int]()
         o.subscribeWithNotification(new Observer[Int] {
           override def onNext(value: Int): Unit = actual += value

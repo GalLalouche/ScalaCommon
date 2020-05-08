@@ -7,17 +7,15 @@ import common.rich.path.{Directory, RichFile, RichPath, TempDirectory}
 import common.rich.RichT._
 import common.rich.path.RichFile._
 
-/**
- * Several helping methods and fixtures for testing classes that works with IO
- */
+/** Several helping methods and fixtures for testing classes that works with IO */
 trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {self: Suite =>
+  protected val tempDir: TempDirectory = TempDirectory()
   after {
     if (tempDir.exists())
       tempDir.clear()
   }
-  val tempDir = TempDirectory()
-  lazy val tempFile = tempDir addFile "tempFile"
-  lazy val filledDir: Directory = {
+  protected lazy val tempFile: RichFile = tempDir addFile "tempFile"
+  protected lazy val filledDir: Directory = {
     val $ = tempDir addSubDir "foobar"
     $ addFile "foobar" write "stuff"
     val subDir = $ addSubDir "moo"
@@ -34,23 +32,23 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {self: Suite =>
     val dir2Files = dir1.files map RichFile.apply mapTo mapByName
     assert(dir1Files.size == dir2Files.size,
       s"dir1 <$dir1> doesn't have the same number of files as <$dir2>")
-    dir1Files.foreach(dir1File => {
+    dir1Files.foreach {dir1File =>
       val file1Name = dir1File.name
       val dir2File = dir2Files get file1Name
       assert(dir2File.isDefined, s"<$dir2> has no file with name <$file1Name>")
       assert(dir1File.hasSameContentAs(dir2File.get),
         s"file with name <$file1Name> has different contents in dirs <$dir1>, <$dir2>")
-    })
+    }
 
     val dir1Subdirs = dir1.dirs
     val dir2Subdirs = dir2.dirs |> mapByName
     assert(dir1Subdirs.size == dir2Subdirs.size,
       s"dir1 <$dir1> doesn't have the same number of sub directories as <$dir2>")
-    dir1Subdirs.foreach(dir1Subdir => {
+    dir1Subdirs.foreach {dir1Subdir =>
       val subdir1Name = dir1Subdir.name
       val dir2Subdir = dir2Subdirs get subdir1Name
       assert(dir2Subdir.isDefined, s"<$dir2> has no sub directory with name <$subdir1Name>")
       assertSameContents(dir1Subdir, dir2Subdir.get, assertSameName = true)
-    })
+    }
   }
 }

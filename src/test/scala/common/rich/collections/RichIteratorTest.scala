@@ -141,10 +141,10 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       val list = (1 to 100).toVector
       var x: Any = null
       val serTime = time {
-        list.iterator.map(e => {
+        list.iterator.map {e =>
           Thread sleep 1
           e * 2
-        }).toVector
+        }.toVector
       }
       val parTime = time {
         x = list.iterator.par().map(e => {

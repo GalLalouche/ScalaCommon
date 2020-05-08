@@ -19,11 +19,11 @@ object RichLinux extends RichOs {
       val indexOfCmd = ps.head.indexOf("CMD")
       ps
           .drop(1)
-          .map(e => {
+          .map {e =>
             val pid = e.trim.split("\\s+")(0).toInt
             val cmd = e.substring(indexOfCmd)
             pid -> cmd
-          })
+          }
           .toMap
     }
     val pidsToFullCmd = {
@@ -31,12 +31,12 @@ object RichLinux extends RichOs {
       val indexOfCmd = ps.head.indexOf("COMMAND")
       ps
           .drop(1)
-          .map(e => {
+          .map {e =>
             val pid = e.dropWhile(_ != ' ').trim.split("\\s+")(0)
                 .toInt
             val cmd = e.substring(indexOfCmd)
             pid -> cmd
-          })
+          }
           .toMap
     }
     (for ((pid, cmd) <- pidsToCmd; if pidsToFullCmd.contains(pid))

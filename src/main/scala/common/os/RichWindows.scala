@@ -34,12 +34,12 @@ object RichWindows extends RichOs {
         .tail
         .filter(_.length > 1)
         .toStream
-        .map(e => {
-          List(e.substring(0, secondIndex - 2),
-            e.substring(secondIndex, thirdIndex - 2),
-            e.substring(thirdIndex)
-          ).map(_.trim)
-        }).map(e => ProcessInfo(e(0), e(1), e(2).toInt))
+        .map(e => List(
+          e.substring(0, secondIndex - 2),
+          e.substring(secondIndex, thirdIndex - 2),
+          e.substring(thirdIndex),
+        ).map(_.trim)
+        ).map(e => ProcessInfo(e(0), e(1), e(2).toInt))
         .toVector
   }
   override def kill(pid: Int): Unit =

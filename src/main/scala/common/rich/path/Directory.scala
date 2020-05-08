@@ -40,7 +40,7 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
     def deleteAll(d: Directory) {
       System.gc()
       d.dirs.foreach(deleteAll)
-      d.files.foreach(x => {if (x.exists && x.delete.isFalse) println("could not delete: " + x)})
+      d.files.foreach(x => if (x.exists && x.delete.isFalse) println("could not delete: " + x))
       if (d.dir.exists && d.dir.delete.isFalse) {
         System.gc()
         println("could not delete: " + d.dir)

@@ -39,14 +39,14 @@ object RichTraversableOnce {
 
     /** Throws on repeat keys. */
     def mapBy[B](f: A => B): Map[B, A] =
-      $.foldLeft(Map[B, A]())((map, nextValue) => {
+      $.foldLeft(Map[B, A]()) {(map, nextValue) =>
         val key = f(nextValue)
         if (map.contains(key))
           throw new IllegalArgumentException(
             s"key <$key> is already used for value <${map(key)}>, " +
                 s"but is also requested as a key for value <$nextValue>")
         map + (key -> nextValue)
-      })
+      }
 
     /**
      * Performs a foreach iteration, running a function between each two items.
