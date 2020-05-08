@@ -60,4 +60,10 @@ class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
   "present" in {
     List(Option("foo"), None).present shouldReturn List("foo")
   }
+  "toGuard" in {
+    (for {
+      x <- List(1, 2, 3)
+      _ <- List(x % 2 == 0).toGuard
+    } yield x) shouldReturn List(2)
+  }
 }

@@ -34,6 +34,8 @@ trait ToMoreMonadPlusOps {
         }
       })
     }
+
+    def toGuard(implicit ev: A =:= Boolean): F[Unit] = $.filter(ev).void
   }
 }
 
