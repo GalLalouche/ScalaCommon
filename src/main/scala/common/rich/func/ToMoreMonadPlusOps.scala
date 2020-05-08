@@ -12,6 +12,7 @@ import common.rich.RichT._
 
 trait ToMoreMonadPlusOps {
   implicit class toMoreMonadPlusOps[A, F[_] : MonadPlus]($: F[A]) {
+    def filterNot(f: A => Boolean): F[A] = $.filter(f.andThen(!_))
     def tryMap[B](f: A => B): F[B] =
       $.map(e => Try(f(e)))
           .filter(_.isSuccess)
