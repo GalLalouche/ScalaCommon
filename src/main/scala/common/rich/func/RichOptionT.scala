@@ -29,9 +29,6 @@ object RichOptionT {
     } yield e.filter(b.const))
   }
 
-  def app[F[_] : Point]: Option ~> OptionT[F, *] = new (Option ~> OptionT[F, *]) {
-    override def apply[A](fa: Option[A]) = OptionT(Point[F].point(fa))
-  }
   // An alternative to OptionT.some that requires a point rather than a full Applicative.
   def pointSome[F[_] : Point]: Id ~> OptionT[F, *] = new (Id ~> OptionT[F, *]) {
     override def apply[A](a: A) = OptionT(Point[F].point(Some(a)))

@@ -3,9 +3,7 @@ package common.rich.primitives
 import scala.language.higherKinds
 import scala.util.{Failure, Success, Try}
 
-import scalaz.{Applicative, OptionT}
 import scalaz.std.option.optionInstance
-import common.rich.func.RichOptionT
 import common.rich.func.ToMoreFoldableOps._
 
 object RichOption {
@@ -14,6 +12,5 @@ object RichOption {
     def getOrThrow(errorMessage: => String): A = getOrThrow(new NoSuchElementException(errorMessage))
     def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = toTry(t).get
     def toTry(t: => Throwable): Try[A] = $.mapHeadOrElse(Success.apply, Failure(t))
-    def transformer[F[_] : Applicative]: OptionT[F, A] = RichOptionT.app[F].apply($)
   }
 }

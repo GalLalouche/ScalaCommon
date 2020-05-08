@@ -7,7 +7,7 @@ import scala.concurrent.Future
 
 import scalaz.syntax.bind._
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.RichOptionT
+import common.rich.func.ToMoreMonadTransOps._
 
 import common.test.AsyncAuxSpecs
 
@@ -19,7 +19,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
       existingValues += k -> v
       Future successful Unit
     }
-    override def load(k: Int) = RichOptionT.app[Future].apply(existingValues.get(k))
+    override def load(k: Int) = existingValues.get(k).hoistId
     override def storeMultiple(kvs: Seq[(Int, Int)]) =
       if ((existingValues.keySet & kvs.map(_._1).toSet).nonEmpty)
         Future failed new IllegalArgumentException
