@@ -1,6 +1,5 @@
 package common.rich.func
 
-import scala.collection.mutable
 import scala.language.higherKinds
 import scala.util.Try
 
@@ -8,7 +7,6 @@ import scalaz.MonadPlus
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.syntax.monadPlus.ToMonadPlusOps
 
-import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
 trait ToMoreMonadPlusOps {
@@ -21,17 +19,6 @@ trait ToMoreMonadPlusOps {
     def oMap[B](f: A => Option[B]): F[B] = $.map(f).filter(_.isDefined).map(_.get)
     def present[B](implicit ev: A <:< Option[B]): F[B] = oMap(ev.apply)
     def select[B <: A : Manifest]: F[B] = oMap(_.safeCast[B])
-    /** Not thread-safe! */
-    def uniqueBy[B](f: A => B): F[A] = {
-      val set = new mutable.HashSet[B]()
-      $.filter {a =>
-        val b = f(a)
-        val isUnique = set(b).isFalse
-        if (isUnique)
-          set += b
-        isUnique
-      }
-    }
     def toGuard(implicit ev: A =:= Boolean): F[Unit] = $.filter(ev).void
   }
 }
