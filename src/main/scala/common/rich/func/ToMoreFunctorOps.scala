@@ -18,4 +18,6 @@ trait ToMoreFunctorOps {
   }
 }
 
-object ToMoreFunctorOps extends ToMoreFunctorOps
+object ToMoreFunctorOps extends ToMoreFunctorOps {
+  def toProduct[F[_] : Functor, A, B](f: A => F[B]): A => F[(A, B)] = a => f(a).map(a -> _)
+}
