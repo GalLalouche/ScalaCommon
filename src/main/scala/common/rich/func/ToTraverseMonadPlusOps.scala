@@ -14,7 +14,7 @@ trait ToTraverseMonadPlusOps {
   implicit class toTraverseMonadPlusOps[F[_] : MonadPlus : Traverse, A]($: F[A]) {
     // Scalaz only provides functions for List and Vector for some reason.
     def filterM[G[_] : Applicative](p: A => G[Boolean]): G[F[A]] =
-      $.traverse(e => p(e).map(e -> _)).map(_.filter(_._2).tmap(_._1))
+      $.traverse(ToMoreFunctorOps.toProduct(p)).map(_.filter(_._2).tmap(_._1))
     def uniqueBy[B](f: A => B): F[A] = $.filterM {a =>
       // Stack-safe solution adapted from https://stackoverflow.com/a/30676115/736508
       val b = f(a)
