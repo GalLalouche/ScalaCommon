@@ -30,10 +30,17 @@ object RichFuture {
       case Success(t) => Future.successful(t)
       case Failure(e) => Future.failed(e)
     }
-    def toTry: Future[Try[A]] = {
-      val p = Promise[Try[A]]()
-      $ onComplete p.success
-      p.future
-    }
+    def toTry: Future[Try[A]] = RichFuture.fromCallback($.onComplete)
+  }
+
+  def fromCallback[A](f: (A => Any) => Any): Future[A] = {
+    val $ = Promise[A]()
+    f($.success)
+    $.future
+  }
+  def fromTryCallback[A](f: (Try[A] => Any) => Any): Future[A] = {
+    val $ = Promise[A]()
+    f($.complete)
+    $.future
   }
 }
