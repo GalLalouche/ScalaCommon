@@ -8,6 +8,8 @@ import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.higherKinds
 
+import scalaz.OptionT
+
 object RichObservable {
   trait Unsubscribable[A] {
     def apply(a: A): Unit
@@ -58,6 +60,12 @@ object RichObservable {
           .from(f(a))
           .map(_ => a)
     )
+
+    def filterFuture(p: A => Future[Boolean])(implicit ec: ExecutionContext): Observable[A] =
+      $.flatMap(a => Observable.from(p(a)).filter(identity).map(_ => a))
+
+    def mapFutureOption[B](f: A => OptionT[Future, B])(implicit ec: ExecutionContext): Observable[B] =
+      $.flatMap(a => RichObservable.from(f(a)))
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
@@ -87,4 +95,10 @@ object RichObservable {
       s.add(subs.foreach(_.unsubscribe()))
     }
   }
+
+  def from[A](fo: OptionT[Future, A])(implicit ec: ExecutionContext): Observable[A] = Observable.from(fo.run)
+      .flatMap {
+        case Some(value) => Observable.just(value)
+        case None => Observable.empty
+      }
 }

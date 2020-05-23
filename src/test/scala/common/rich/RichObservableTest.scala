@@ -13,6 +13,7 @@ import scala.concurrent.Future
 import scala.language.postfixOps
 
 import scalaz.syntax.functor.ToFunctorOps
+import scalaz.OptionT
 import common.rich.func.BetterFutureInstances._
 
 import common.rich.RichObservable._
@@ -150,6 +151,17 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
           res <- failure && (queue.asScala.toVector shouldReturn Vector(1, 2))
         } yield res
       }
+    }
+
+    "filterFuture" in {
+      Observable.just(1, 2, 3).filterFuture(i => Future.successful(i % 2 == 0))
+          .toFuture[Vector].map(_ shouldReturn Vector(2))
+    }
+
+    "mapFutureOption" in {
+      Observable.just(1, 2, 3)
+          .mapFutureOption[String](i => if (i % 2 == 0) OptionT.some(i.toString) else OptionT.none)
+          .toFuture[Vector].map(_ shouldReturn Vector("2"))
     }
   }
 
