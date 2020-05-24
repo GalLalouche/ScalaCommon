@@ -32,4 +32,7 @@ class ToMoreFunctorOpsTest extends AsyncFreeSpec with AuxSpecs {
   "when" in {
     Vector(true, false, true).when(whenTrue = 1, whenFalse = 2) shouldReturn Vector(1, 2, 1)
   }
+  "negated" in {
+    Vector(true, false, true).negated shouldReturn Vector(false, true, false)
+  }
 }

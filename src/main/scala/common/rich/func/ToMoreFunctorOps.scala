@@ -15,6 +15,7 @@ trait ToMoreFunctorOps {
     def ifNone[B](default: => B)(implicit ev: A <:< Option[B]): F[B] = $.map(_ getOrElse default)
     def when[B](whenTrue: B, whenFalse: B)(implicit ev: A =:= Boolean): F[B] =
       $.map(b => if (ev(b)) whenTrue else whenFalse)
+    def negated(implicit ev: A =:= Boolean): F[Boolean] = $.map(!ev(_))
   }
 }
 
