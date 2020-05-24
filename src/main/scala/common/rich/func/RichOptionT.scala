@@ -8,6 +8,7 @@ import scalaz.syntax.applicative.ApplicativeIdV
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.syntax.monad.ToMonadOps
+import common.rich.func.ToMoreFunctorOps._
 
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
@@ -41,7 +42,7 @@ object RichOptionT {
   } yield result
   def unless[F[_] : Monad, A](b: Boolean)(a: => F[A]): OptionT[F, A] = when(b.isFalse)(a)
   def unlessM[F[_] : Monad, A](bm: F[Boolean])(a: => F[A]): OptionT[F, A] =
-    whenM(bm.map(_.isFalse))(a)
+    whenM(bm.negated)(a)
   implicit class richFunctorToOptionT[F[_] : Functor, A]($: F[A]) {
     def liftSome: OptionT[F, A] = OptionT($.map(Option(_)))
   }

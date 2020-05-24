@@ -14,8 +14,7 @@ import scalaz.Monoid
 import common.rich.func.ToMoreMonoidOps._
 
 import common.rich.collections.RichTraversableOnce._
-import common.rich.primitives.RichBoolean._
-import common.rich.RichT._
+import common.rich.primitives.RichBoolean
 
 /** Several helping methods and fixtures for testing. */
 trait AuxSpecs extends Matchers {self: Suite =>
@@ -71,7 +70,7 @@ trait AuxSpecs extends Matchers {self: Suite =>
     def containExactly(t1: T, t2: T, ts: T*): Assertion = shouldMultiSetEqual(t1 :: t2 :: ts.toList)
 
     def allShouldSatisfy(p: T => Boolean): Assertion = {
-      val failingElements = $.filter(p.andThen(_.isFalse))
+      val failingElements = $ filterNot p
       throwIf(
         failingElements.nonEmpty,
         s"Expected all elements in <${$}> to satisfy the predicate, but <$failingElements> don't.",
