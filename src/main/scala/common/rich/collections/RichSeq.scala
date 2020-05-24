@@ -1,6 +1,5 @@
 package common.rich.collections
 
-import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.reflect.ClassTag
 import scala.util.Random
@@ -28,30 +27,16 @@ object RichSeq {
       val array = ArrayBuffer[T]($: _*)
       for (n <- array.length - 1 to 0 by -1) {
         val k = random.nextInt(n + 1)
-        val (a, b) = (array(n), array(k))
-        array(k) = a
-        array(n) = b
+        val temp = array(k)
+        array(k) = array(n)
+        array(n) = temp
       }
       array.toVector
     }
     def shuffle: Seq[T] = shuffle(Random)
 
     /** Returns a sample of uniformly random n elements */
-    def sample(n: Int, random: Random = Random): Seq[T] = {
-      require(n <= $.size, s"Can't sample $n items out of a sequence of size ${$.size}")
-      def swap(v: Vector[T], a: Int, b: Int): Vector[T] = {
-        val (x, y) = v(a) -> v(b)
-        v.updated(b, x).updated(a, y)
-      }
-      @tailrec
-      def aux(n: Int, v: Vector[T], result: List[T]): Seq[T] = n match {
-        case 0 => result
-        case _ =>
-          val swapped = swap(v, 0, random.nextInt(v.size))
-          aux(n - 1, swapped drop 1, swapped.head :: result)
-      }
-      aux(n, $.toVector, Nil)
-    }
+    def sample(n: Int, random: Random = Random): Seq[T] = shuffle(random).take(n)
 
     /** Same as indexWhere, but returns an option instead of -1 */
     def findIndex(pred: T => Boolean): Option[Int] = findWithIndex(pred).map(_._2)
