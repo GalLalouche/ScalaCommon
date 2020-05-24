@@ -87,12 +87,6 @@ object RichSeq {
         $.splitAt(i).mapTo(e => e._1.to[ListBuffer] ++ e._2.drop(1))
     }
 
-    /** Appends an element at the end of the sequence. O(n) complexity. */
-    def +(e: T): Seq[T] = $.to[ListBuffer] += e
-
-    /** Prepends an element to the sequence. Unless the underlying sequence is a list, the complexity is O(n). */
-    def ::[U >: T](e: U): Seq[U] = e :: $.toList
-
     /**
      * Inserts the element at the index. O(n) complexity.
      *
@@ -110,9 +104,9 @@ object RichSeq {
      */
     def insert(e: T) = new __Inserter($, e)
 
-    def cutoffsAt(p: T => Boolean): Seq[Seq[T]] = $.foldLeft(Seq[Seq[T]]())((agg, t) => agg match {
+    def cutoffsAt(p: T => Boolean): Seq[Seq[T]] = $.foldLeft(List[List[T]]())((agg, t) => agg match {
       case Nil => List(List(t))
-      case x :: xs => if (p(t)) List(t) :: x.reverse :: xs else (t :: x) :: xs
+      case x :: xs => if (p(t)) List(t) :: x.reverse :: xs else (t +: x) :: xs
     }).reverse
 
     def pairSliding: Iterator[(T, T)] =
@@ -121,12 +115,15 @@ object RichSeq {
 
   implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $ zip other map (e => (e._1._1, e._1._2, e._2))
-    /** Creates a map view from T to S. The map has linear search time, but on the other hand it keeps the same sequence as the original */
+    /**
+     * Creates a map view from T to S. The map has linear search time, but on the other hand it keeps the
+     * same order as the original.
+     */
     def asMap: Map[T, S] = new Map[T, S]() {
-      override def +[B1 >: S](kv: (T, B1)): Map[T, B1] = ???
+      override def +[B1 >: S](kv: (T, B1)): Map[T, B1] = throw new UnsupportedOperationException
       override def get(key: T): Option[S] = $.find(_._1 == key).map(_._2)
       override def iterator: Iterator[(T, S)] = $.iterator
-      override def -(key: T): Map[T, S] = ???
+      override def -(key: T): Map[T, S] = throw new UnsupportedOperationException
       override def toSeq = $
     }
     def toMultiMap: Map[T, Seq[S]] = RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
