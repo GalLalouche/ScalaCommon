@@ -21,7 +21,8 @@ object RichIterator {
      * @param frequency the frequency of the output, i.e., how often should the message be printed.
      *                  Default is every time, i.e., at every step.
      */
-    def withCounter(frequency: Int = 1): Iterator[A] = withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
+    def withCounter(frequency: Int = 1): Iterator[A] =
+      withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
 
     /**
      * Returns an iterator that outputs to the console its progress
@@ -89,9 +90,8 @@ object RichIterator {
     }
 
     def last(): A = {
-      @tailrec
-      def aux(current: A): A = if ($.hasNext) aux($.next()) else current
-      aux($.next())
+      @tailrec def go(current: A): A = if ($.hasNext) go($.next()) else current
+      go($.next())
     }
 
     def apply(n: Int): A = {

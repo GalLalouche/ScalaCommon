@@ -50,8 +50,7 @@ trait ToMoreFoldableOps {
     def asum[M[_], B](implicit applicativeEv: A =:= M[B],
         applicative: Applicative[M],
         monoid: Monoid[B],
-    ): M[B] =
-      Foldable[F].foldLeft($, applicative.pure(monoid.zero))(applicative.apply2(_, _)(monoid.append(_, _)))
+    ): M[B] = $.foldLeft(applicative.pure(monoid.zero))(applicative.apply2(_, _)(monoid.append(_, _)))
   }
 }
 

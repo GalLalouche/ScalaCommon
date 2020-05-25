@@ -15,10 +15,11 @@ import common.rich.RichT._
 
 object RichMap {
   implicit class richJavaMap[K, V](private val $: util.Map[K, V]) {
-    /** *Not* inherently thread-safe. Use ConcurrentHashMap if you need one. */
+    /** *Not* inherently thread-safe. Use ConcurrentHashMap if you need it to be. */
     def getOrPutIfAbsent(k: K, v: => V): V = {
-      if ($.containsKey(k).isFalse) // Not using putIfAbsent since its strict in its argument
-      $.put(k, v)
+      // Not using putIfAbsent since it's strict in its argument.
+      if ($.containsKey(k).isFalse)
+        $.put(k, v)
       $.get(k)
     }
 

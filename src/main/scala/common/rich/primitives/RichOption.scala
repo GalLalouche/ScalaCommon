@@ -10,7 +10,7 @@ object RichOption {
   implicit class richOption[A](private val $: Option[A]) extends AnyVal {
     // throws a better detailed exception when trying to access None
     def getOrThrow(errorMessage: => String): A = getOrThrow(new NoSuchElementException(errorMessage))
-    def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = toTry(t).get
+    def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = $.getOrElse(throw t)
     def toTry(t: => Throwable): Try[A] = $.mapHeadOrElse(Success.apply, Failure(t))
   }
 }

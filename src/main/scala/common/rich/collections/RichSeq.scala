@@ -16,7 +16,7 @@ object RichSeq {
       require(index >= 0)
       if ($.size < index)
         throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-      else $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
+      $ splitAt index mapTo (xs => (xs._1.to[ListBuffer] += elementToInsert) ++ xs._2)
     }
     def after(index: Int): Seq[T] = at(index + 1)
     def before(index: Int): Seq[T] = at(index - 1)
@@ -39,9 +39,12 @@ object RichSeq {
     def sample(n: Int, random: Random = Random): Seq[T] = shuffle(random).take(n)
 
     /** Same as indexWhere, but returns an option instead of -1 */
-    def findIndex(pred: T => Boolean): Option[Int] = findWithIndex(pred).map(_._2)
+    def findIndex(pred: T => Boolean): Option[Int] = $.indexWhere(pred).optFilter(_ >= 0)
 
-    /** Same as findIndex, but also returns the element found. This can be more efficient (O(n) vs O(2*n)) if the sequence isn't indexed. */
+    /**
+     * Same as findIndex, but also returns the element found. This can be more efficient (O(n) vs O(2*n))
+     * if the sequence isn't indexed.
+     */
     def findWithIndex(pred: T => Boolean): Option[(T, Int)] = {
       // the below implementation is quicker for non-indexed Seqs
       var i = 0
@@ -121,9 +124,11 @@ object RichSeq {
   }
 
   implicit class richSeqTuplesQuadruplets[T, S, U, W](private val $: Seq[(T, S, U, W)]) extends AnyVal {
-    def flatZip[X](other: Seq[X]): Seq[(T, S, U, W, X)] = $ zip other map (e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))
+    def flatZip[X](other: Seq[X]): Seq[(T, S, U, W, X)] =
+      $ zip other map (e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))
 
-    def flatZipWithIndex: Seq[(T, S, U, W, Int)] = $.zipWithIndex.map(e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))
+    def flatZipWithIndex: Seq[(T, S, U, W, Int)] =
+      $.zipWithIndex.map(e => (e._1._1, e._1._2, e._1._3, e._1._4, e._2))
   }
 
   implicit class richNestedSeq[T: ClassTag]($: Seq[Seq[T]]) {
