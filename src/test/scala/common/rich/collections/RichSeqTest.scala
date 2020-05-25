@@ -131,10 +131,10 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
 
   "pairSliding" - {
     "empty returns an empty iterator" in {
-      Vector().pairSliding shouldBe 'empty
+      Vector().pairSliding shouldBe empty
     }
     "size 1 returns an empty iterator" in {
-      Vector(1).pairSliding shouldBe 'empty
+      Vector(1).pairSliding shouldBe empty
     }
     "size 2 returns an iterator with a single element" in {
       Vector(1, 2).pairSliding.toVector should ===(Vector(1 -> 2))

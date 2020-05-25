@@ -27,8 +27,8 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
 
   "joinWhere" - {
     "returns an empty traversable if one of the traversables is empty" in {
-      Vector(1, 2, 3).join(Vector[String]()).where((_, _) => true).toVector shouldBe 'empty
-      Vector[Int]().join(Vector[String]("1", "2", "3")).where((_, _) => true).toVector shouldBe 'empty
+      Vector(1, 2, 3).join(Vector[String]()).where((_, _) => true).toVector shouldBe empty
+      Vector[Int]().join(Vector[String]("1", "2", "3")).where((_, _) => true).toVector shouldBe empty
     }
 
     "returns a cartesian product if the 'where' function is true" in {
