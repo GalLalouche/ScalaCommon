@@ -59,8 +59,8 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
   }
   "directory movers" - {
     def assertEmptyDir(d: Directory) = {
-      d.dirs shouldBe 'empty
-      d.files shouldBe 'empty
+      d.dirs shouldBe empty
+      d.files shouldBe empty
     }
     val targetDir = dir2
     val originalCopy = filledDir.cloneDir()

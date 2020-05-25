@@ -187,11 +187,11 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
       "lazy subscribe and unsubscribe" in {
         val subscribers = ArrayBuffer[Any]()
         val $ = RichObservable.register[Any](subscribers.+=(_), () => subscribers.remove(0))
-        subscribers shouldBe 'empty
+        subscribers shouldBe empty
         val s = $.subscribe(_ => ???)
         subscribers.size shouldReturn 1
         s.unsubscribe()
-        subscribers shouldBe 'empty
+        subscribers shouldBe empty
       }
     }
 
@@ -205,11 +205,11 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         subscribers.+=(f)
         new Subscription
       }
-      subscribers shouldBe 'empty
+      subscribers shouldBe empty
       val s = $.subscribe(_ => ???)
       subscribers.size shouldReturn 1
       s.unsubscribe()
-      subscribers shouldBe 'empty
+      subscribers shouldBe empty
     }
 
     "concat" - {
