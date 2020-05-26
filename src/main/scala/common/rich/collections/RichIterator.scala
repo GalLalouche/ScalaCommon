@@ -1,8 +1,6 @@
 package common.rich.collections
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.parallel.ParSeq
 import scala.collection.AbstractIterator
 
 import common.rich.primitives.RichBoolean._
@@ -104,4 +102,7 @@ object RichIterator {
     def headOption(): Option[A] = $.optMap(_.hasNext, _.next())
     def lastOption(): Option[A] = if ($.hasNext) Some(last()) else None
   }
+
+  def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =
+    Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get)
 }

@@ -1,14 +1,10 @@
 package common.rich.collections
 
-import java.util
-
 import org.scalatest.FreeSpec
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.SpanSugar._
 
-import scala.collection.mutable
 import scala.language.postfixOps
-import scala.util.Random
 
 import common.rich.collections.RichIterator._
 import common.test.AuxSpecs
@@ -105,6 +101,18 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
     "throws an exception on empty traversable" in {
       Iterator.empty.headOption() shouldReturn None
+    }
+  }
+
+  "iterateOptionally" - {
+    "Single element" in {
+      compareIterators(iterateOptionally(1)(_ => None), Iterator(1))
+    }
+    "Multiple elements" in {
+      compareIterators(iterateOptionally(1)(i => if (i < 5) Some(i + 1) else None), 1.to(5).iterator)
+    }
+    "Infinite + take" in {
+      compareIterators(iterateOptionally(1)(Some apply _ + 1).take(10), 1.to(10).iterator)
     }
   }
 }
