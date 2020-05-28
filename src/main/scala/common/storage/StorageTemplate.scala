@@ -16,7 +16,7 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
   override def forceStore(k: Key, v: Value) =
   // Since load can return None, it's necessary to run it so the internalForceStore will be computed.
     OptionT(load(k).run `<*ByName` internalForceStore(k, v))
-  override def store(k: Key, v: Value) = storeMultiple(List(k -> v))
+  override def store(k: Key, v: Value) = storeMultiple(Vector(k -> v))
   override def mapStore(k: Key, f: Value => Value, default: => Value) = for {
     value <- load(k).map(f).|(default).liftSome
     result <- forceStore(k, value)

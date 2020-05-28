@@ -231,7 +231,7 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
 
           val ex = foo.getFailure
           ex.getMessage shouldReturn "Foobar"
-          ex.getStackTrace.zip(List("qux", "baz", "bar", "foo"))
+          ex.getStackTrace.zip(Vector("qux", "baz", "bar", "foo"))
               .map(e => e._1.toString contains e._2)
               .forall(identity) shouldReturn true
         }

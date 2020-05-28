@@ -26,10 +26,10 @@ class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs
   override def beforeEach() = db.run(table.schema.create).toTry >> db.run(table.delete)
 
   "Can save and load" in {
-    db.run(table += (TestEnum.BAZZ, List(4, 8, 15, 16, 23, 42))) >>
-        db.run(table.result).map(_.single shouldReturn (TestEnum.BAZZ -> List(4, 8, 15, 16, 23, 42)))
+    db.run(table += (TestEnum.BAZZ, Vector(4, 8, 15, 16, 23, 42))) >>
+        db.run(table.result).map(_.single shouldReturn (TestEnum.BAZZ -> Vector(4, 8, 15, 16, 23, 42)))
   }
-  "Can handle empty lists" in {
+  "Can handle empty seqs" in {
     db.run(table += (TestEnum.BAR, Nil)) >>
         db.run(table.result).map(_.single shouldReturn (TestEnum.BAR -> Nil))
   }

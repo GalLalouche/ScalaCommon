@@ -60,7 +60,7 @@ class RichFile(f: File) extends RichPath[RichFile](f) {
   /** Returns the lines of the file */
   def lines: Seq[String] = {
     def removeByteOrderMarkIfPresent(bytes: Array[Byte]) = // only works for UTF-8... I'm so gonna pay for that some day :|
-      bytes.mapIf(_.take(3).toList == List[Byte](-17, -69, -65)).to(_.drop(3))
+      bytes.mapIf(_.take(3).toVector == Vector[Byte](-17, -69, -65)).to(_.drop(3))
     Source.fromBytes(bytes mapTo removeByteOrderMarkIfPresent).getLines().toVector
   }
 

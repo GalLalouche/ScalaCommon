@@ -26,11 +26,11 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
 
   "shifts" - {
     "returns all shifts" in {
-      Vector(1, 2, 3).shifts.toSeq shouldReturn Seq(Seq(1, 2, 3), Seq(2, 3, 1), Seq(3, 1, 2))
+      Vector(1, 2, 3).shifts.toVector shouldReturn Vector(Vector(1, 2, 3), Vector(2, 3, 1), Vector(3, 1, 2))
     }
 
     "returns an empty seq for an empty seq" in {
-      Vector().shifts.toSeq shouldReturn Seq()
+      Vector().shifts.toVector shouldReturn Vector()
     }
   }
 

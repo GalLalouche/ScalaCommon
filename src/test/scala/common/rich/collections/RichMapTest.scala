@@ -4,8 +4,8 @@ import java.util
 
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
-import scalaz.std.list.listInstance
 import scalaz.std.string.stringInstance
+import scalaz.std.vector.vectorInstance
 import common.rich.func.MoreSetInstances._
 
 import common.rich.collections.RichMap._
@@ -71,7 +71,7 @@ class RichMapTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
   }
 
   "richFoldableMap" - {
-    val $ = Map("foo" -> List(1, 2, 3), "bar" -> List(4, 5))
+    val $ = Map("foo" -> Vector(1, 2, 3), "bar" -> Vector(4, 5))
     "flattenValues" in {
       $.flattenValues shouldContainExactly("foo" -> 1, "foo" -> 2, "foo" -> 3, "bar" -> 4, "bar" -> 5)
     }

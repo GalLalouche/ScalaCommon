@@ -59,6 +59,6 @@ class RichIntTest extends FreeSpec with AuxSpecs {
   }
 
   "primes returns a stream of primes" in {
-    RichInt.primes.take(10).toList shouldReturn List(2, 3, 5, 7, 11, 13, 17, 19, 23, 29)
+    RichInt.primes.take(10).toVector shouldReturn Vector(2, 3, 5, 7, 11, 13, 17, 19, 23, 29)
   }
 }

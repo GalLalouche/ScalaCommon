@@ -23,9 +23,9 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
     forAll { set: Set[Int] =>
       whenever(set.size >= 3) {
         val subsetSize = set.size / 2 + 1
-        val asList = set.toList
-        val xs = asList.take(subsetSize).toSet
-        val ys = asList.reverse.take(subsetSize).toSet
+        val asVector = set.toVector
+        val xs = asVector.take(subsetSize).toSet
+        val ys = asVector.reverse.take(subsetSize).toSet
         xs <= ys shouldReturn false
         xs < ys shouldReturn false
         xs >= ys shouldReturn false

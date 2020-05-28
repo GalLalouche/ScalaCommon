@@ -18,7 +18,7 @@ class InnerScalaScripter(val classPath: Seq[File]) {
   }
 }
 
-object ScalaScripter extends InnerScalaScripter(Seq()) {
-  private val defaultCp = Seq(new File("D:\\tmp\\intellij output\\artifacts\\SoftwareMetrics.jar"))
+object ScalaScripter extends InnerScalaScripter(Vector.empty) {
+  private val defaultCp = Vector(new File("D:\\tmp\\intellij output\\artifacts\\SoftwareMetrics.jar"))
   def withClassPath(cp: File, other: File*) = new InnerScalaScripter(cp :: other.toList)
 }

@@ -2,7 +2,7 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
-import scalaz.std.list.listInstance
+import scalaz.std.vector.vectorInstance
 import common.rich.func.ToMoreMonadPlusOps._
 
 import common.test.AuxSpecs
@@ -10,27 +10,27 @@ import common.test.AuxSpecs
 class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
   "select" - {
     "Primitives" - {
-      val list = List(3, "Foo", true, 4, 5.0)
+      val list = Vector(3, "Foo", true, 4, 5.0)
       "Any" in {
         list.select[Any] shouldReturn list
       }
       "Int" in {
-        list.select[Int] shouldReturn List(3, 4)
+        list.select[Int] shouldReturn Vector(3, 4)
       }
       "Double" in {
-        list.select[Double] shouldReturn List(5.0)
+        list.select[Double] shouldReturn Vector(5.0)
       }
       "String" in {
-        list.select[String] shouldReturn List("Foo")
+        list.select[String] shouldReturn Vector("Foo")
       }
       "Boolean" in {
-        list.select[Boolean] shouldReturn List(true)
+        list.select[Boolean] shouldReturn Vector(true)
       }
       "No type found" in {
-        list.select[Char] shouldReturn Nil
+        list.select[Char] shouldBe empty
       }
       "Nothing" in {
-        list.select[Nothing] shouldReturn Nil
+        list.select[Nothing] shouldBe empty
       }
     }
 
@@ -39,28 +39,28 @@ class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
       class Child1 extends Parent
       class Child2 extends Parent
       class Child12 extends Child1
-      val list = List[Parent](new Child1, new Child2, new Child12)
+      val list = Vector[Parent](new Child1, new Child2, new Child12)
       "Parent" in {
         list.select[Parent] shouldReturn list
       }
       "Child1" in {
-        list.select[Child1] shouldReturn List(list(0), list(2)).asInstanceOf[List[Child1]]
+        list.select[Child1] shouldReturn Vector(list(0), list(2)).asInstanceOf[Vector[Child1]]
       }
       "Child2" in {
-        list.select[Child2] shouldReturn List(list(1)).asInstanceOf[List[Child2]]
+        list.select[Child2] shouldReturn Vector(list(1)).asInstanceOf[Vector[Child2]]
       }
       "Child12" in {
-        list.select[Child12] shouldReturn List(list(2)).asInstanceOf[List[Child12]]
+        list.select[Child12] shouldReturn Vector(list(2)).asInstanceOf[Vector[Child12]]
       }
     }
   }
   "present" in {
-    List(Option("foo"), None).present shouldReturn List("foo")
+    Vector(Option("foo"), None).present shouldReturn Vector("foo")
   }
   "toGuard" in {
     (for {
-      x <- List(1, 2, 3)
-      _ <- List(x % 2 == 0).toGuard
-    } yield x) shouldReturn List(2)
+      x <- Vector(1, 2, 3)
+      _ <- Vector(x % 2 == 0).toGuard
+    } yield x) shouldReturn Vector(2)
   }
 }

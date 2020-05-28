@@ -34,7 +34,7 @@ object RichWindows extends RichOs {
         .tail
         .filter(_.length > 1)
         .toStream
-        .map(e => List(
+        .map(e => Vector(
           e.substring(0, secondIndex - 2),
           e.substring(secondIndex, thirdIndex - 2),
           e.substring(thirdIndex),
@@ -45,5 +45,5 @@ object RichWindows extends RichOs {
   override def kill(pid: Int): Unit =
     Runtime.getRuntime.exec("taskkill /F /PID " + pid)
   override def unzip(file: File, dir: Directory): Unit =
-    Seq("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.path).!!
+    Vector("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.path).!!
 }

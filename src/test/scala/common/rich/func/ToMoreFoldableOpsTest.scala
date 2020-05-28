@@ -39,22 +39,22 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   }
   "mapHeadOrElse" - {
     "when Some" in {
-      Seq(1).mapHeadOrElse(_ + 1, ???) shouldReturn 2
+      Vector(1).mapHeadOrElse(_ + 1, ???) shouldReturn 2
     }
     "when None" in {
       Nil.mapHeadOrElse((_: Int) => ???, 2) shouldReturn 2
     }
   }
-  "head" in {Seq(1, 2, 3).head shouldReturn 1}
+  "head" in {Vector(1, 2, 3).head shouldReturn 1}
   "headOpt" - {
-    "empty" in {Seq().headOpt shouldReturn None}
-    "nonEmpty" in {Seq(1, 2, 3).headOpt shouldReturn Some(1)}
+    "empty" in {Vector().headOpt shouldReturn None}
+    "nonEmpty" in {Vector(1, 2, 3).headOpt shouldReturn Some(1)}
     "infinite" in {Stream.iterate(1)(_ + 1).headOpt shouldReturn Some(1)}
   }
 
   "topK" - {
     "empty" in {
-      List[String]().topK(10) shouldReturn Nil
+      Vector[String]().topK(10) shouldReturn Nil
     }
     "smaller than requested k should return reverse ordered" in {
       Vector("foo", "bar", "moo").topK(10) shouldReturn Vector("moo", "foo", "bar")

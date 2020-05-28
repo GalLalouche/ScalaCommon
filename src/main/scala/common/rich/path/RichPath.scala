@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.{FileAlreadyExistsException, Path}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
@@ -39,9 +39,9 @@ abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
 
   def parents: Seq[Directory] = {
     @tailrec
-    def aux(xs: ListBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
+    def aux(xs: ArrayBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
       if (rp.f.getParentFile == null) xs.toVector else aux(xs += rp.parent, rp.parent)
-    aux(ListBuffer(), RichPath.this)
+    aux(ArrayBuffer(), RichPath.this)
   }
 
   protected def internalCopyTo(f: File): T

@@ -30,10 +30,10 @@ class RichStringTest extends FreeSpec with AuxSpecs {
 
   "smartSplit" - {
     "returns an empty string if the last item is the delimiter" in {
-      "a,".smartSplit(',') shouldReturn Seq("a", "")
+      "a,".smartSplit(',') shouldReturn Vector("a", "")
     }
     "returns an empty string if the last item is the delimiters" in {
-      "a,,,".smartSplit(',') shouldReturn Seq("a", "")
+      "a,,,".smartSplit(',') shouldReturn Vector("a", "")
     }
   }
 

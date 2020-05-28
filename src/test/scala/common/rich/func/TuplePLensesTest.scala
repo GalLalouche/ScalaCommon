@@ -8,9 +8,9 @@ import common.test.AuxSpecs
 
 class TuplePLensesTest extends FreeSpec with AuxSpecs {
   "tuple2First" in {
-    List("foo" -> "bar").map(tuple2First.modify(_.toUpperCase)) shouldReturn List("FOO" -> "bar")
+    Vector("foo" -> "bar").map(tuple2First.modify(_.toUpperCase)) shouldReturn Vector("FOO" -> "bar")
   }
   "tuple2Second" in {
-    List("foo" -> "bar").map(tuple2Second.modify(_.toUpperCase)) shouldReturn List("foo" -> "BAR")
+    Vector("foo" -> "bar").map(tuple2Second.modify(_.toUpperCase)) shouldReturn Vector("foo" -> "BAR")
   }
 }

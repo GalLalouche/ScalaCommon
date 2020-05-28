@@ -20,11 +20,6 @@ class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs {
     }
   }
 
-<<<<<<< HEAD
-  "uniqueBy" in {
-    import scalaz.std.list.listInstance
-    List("foo", "bar", "bazz", "quux").uniqueBy(_.length) shouldReturn List("foo", "bazz")
-=======
   "uniqueBy" - {
     "Small input" in {
       Vector("foo", "bar", "bazz", "quux").uniqueBy(_.length) shouldReturn Vector("foo", "bazz")
@@ -32,6 +27,5 @@ class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs {
     "Doesn't overflow" in {
       1.to(1000).toVector.uniqueBy(_ % 10) should have size 10
     }
->>>>>>> e650aa6... fixup! move uniqueBy to ToTraverseMonadPlusOps
   }
 }

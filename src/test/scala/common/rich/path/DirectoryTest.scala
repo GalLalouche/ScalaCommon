@@ -67,7 +67,7 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
       }
       "not list deep dirs" in {
         $.addSubDir("foo").addSubDir("bar")
-        $.dirs === List(Directory(new File(tempDir, "foo")))
+        $.dirs === Vector(Directory(new File(tempDir, "foo")))
       }
     }
     "list deep files both deep and shallow" in {

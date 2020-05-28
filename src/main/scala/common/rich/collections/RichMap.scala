@@ -52,7 +52,7 @@ object RichMap {
     def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup mergeIntersecting other
   }
   implicit class richFoldableMap[K, V[_] : Foldable, A]($: Map[K, V[A]]) {
-    def flattenValues: Seq[(K, A)] = $.toSeq.flatMap(e => e._2.toList.map(e._1.->))
+    def flattenValues: Seq[(K, A)] = $.toSeq.flatMap(e => e._2.toVector.map(e._1.->))
     /** Complexity: O(totalSize), which is pretty crappy */
     def totalSizeSlow: Int = $.values.map(_.length).sum
   }

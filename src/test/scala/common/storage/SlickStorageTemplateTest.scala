@@ -24,13 +24,13 @@ class SlickStorageTemplateTest extends AsyncFreeSpec with AsyncAuxSpecs with Bef
     }
     "store multiples" - {
       "stores when new value" in {
-        table.storeMultiple(List((1, "foo"), (2, "bar"))) >> checkAll(
+        table.storeMultiple(Vector(1 -> "foo", 2 -> "bar")) >> checkAll(
           table.load(1).mapValue(_ shouldReturn "foo"),
           table.load(2).mapValue(_ shouldReturn "bar"),
         )
       }
       "throws when value already exists" in {
-        table.store(1, "foo") >> table.storeMultiple(List((2, "bar"), (1, "moo"))).shouldFail()
+        table.store(1, "foo") >> table.storeMultiple(Vector(2 -> "bar", 1 -> "moo")).shouldFail()
       }
     }
     "forceStore" - {
