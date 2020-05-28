@@ -21,8 +21,10 @@ import common.test.AuxSpecs
 class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   "doForEach acts on left indices first" in {
     var s = ""
+    // Seq and Vector have different default folds.
+    Vector(1, 2, 3).doForEach(s += _)
     Seq(1, 2, 3).doForEach(s += _)
-    s shouldReturn "123"
+    s shouldReturn "123123"
   }
   "printPerLine should not overflow" - {
     def test[F[_] : Foldable](f: Int => F[Int]): Unit = {

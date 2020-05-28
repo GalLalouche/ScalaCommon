@@ -8,16 +8,12 @@ import scalaz.{Applicative, Foldable, MonadError, Monoid, PlusEmpty}
 import scalaz.syntax.foldable.ToFoldableOps
 
 import common.rich.primitives.RichBoolean._
+import common.rich.RichT._
 
 trait ToMoreFoldableOps {
   implicit class toMoreFoldableOps[A, F[_] : Foldable]($: F[A]) {
-    def doForEach(f: A => Unit): F[A] = {
-      // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
-      var list: List[A] = Nil
-      Foldable[F].any($) {e => list = e :: list; false}
-      list foreach f
-      $
-    }
+    // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
+    def doForEach(f: A => Unit): F[A] = $.<|(Foldable[F].foldl(_, ())(_ => e => f(e)))
     def printPerLine(): F[A] = doForEach(println)
     // Why isn't this in the scalaz library? Who knows
     def foldMapPE[M[_] : PlusEmpty, B](f: A => M[B]): M[B] =
