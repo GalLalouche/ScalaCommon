@@ -27,4 +27,5 @@ private object BoxOrMsg {
       }
     override def point[A](a: => A): BoxOrMsg[A] = Box(a)
   }
+  def apply[A](a: A): BoxOrMsg[A] = Box(a)
 }

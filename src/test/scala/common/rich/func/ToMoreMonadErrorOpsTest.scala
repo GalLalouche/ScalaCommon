@@ -77,8 +77,7 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
           failure.handleButKeepOriginal(success.const).get shouldReturn 42
         }
         "to failure" in {
-          val failure2: BoxOrMsg[Int] = Msg("failure 2")
-          failure.handleButKeepOriginal(failure2.const).getFailure shouldReturn "failure"
+          failure.handleButKeepOriginal(Msg("failure 2").const).getFailure shouldReturn "failure"
         }
       }
     }

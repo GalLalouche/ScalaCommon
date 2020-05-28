@@ -47,20 +47,20 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
 
   "conditionals" - {
     "when" - {
-      "true" in {when[BoxOrMsg, Int](true)(Box(4)) shouldReturn OptionT.some(4)}
-      "false" in {when[BoxOrMsg, Int](false)(???) shouldReturn OptionT.none}
+      "true" in {when(true)(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
+      "false" in {when(false)(???) shouldReturn OptionT.none}
     }
     "whenM" - {
-      "true" in {whenM[BoxOrMsg, Int](Box(true))(Box(4)) shouldReturn OptionT.some(4)}
-      "false" in {whenM[BoxOrMsg, Int](Box(false))(???) shouldReturn OptionT.none}
+      "true" in {whenM(BoxOrMsg(true))(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
+      "false" in {whenM(BoxOrMsg(false))(???) shouldReturn OptionT.none}
     }
     "unless" - {
-      "true" in {unless[BoxOrMsg, Int](true)(???) shouldReturn OptionT.none}
-      "false" in {unless[BoxOrMsg, Int](false)(Box(4)) shouldReturn OptionT.some(4)}
+      "true" in {unless(true)(???) shouldReturn OptionT.none}
+      "false" in {unless(false)(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
     }
     "unlessM" - {
-      "true" in {unlessM[BoxOrMsg, Int](Box(true))(???) shouldReturn OptionT.none}
-      "false" in {unlessM[BoxOrMsg, Int](Box(false))(Box(4)) shouldReturn OptionT.some(4)}
+      "true" in {unlessM(BoxOrMsg(true))(???) shouldReturn OptionT.none}
+      "false" in {unlessM(BoxOrMsg(false))(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
     }
   }
 }
