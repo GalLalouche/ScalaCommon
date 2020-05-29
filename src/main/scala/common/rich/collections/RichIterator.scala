@@ -105,4 +105,8 @@ object RichIterator {
 
   def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =
     Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get)
+  @tailrec def farthest[A](a: A)(f: A => Option[A]): A = {
+    val $ = f(a)
+    if ($.isDefined) farthest($.get)(f) else a
+  }
 }

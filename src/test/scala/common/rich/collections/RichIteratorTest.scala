@@ -104,15 +104,26 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
     }
   }
 
-  "iterateOptionally" - {
-    "Single element" in {
-      compareIterators(iterateOptionally(1)(_ => None), Iterator(1))
+  "object method" - {
+    "iterateOptionally" - {
+      "Single element" in {
+        compareIterators(iterateOptionally(1)(_ => None), Iterator(1))
+      }
+      "Multiple elements" in {
+        compareIterators(iterateOptionally(1)(i => if (i < 5) Some(i + 1) else None), 1.to(5).iterator)
+      }
+      "Infinite + take" in {
+        compareIterators(iterateOptionally(1)(Some apply _ + 1).take(10), 1.to(10).iterator)
+      }
     }
-    "Multiple elements" in {
-      compareIterators(iterateOptionally(1)(i => if (i < 5) Some(i + 1) else None), 1.to(5).iterator)
-    }
-    "Infinite + take" in {
-      compareIterators(iterateOptionally(1)(Some apply _ + 1).take(10), 1.to(10).iterator)
+
+    "farthest" - {
+      "Returns first element if the function instantly returns None" in {
+        farthest(1)(_ => None) shouldReturn 1
+      }
+      "Returns the last element in a stack safe manner" in {
+        farthest(1)(i => if (i < 10000) Some(i + 1) else None) shouldReturn 10000
+      }
     }
   }
 }
