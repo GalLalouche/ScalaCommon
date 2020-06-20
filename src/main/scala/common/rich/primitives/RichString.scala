@@ -81,6 +81,9 @@ object RichString {
 
     def matches(p: Pattern): Boolean = p.matcher($).matches()
     def doesNotMatch(p: Pattern): Boolean = matches(p).isFalse
+    def containsMatch(p: Pattern): Boolean = p.matcher($).find()
+    def doesNotContainMatch(p: Pattern): Boolean = containsMatch(p).isFalse
+
     def replaceAll(p: Pattern, replacement: String): String = p.matcher($).replaceAll(replacement)
 
     def removeAll(p: Pattern): String = replaceAll(p, "")
