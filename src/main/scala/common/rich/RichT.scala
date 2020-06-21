@@ -6,7 +6,7 @@ import scala.util.Try
 import common.rich.primitives.RichBoolean._
 
 object RichT {
-  private val primitiveMappings: Map[Class[_], Class[_]] = Map(
+  private val PrimitiveMappings: Map[Class[_], Class[_]] = Map(
     java.lang.Integer.TYPE -> classOf[java.lang.Integer],
     java.lang.Long.TYPE -> classOf[java.lang.Long],
     java.lang.Double.TYPE -> classOf[java.lang.Double],
@@ -24,6 +24,10 @@ object RichT {
     @inline def to(f: T => T): T = if (p(e)) f(e) else e
     @inline def to(t: => T): T = if (p(e)) t else e
   }
+  class __Thrower[T] private[RichT]($: T, b: Boolean) {
+    def thenThrow(f: T => Throwable): T = if (b) $ else throw f($)
+    def thenThrow(e: => Throwable): T = if (b) $ else throw e
+  }
 
   implicit class richT[T](private val $: T) extends AnyVal {
     /**
@@ -34,7 +38,7 @@ object RichT {
     @inline def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
     /** Converts this into an Option; this also works for null, beautifully enough :D */
     @inline def opt: Option[T] = Option($)
-    @inline def optFilter(p: T => Boolean): Option[T] = if ($ == null) None else if (p($)) Some($) else None
+    @inline def optFilter(p: T => Boolean): Option[T] = if ($ == null || p($).isFalse) None else Some($)
     @inline def optMap[S](p: T => Boolean, f: T => S): Option[S] = optFilter(p).map(f)
     /** When you really want a fluent API. */
     @inline def mapTo[S](f: T => S): S = f($)
@@ -54,7 +58,7 @@ object RichT {
     @inline def :->[S](f: T => S): (T, S) = $ -> f($)
     @inline def <-:[S](f: T => S): (S, T) = f($) -> $
 
-    /** the simple class name, without $ and stuff */
+    /** The simple class name, without $ and stuff. */
     @inline def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
 
     /** If this is of type C, returns Some(T), else None. */
@@ -62,7 +66,7 @@ object RichT {
       val rtc = m.runtimeClass
       // Due to scala's own "primitives", e.g., Int vs int, there is a mismatch between the Manifest[B] and
       // the actual type of RichT. Therefore, we map the primitive classes to their boxed types.
-      val referenceClass = primitiveMappings.getOrElse(rtc, rtc)
+      val referenceClass = PrimitiveMappings.getOrElse(rtc, rtc)
       if (referenceClass.isAssignableFrom($.getClass)) Some($.asInstanceOf[C]) else None
     }
 
@@ -85,16 +89,11 @@ object RichT {
     def ifNot(b: Boolean) = new __Thrower($, b)
   }
 
-  class __Thrower[T]($: T, b: Boolean) {
-    def thenThrow(f: T => Throwable): T = if (b) $ else throw f($)
-    def thenThrow(e: => Throwable): T = if (b) $ else throw e
-  }
-
   implicit class lazyT[T]($: => T) {
     def const[S]: S => T = _ => $
     def partialConst[S]: PartialFunction[S, T] = {case _ => $}
 
-    /** Returns this if the condition is true; if not, returns the default value */
+    /** Returns Some($) if the condition is true; if not, returns None. */
     def onlyIf(b: Boolean): Option[T] = if (b) Some($) else None
     def onlyIfNot(b: Boolean): Option[T] = onlyIf(b.isFalse)
   }

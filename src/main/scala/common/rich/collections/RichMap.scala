@@ -14,7 +14,7 @@ import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
 object RichMap {
-  implicit class richJavaMap[K, V](private val $: util.Map[K, V]) {
+  implicit class richJavaMap[K, V](private val $: util.Map[K, V]) extends AnyVal {
     /** *Not* inherently thread-safe. Use ConcurrentHashMap if you need one. */
     def getOrPutIfAbsent(k: K, v: => V): V = {
       if ($.containsKey(k).isFalse) // Not using putIfAbsent since its strict in its argument
@@ -56,7 +56,7 @@ object RichMap {
     /** Complexity: O(totalSize), which is pretty crappy */
     def totalSizeSlow: Int = $.values.map(_.length).sum
   }
-  implicit class richTraversableMap[K, A]($: Map[K, Traversable[A]]) {
+  implicit class richTraversableMap[K, A](private val $: Map[K, Traversable[A]]) extends AnyVal {
     /** Potentially faster for traversables whose size operation is O(1), e.g., Vector or Set. */
     def totalSize: Int = $.values.map(_.size).sum
   }

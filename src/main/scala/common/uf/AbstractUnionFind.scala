@@ -15,11 +15,11 @@ abstract class AbstractUnionFind[A] extends UnionFind[A] {
    */
   protected def getPathToParent(a: A): List[Int] = {
     @tailrec
-    def aux(id: Int, result: List[Int]): List[Int] = {
+    def go(id: Int, result: List[Int]): List[Int] = {
       val parent = getParent(id)
-      if (parent == id) parent :: result else aux(parent, parent :: result)
+      if (parent == id) parent :: result else go(parent, parent :: result)
     }
-    aux(index(a), Nil)
+    go(index(a), Nil)
   }
 
   override def contains(a: A) = index.contains(a)

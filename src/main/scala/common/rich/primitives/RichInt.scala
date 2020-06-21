@@ -8,15 +8,15 @@ object RichInt {
   implicit class Rich(private val n: Int) extends AnyVal {
     def factorial: BigInt = {
       @tailrec
-      def aux(x: Int, result: BigInt = 1): BigInt = x.ensuring(x >= 0) match {
+      def go(x: Int, result: BigInt = 1): BigInt = x.ensuring(x >= 0) match {
         case 0 => result
-        case _ => aux(x - 1, result * x)
+        case _ => go(x - 1, result * x)
       }
-      aux(n)
+      go(n)
     }
 
     def choose(k: Int): BigInt = {
-      def aux(n: Int, k: Int): BigInt = (n, k) match {
+      def go(n: Int, k: Int): BigInt = (n, k) match {
         case (x, y) if x < 0 || y < 0 || x < y => 0
         case (0, _) => 1
         case (_, 0) => 1
@@ -27,7 +27,7 @@ object RichInt {
       if (k > n / 2)
         choose(n - k) // slightly faster
       else
-        aux(n, k)
+        go(n, k)
     }
     // i.e. nPk
     def perm(k: Int): BigInt = choose(k) * new Rich(k).factorial

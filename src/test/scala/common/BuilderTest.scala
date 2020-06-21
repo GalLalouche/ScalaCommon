@@ -19,7 +19,7 @@ class BuilderTest extends FreeSpec with AuxSpecs {
   }
 
   "asT should return the correctType" in {
-    def aux(s: String) = s
-    aux(new TestBuilder().asT("foo")) shouldReturn "bar"
+    def go(s: String) = s
+    go(new TestBuilder().asT("foo")) shouldReturn "bar"
   }
 }

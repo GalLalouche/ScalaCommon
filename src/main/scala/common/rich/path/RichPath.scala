@@ -39,9 +39,9 @@ abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
 
   def parents: Seq[Directory] = {
     @tailrec
-    def aux(xs: ArrayBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
-      if (rp.f.getParentFile == null) xs.toVector else aux(xs += rp.parent, rp.parent)
-    aux(ArrayBuffer(), RichPath.this)
+    def go(xs: ArrayBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
+      if (rp.f.getParentFile == null) xs.toVector else go(xs += rp.parent, rp.parent)
+    go(ArrayBuffer(), RichPath.this)
   }
 
   protected def internalCopyTo(f: File): T

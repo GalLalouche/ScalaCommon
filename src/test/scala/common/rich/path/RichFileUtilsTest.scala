@@ -8,7 +8,7 @@ import common.rich.path.RichFile._
 import common.test.DirectorySpecs
 
 class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
-  lazy val dir2 = TempDirectory()
+  private lazy val dir2 = TempDirectory()
   "move file" - {
     tempFile write "foobar"
     val tempFileName = tempFile.name

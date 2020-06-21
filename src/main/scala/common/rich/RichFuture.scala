@@ -18,9 +18,9 @@ object RichFuture {
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)
       val triedT: Try[A] = $.value.get
-      try {
+      try
         triedT.failed.get
-      } catch {
+      catch {
         case _: UnsupportedOperationException =>
           throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
       }

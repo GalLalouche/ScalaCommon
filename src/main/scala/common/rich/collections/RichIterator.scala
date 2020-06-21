@@ -88,8 +88,8 @@ object RichIterator {
 
     def last(): A = {
       @tailrec
-      def aux(current: A): A = if ($.hasNext) aux($.next()) else current
-      aux($.next())
+      def go(current: A): A = if ($.hasNext) go($.next()) else current
+      go($.next())
     }
 
     def apply(n: Int): A = {
