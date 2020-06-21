@@ -3,6 +3,7 @@ package common.rich.func
 import org.scalatest.FreeSpec
 
 import scalaz.std.vector.vectorInstance
+import scalaz.OptionT
 import common.rich.func.ToMoreMonadPlusOps._
 
 import common.test.AuxSpecs
@@ -62,5 +63,22 @@ class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
       x <- Vector(1, 2, 3)
       _ <- Vector(x % 2 == 0).toGuard
     } yield x) shouldReturn Vector(2)
+  }
+  "withFilter" - {
+    val monad = OptionT.some[Vector, String]("foobar")
+    "true" in {
+      val $ = for {
+        m <- monad
+        if m.length == 6
+      } yield m
+      $.run shouldReturn Vector(Some("foobar"))
+    }
+    "false" in {
+      val $ = for {
+        m <- monad
+        if m.length == 5
+      } yield m
+      $.run shouldReturn Vector(None)
+    }
   }
 }

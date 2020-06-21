@@ -20,6 +20,7 @@ trait ToMoreMonadPlusOps {
     def present[B](implicit ev: A <:< Option[B]): F[B] = oMap(ev.apply)
     def select[B <: A : Manifest]: F[B] = oMap(_.safeCast[B])
     def toGuard(implicit ev: A =:= Boolean): F[Unit] = $.filter(ev).void
+    def withFilter(p: A => Boolean): F[A] = $.filter(p)
   }
 }
 
