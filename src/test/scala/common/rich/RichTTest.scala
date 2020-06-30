@@ -16,6 +16,14 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
         5.tryOrKeep(_ => ???) shouldReturn 5
       }
     }
+    "optionOrKeep" - {
+      "Some" in {
+        5.optionOrKeep(Some apply _ + 1) shouldReturn 6
+      }
+      "None" in {
+        5.optionOrKeep(_ => None) shouldReturn 5
+      }
+    }
 
     "mapIf" - {
       "predicate" - {
