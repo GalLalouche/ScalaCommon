@@ -6,9 +6,9 @@ import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.Future
 
+import scalaz.{OptionT, StreamT}
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
-import scalaz.OptionT
 import common.rich.func.BetterFutureInstances._
 
 import common.rich.RichFuture._
@@ -35,6 +35,9 @@ trait AsyncAuxSpecs extends AuxSpecs {self: AsyncTestSuite =>
 
     def mapValue(f: A => Assertion): Future[Assertion] = $.run.map(f apply _.value)
     def shouldEventuallyReturnNone(): Future[Assertion] = $.run.map(_ shouldReturn None)
+  }
+  implicit class richStreamTFutureSpecs[A]($: StreamT[Future, A]) {
+    def mapValue(f: Stream[A] => Assertion): Future[Assertion] = $.toStream.map(f.apply)
   }
   def checkAll(f1: => Future[Assertion], f2: => Future[Assertion]): Future[Assertion] =
     f1 >> f2
