@@ -20,6 +20,8 @@ object RichStreamT {
   }
   def singleton[F[_] : Applicative, A](value: F[A]): StreamT[F, A] =
     StreamT.fromStream(value.map(Stream(_)))
+  def fromStream[F[_] : Applicative, A](s: Stream[A]): StreamT[F, A] =
+    StreamT.fromStream(Applicative[F].point(s))
   def fromEvaluatedIterable[F[_] : Point, A](i: Iterable[A]): StreamT[F, A] = Hoist[StreamT].hoist(
     new (Id ~> F) {
       override def apply[X](fa: scalaz.Id.Id[X]) = Point[F].point(fa)

@@ -4,7 +4,7 @@ import org.scalatest.AsyncFreeSpec
 
 import scala.concurrent.Future
 
-import scalaz.OptionT
+import scalaz.{OptionT, StreamT}
 import common.rich.func.BetterFutureInstances._
 
 import common.test.AsyncAuxSpecs
@@ -22,6 +22,12 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
             .toStream
             .map(_ shouldReturn 1.to(5).toStream)
       }
+    }
+
+    "fromStream" in {
+      RichStreamT.fromStream[Future, Int](Stream.iterate(1)(_ + 1))
+          .take(3)
+          .mapValue(_ shouldReturn Stream(1, 2, 3))
     }
 
     "fromEvaluatedIterable" - {
@@ -43,14 +49,21 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
       "empty" in {
         RichStreamT.fromEvaluatedIterable[Future, Int](Nil).oMapM[Int](_ => ???).mapValue(_ shouldBe empty)
       }
+      def cubeEvens(e: Int) =
+        if (e % 2 == 0)
+          RichOptionT.pointSome[Future].apply(e * e * e)
+        else
+          OptionT.none[Future, Int]
       "multiple elements" in {
         RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2, 3, 4))
-            .oMapM(e =>
-              if (e % 2 == 0)
-                RichOptionT.pointSome[Future].apply(e * e * e)
-              else
-                OptionT.none[Future, Int]
-            ).mapValue(_ shouldReturn Stream(8, 64))
+            .oMapM(cubeEvens).mapValue(_ shouldReturn Stream(8, 64))
+      }
+      "infinite" in {
+        // Checks type inferrence too!
+        val $: StreamT[Future, Int] = RichStreamT.fromStream(Stream.iterate(1)(_ + 1))
+        $.oMapM(cubeEvens)
+            .take(3)
+            .mapValue(_ shouldReturn Stream(8, 64, 216))
       }
     }
   }
