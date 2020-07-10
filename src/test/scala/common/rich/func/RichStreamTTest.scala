@@ -4,6 +4,7 @@ import org.scalatest.AsyncFreeSpec
 
 import scala.concurrent.Future
 
+import scalaz.OptionT
 import common.rich.func.BetterFutureInstances._
 
 import common.test.AsyncAuxSpecs
@@ -32,6 +33,24 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
       }
       "multiple element" in {
         RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2)).mapValue(_ shouldReturn Stream(1, 2))
+      }
+    }
+  }
+
+  "richStreamT" - {
+    import RichStreamT._
+    "oMapM" - {
+      "empty" in {
+        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).oMapM[Int](_ => ???).mapValue(_ shouldBe empty)
+      }
+      "multiple elements" in {
+        RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2, 3, 4))
+            .oMapM(e =>
+              if (e % 2 == 0)
+                RichOptionT.pointSome[Future].apply(e * e * e)
+              else
+                OptionT.none[Future, Int]
+            ).mapValue(_ shouldReturn Stream(8, 64))
       }
     }
   }
