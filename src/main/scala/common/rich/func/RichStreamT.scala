@@ -11,13 +11,17 @@ object RichStreamT {
     def last(implicit ev: Monad[F]): F[A] = $.toStream.map(_.last)
     def oMapM[B](f: A => OptionT[F, B])(implicit ev: Applicative[F]): StreamT[F, B] =
       $.flatMap(a => StreamT.fromStream(f(a).run.map(_.toStream)))
+    def subFlatMap[B](f: A => Stream[B])(implicit ev: Applicative[F]): StreamT[F, B] =
+      $.flatMap(f andThen fromStream[F, B])
   }
+
   def iterateM[A, F[_] : Applicative](a: A)(f: A => OptionT[F, A]): StreamT[F, A] = {
     def notFirst(a: A) = (a, a -> false)
     StreamT.unfoldM((a, true)) {
       case (a, isFirst) => (if (isFirst) OptionT.some(notFirst(a)) else f(a).map(notFirst)).run
     }
   }
+
   def singleton[F[_] : Applicative, A](value: F[A]): StreamT[F, A] =
     StreamT.fromStream(value.map(Stream(_)))
   def fromStream[F[_] : Applicative, A](s: Stream[A]): StreamT[F, A] =

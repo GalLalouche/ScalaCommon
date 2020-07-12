@@ -10,6 +10,39 @@ import common.rich.func.BetterFutureInstances._
 import common.test.AsyncAuxSpecs
 
 class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
+  "richStreamT" - {
+    import RichStreamT._
+    // Checks type inference too!
+    val infiniteStream: StreamT[Future, Int] = RichStreamT.fromStream(Stream.iterate(1)(_ + 1))
+    "oMapM" - {
+      "empty" in {
+        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).oMapM[Int](_ => ???).mapValue(_ shouldBe empty)
+      }
+      def cubeEvens(e: Int) =
+        if (e % 2 == 0)
+          RichOptionT.pointSome[Future].apply(e * e * e)
+        else
+          OptionT.none[Future, Int]
+      "multiple elements" in {
+        RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2, 3, 4))
+            .oMapM(cubeEvens).mapValue(_ shouldReturn Stream(8, 64))
+      }
+      "infinite" in {
+        infiniteStream.oMapM(cubeEvens)
+            .take(3)
+            .mapValue(_ shouldReturn Stream(8, 64, 216))
+      }
+    }
+
+    "subFlatMap" in {
+      infiniteStream
+          .tail
+          .subFlatMap(e => Stream.iterate(e)(_ * e))
+          .take(4)
+          .mapValue(_ shouldReturn Stream(2, 4, 8, 16))
+    }
+  }
+
   "Object methods" - {
     "iterateM" - {
       "basic" in {
@@ -39,31 +72,6 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
       }
       "multiple element" in {
         RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2)).mapValue(_ shouldReturn Stream(1, 2))
-      }
-    }
-  }
-
-  "richStreamT" - {
-    import RichStreamT._
-    "oMapM" - {
-      "empty" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).oMapM[Int](_ => ???).mapValue(_ shouldBe empty)
-      }
-      def cubeEvens(e: Int) =
-        if (e % 2 == 0)
-          RichOptionT.pointSome[Future].apply(e * e * e)
-        else
-          OptionT.none[Future, Int]
-      "multiple elements" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2, 3, 4))
-            .oMapM(cubeEvens).mapValue(_ shouldReturn Stream(8, 64))
-      }
-      "infinite" in {
-        // Checks type inferrence too!
-        val $: StreamT[Future, Int] = RichStreamT.fromStream(Stream.iterate(1)(_ + 1))
-        $.oMapM(cubeEvens)
-            .take(3)
-            .mapValue(_ shouldReturn Stream(8, 64, 216))
       }
     }
   }
