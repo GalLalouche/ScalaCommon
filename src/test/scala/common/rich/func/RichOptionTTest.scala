@@ -11,12 +11,15 @@ import common.test.AuxSpecs
 
 class RichOptionTTest extends FreeSpec with AuxSpecs {
   "richOptionT" - {
+    val none: OptionT[BoxOrMsg, Int] = OptionT.none
+    val boxedNone = Box(None)
+    val some: OptionT[BoxOrMsg, Int] = OptionT.some(42)
     "orError" - {
       "When some returns the value" in {
-        OptionT.some[BoxOrMsg, Int](4).orError(???) shouldReturn Box(4)
+        some.orError(???) shouldReturn Box(42)
       }
       "When none returns an error" in {
-        OptionT.none[BoxOrMsg, Int].orError("foobar") shouldReturn Msg("foobar")
+        none.orError("foobar") shouldReturn Msg("foobar")
       }
     }
     "get" - {
@@ -29,18 +32,34 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
       }
     }
     "mFilterOpt" - {
-      val none: OptionT[BoxOrMsg, Int] = OptionT.none
-      val some: OptionT[BoxOrMsg, Int] = OptionT.some(42)
       "None remains None" in {
-        none.mFilterOpt(_ => ???).run shouldReturn Box(None)
+        none.mFilterOpt(_ => ???).run shouldReturn boxedNone
       }
       "Some" - {
         "Pred is true returns self" in {
           some.mFilterOpt(e => Box(e % 2 == 0)).run shouldReturn Box(Some(42))
         }
         "Pred is false returns None" in {
-          some.mFilterOpt(e => Box(e % 2 == 1)).run shouldReturn Box(None)
+          some.mFilterOpt(e => Box(e % 2 == 1)).run shouldReturn boxedNone
         }
+      }
+    }
+    "collect" - {
+      "None" in {
+        none.collect {
+          case _ => ???
+        }.run shouldReturn boxedNone
+      }
+      "Some to none" in {
+        some.collect {
+          case 40 => ???
+        }.run shouldReturn boxedNone
+      }
+      "Some to some" in {
+        some.collect {
+          case 40 => ???
+          case 42 => "foobar"
+        }.run shouldReturn Box(Some("foobar"))
       }
     }
   }

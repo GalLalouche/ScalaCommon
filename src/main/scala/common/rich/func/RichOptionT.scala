@@ -28,6 +28,8 @@ object RichOptionT {
       e <- $.run
       b <- e.fold(false.pure)(p)
     } yield e.filter(b.const))
+
+    def collect[B](pf: PartialFunction[A, B])(implicit F: Functor[F]): OptionT[F, B] = subFlatMap(pf.lift)
   }
 
   // An alternative to OptionT.some that requires a point rather than a full Applicative.
