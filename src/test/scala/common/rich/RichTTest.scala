@@ -58,6 +58,15 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
       }
     }
 
+    "joinOption" - {
+      "Some" in {
+        1.joinOption(Some("foo"))(_ + _.length) shouldReturn 4
+      }
+      "None" in {
+        1.joinOption[String](None)(_ + _.length) shouldReturn 1
+      }
+    }
+
     "only if" - {
       "false" in {
         5.onlyIf(false) shouldReturn None
