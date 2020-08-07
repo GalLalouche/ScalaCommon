@@ -144,4 +144,9 @@ trait AuxSpecs extends Matchers {self: Suite =>
     override def zero: Assertion = Succeeded
     override def append(f1: Assertion, f2: => Assertion): Assertion = f1 && f2
   }
+  def assertAll(assertions: TraversableOnce[Assertion]): Assertion = {
+    import common.rich.func.MoreIteratorInstances._
+    import common.rich.func.ToMoreFoldableOps._
+    assertions.toIterator.foldMonoid
+  }
 }

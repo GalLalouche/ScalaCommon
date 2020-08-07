@@ -48,6 +48,8 @@ trait ToMoreFoldableOps {
         monoid: Monoid[B],
     ): M[B] =
       Foldable[F].foldLeft($, applicative.pure(monoid.zero))(applicative.apply2(_, _)(monoid.append(_, _)))
+    // Doesn't collide with the standard library fold method for Traversables.
+    def foldMonoid(implicit m: Monoid[A]): A = $.fold
   }
 }
 
