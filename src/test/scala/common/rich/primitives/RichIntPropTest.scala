@@ -1,7 +1,7 @@
 package common.rich.primitives
 
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.PropSpec
+import org.scalatest.{Assertion, PropSpec}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 import common.rich.primitives.RichBoolean._
@@ -12,13 +12,13 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 5)
   private implicit val arbSmallPositive: Arbitrary[Int] = Arbitrary(Gen.choose(1, 1000))
-  private def nProp(propName: String, prop: Int => Unit): Unit =
+  private def nProp(propName: String, prop: Int => Assertion): Unit =
     property(propName) {
-      forAll { n: Int => prop(n) }
+      forAll {n: Int => prop(n)}
     }
-  private def nkProp(propName: String, prop: (Int, Int) => Unit): Unit =
+  private def nkProp(propName: String, prop: (Int, Int) => Assertion): Unit =
     property(propName) {
-      forAll { (n: Int, k: Int) => prop(n, k) }
+      forAll {(n: Int, k: Int) => prop(n, k)}
     }
 
   nProp("n! is divided by all numbers from 1 to n", n => {
@@ -36,9 +36,11 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
   })
   nkProp("gcd should be the largest common divisor", (n, k) => {
     val gcd = RichInt.gcd(n, k)
-    for (i <- 1 to Math.max(n, k))
-      if (n % i == k % i && n % i == 0)
-        i should be <= gcd
+
+    assertAll(for {
+      i <- 1 to Math.max(n, k)
+      if n % i == k % i && n % i == 0
+    } yield i should be <= gcd)
   })
 
   nkProp("is prime is false for composite numbers", (n, k) => whenever(n > 1 && k > 1) {
@@ -68,4 +70,17 @@ class RichIntPropTest extends PropSpec with GeneratorDrivenPropertyChecks with A
   nProp("n perm itself is itself factor", n => n perm n shouldReturn n.factorial)
   nProp("n perm 0 is 1", _ perm 0 shouldReturn 1)
   nProp("n perm 1 is itself", n => n perm 1 shouldReturn n)
+
+  private def positiveKProp(name: String, prop: (Int, Int) => Assertion): Unit =
+    nkProp(name, (n, k) => whenever(k > 0)(prop(n, k)))
+
+  positiveKProp("n ceilDivision k times k is >= n", (n, k) =>
+    n.ceilDiv(k) * k should be >= (n / k) * k
+  )
+  positiveKProp("n ceilDivision k times k is <= n + 1", (n, k) =>
+    n.ceilDiv(k) * k should be <= (n / k + 1) * k
+  )
+  positiveKProp("n ceilDivision k times k is exactly n when n % k == 0", (n, k) =>
+    (n.ceilDiv(k) * k == n) shouldReturn (n % k == 0)
+  )
 }
