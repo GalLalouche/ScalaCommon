@@ -24,10 +24,22 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
       }
     }
     "xor" - {
-      "00" in {false ⊕ false shouldBe false}
-      "01" in {false ⊕ true shouldBe true}
-      "10" in {true ⊕ false shouldBe true}
-      "11" in {true ⊕ true shouldBe false}
+      truthTables(
+        _ ⊕ _,
+        (false, false, false),
+        (false, true, true),
+        (true, false, true),
+        (true, true, false),
+      )
+    }
+    "implies" - {
+      truthTables(
+        _ ==> _,
+        (false, false, true),
+        (false, true, true),
+        (true, false, false),
+        (true, true, true),
+      )
     }
   }
 
@@ -36,5 +48,18 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
   }
   "and" in {
     Vector(1, 2, 3, 4, 5).filter(RichBoolean.and(_ < 5, _ > 1)) shouldReturn Vector(2, 3, 4)
+  }
+
+  private def truthTables(
+      f: (Boolean, Boolean) => Boolean,
+      bbs: (Boolean, Boolean, Boolean)*,
+  ): Unit = bbs.foreach(Function.tupled(truthTable(_, _, f, _)))
+  private def truthTable(
+      b1: Boolean, b2: Boolean, f: (Boolean, Boolean) => Boolean, expectedOutput: Boolean): Unit = {
+    def toString(b: Boolean) = if (b) "T" else "F"
+    s"${toString(b1)}${toString(b2)}" in {
+      println("Hi!")
+      f(b1, b2) shouldBe expectedOutput
+    }
   }
 }
