@@ -71,10 +71,10 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   }
   "exists" - {
     "true" in {
-      $.store(1, 4) >> $.exists(1).map(_ shouldReturn true)
+      $.store(1, 4) >> $.exists(1) shouldEventuallyReturn true
     }
     "false" in {
-      $.store(1, 4) >> $.exists(2).map(_ shouldReturn false)
+      $.store(1, 4) >> $.exists(2) shouldEventuallyReturn false
     }
   }
 }

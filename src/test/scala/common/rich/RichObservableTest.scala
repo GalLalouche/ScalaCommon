@@ -30,7 +30,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         sub.onNext(2)
         sub.onNext(3)
         sub.onCompleted()
-        future.map(_ shouldReturn Vector(1, 2, 3))
+        future shouldEventuallyReturn Vector(1, 2, 3)
       }
       "failure" in {
         val sub = createSubject
@@ -40,7 +40,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         sub.onNext(2)
         sub.onNext(3)
         sub.onError(error)
-        future.checkFailure(_ shouldReturn error)
+        future failureShouldEventuallyReturn error
       }
     }
 
@@ -51,7 +51,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         sub.onNext(1)
         sub.onNext(2)
         sub.onNext(3)
-        future.map(_ shouldReturn 1)
+        future shouldEventuallyReturn 1
       }
       "empty" in {
         val sub = createSubject
@@ -63,7 +63,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "flattenElements" in {
       val x: Observable[Int] = Observable.just(Vector(1, 2, 3, 4)).flattenElements
-      x.toFuture[Vector].map(_ shouldReturn Vector(1, 2, 3, 4))
+      x.toFuture[Vector] shouldEventuallyReturn Vector(1, 2, 3, 4)
     }
 
     "subscribeWithNotification" - {
@@ -155,13 +155,13 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "filterFuture" in {
       Observable.just(1, 2, 3).filterFuture(i => Future.successful(i % 2 == 0))
-          .toFuture[Vector].map(_ shouldReturn Vector(2))
+          .toFuture[Vector] shouldEventuallyReturn Vector(2)
     }
 
     "mapFutureOption" in {
       Observable.just(1, 2, 3)
           .mapFutureOption[String](i => if (i % 2 == 0) OptionT.some(i.toString) else OptionT.none)
-          .toFuture[Vector].map(_ shouldReturn Vector("2"))
+          .toFuture[Vector] shouldEventuallyReturn Vector("2")
     }
   }
 
@@ -214,21 +214,21 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "concat" - {
       "empty" in {
-        RichObservable.concat(Vector[Observable[Int]]()).toFuture.map(_ shouldReturn Vector[Int]())
+        RichObservable.concat(Vector[Observable[Int]]()).toFuture shouldEventuallyReturn Vector.empty
       }
       "simple" in {
-        RichObservable.concat(Vector(Observable.just(1), Observable.just(2))).toFuture
-            .map(_ shouldReturn Vector(1, 2))
+        RichObservable.concat(Vector(Observable.just(1), Observable.just(2)))
+            .toFuture shouldEventuallyReturn Vector(1, 2)
       }
       "reusable" in {
         val v = Vector(Observable.just(1), Observable.just(2))
         val $ = RichObservable.concat(v)
-        $.toFuture.map(_ shouldReturn Vector(1, 2))
-        $.toFuture.map(_ shouldReturn Vector(1, 2))
+        $.toFuture shouldEventuallyReturn Vector(1, 2)
+        $.toFuture shouldEventuallyReturn Vector(1, 2)
       }
       "large list" in {
-        RichObservable.concat(1.to(10000).map(Observable.just(_))).toFuture
-            .map(_ shouldReturn 1.to(10000).toVector)
+        RichObservable.concat(1.to(10000).map(Observable.just(_)))
+            .toFuture shouldEventuallyReturn 1.to(10000).toVector
       }
       "unsubscribes" in {
         val source1 = createSubject

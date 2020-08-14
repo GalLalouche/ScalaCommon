@@ -19,16 +19,16 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
   "utils" - {
     "does table exists" - {
       "no by default" in {
-        $.doesTableExist.map(_ shouldReturn false)
+        $.doesTableExist shouldEventuallyReturn false
       }
       "yes after creation" in {
-        $.createTable() >> $.doesTableExist.map(_ shouldReturn true)
+        $.createTable() >> $.doesTableExist shouldEventuallyReturn true
       }
       "no after drop" in {
-        $.createTable() >> $.dropTable() >> $.doesTableExist.map(_ shouldReturn false)
+        $.createTable() >> $.dropTable() >> $.doesTableExist shouldEventuallyReturn false
       }
       "yes after clear" in {
-        $.createTable() >> $.clearTable() >> $.doesTableExist.map(_ shouldReturn true)
+        $.createTable() >> $.clearTable() >> $.doesTableExist shouldEventuallyReturn true
       }
     }
     "create" - {
@@ -44,14 +44,14 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
     }
     "createTableIfNotExists" - {
       "exists" in {
-        $.createTable() >>
-            $.createTableIfNotExists().map(_ shouldReturn false) >>
-            $.doesTableExist.map(_ shouldReturn true)
+        ($.createTable() >>
+            $.createTableIfNotExists()).shouldEventuallyReturn(false) >>
+            $.doesTableExist shouldEventuallyReturn true
       }
       "does not exist" in {
-        $.doesTableExist.map(_ shouldReturn false) >>
-            $.createTableIfNotExists().map(_ shouldReturn true) >>
-            $.doesTableExist.map(_ shouldReturn true)
+        ($.doesTableExist.shouldEventuallyReturn(false) >>
+            $.createTableIfNotExists()).shouldEventuallyReturn(true) >>
+            $.doesTableExist shouldEventuallyReturn true
       }
     }
     "clear" - {
@@ -68,10 +68,10 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
     }
     "drop" - {
       "should fail if table does not exist" in {
-        $.dropTable().map(_ shouldReturn false)
+        $.dropTable() shouldEventuallyReturn false
       }
       "should succeed if table exists" in {
-        $.createTable() >> $.dropTable().map(_ shouldReturn true)
+        $.createTable() >> $.dropTable() shouldEventuallyReturn true
       }
     }
   }

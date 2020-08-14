@@ -10,9 +10,9 @@ import common.rich.func.MoreObservableInstances._
 import common.rich.func.ToMoreFunctorOps._
 
 import common.rich.RichObservable._
-import common.test.AuxSpecs
+import common.test.AsyncAuxSpecs
 
-class ToMoreFunctorOpsTest extends AsyncFreeSpec with AuxSpecs {
+class ToMoreFunctorOpsTest extends AsyncFreeSpec with AsyncAuxSpecs {
   "listen" in {
     var sum = 0
     val $: Observable[Int] = Observable.just(1, 2, 3, 4).listen(sum += _)
@@ -23,8 +23,8 @@ class ToMoreFunctorOpsTest extends AsyncFreeSpec with AuxSpecs {
   }
   "unzip" in {
     val (o1, o2): (Observable[Int], Observable[Int]) = Observable.just(1 -> 2, 3 -> 4).unzip
-    o1.toFuture[Vector].map(_ shouldReturn Vector(1, 3)) >>
-        o2.toFuture[Vector].map(_ shouldReturn Vector(2, 4))
+    o1.toFuture[Vector].shouldEventuallyReturn(Vector(1, 3)) >>
+        o2.toFuture[Vector].shouldEventuallyReturn(Vector(2, 4))
   }
   "ifNone" in {
     Vector(None, Some(3), None).ifNone(42) shouldReturn Vector(42, 3, 42)

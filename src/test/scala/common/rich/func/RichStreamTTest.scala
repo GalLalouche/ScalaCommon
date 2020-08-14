@@ -16,7 +16,8 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
     val infiniteStream: StreamT[Future, Int] = RichStreamT.fromStream(Stream.iterate(1)(_ + 1))
     "oMapM" - {
       "empty" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).oMapM[Int](_ => ???).mapValue(_ shouldBe empty)
+        RichStreamT.fromEvaluatedIterable[Future, Int](Nil)
+            .oMapM[Int](_ => ???) valueShouldEventuallyReturn Stream.empty
       }
       def cubeEvens(e: Int) =
         if (e % 2 == 0)
@@ -25,12 +26,11 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
           OptionT.none[Future, Int]
       "multiple elements" in {
         RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2, 3, 4))
-            .oMapM(cubeEvens).mapValue(_ shouldReturn Stream(8, 64))
+            .oMapM(cubeEvens) valueShouldEventuallyReturn Stream(8, 64)
       }
       "infinite" in {
         infiniteStream.oMapM(cubeEvens)
-            .take(3)
-            .mapValue(_ shouldReturn Stream(8, 64, 216))
+            .take(3) valueShouldEventuallyReturn Stream(8, 64, 216)
       }
     }
 
@@ -38,8 +38,7 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
       infiniteStream
           .tail
           .subFlatMap(e => Stream.iterate(e)(_ * e))
-          .take(4)
-          .mapValue(_ shouldReturn Stream(2, 4, 8, 16))
+          .take(4) valueShouldEventuallyReturn Stream(2, 4, 8, 16)
     }
   }
 
@@ -47,31 +46,28 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
     "iterateM" - {
       "basic" in {
         RichStreamT.iterateM(1)(e => RichOptionT.when(e < 5)(Future successful e + 1))
-            .toStream
-            .map(_ shouldReturn 1.to(5).toStream)
+            .toStream shouldEventuallyReturn 1.to(5).toStream
       }
       "infinite" in {
         RichStreamT.iterateM(1)(e => RichOptionT.pointSome[Future].apply(e + 1)).take(5)
-            .toStream
-            .map(_ shouldReturn 1.to(5).toStream)
+            .toStream shouldEventuallyReturn 1.to(5).toStream
       }
     }
 
     "fromStream" in {
       RichStreamT.fromStream[Future, Int](Stream.iterate(1)(_ + 1))
-          .take(3)
-          .mapValue(_ shouldReturn Stream(1, 2, 3))
+          .take(3) valueShouldEventuallyReturn Stream(1, 2, 3)
     }
 
     "fromEvaluatedIterable" - {
       "empty" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).mapValue(_ shouldReturn Stream.empty)
+        RichStreamT.fromEvaluatedIterable[Future, Int](Nil).valueShouldEventuallyReturn(Stream.empty)
       }
       "single element" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](Vector(1)).mapValue(_ shouldReturn Stream(1))
+        RichStreamT.fromEvaluatedIterable[Future, Int](Vector(1)).valueShouldEventuallyReturn(Stream(1))
       }
       "multiple element" in {
-        RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2)).mapValue(_ shouldReturn Stream(1, 2))
+        RichStreamT.fromEvaluatedIterable[Future, Int](List(1, 2)).valueShouldEventuallyReturn(Stream(1, 2))
       }
     }
   }
