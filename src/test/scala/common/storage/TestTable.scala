@@ -4,7 +4,7 @@ import slick.ast.{BaseTypedType, ScalaBaseType}
 
 import scala.concurrent.ExecutionContext
 
-private class TestTable(implicit ec: ExecutionContext) extends SlickStorageTemplate[Int, String] with StorageSpecs {
+private class TestTable(implicit ec: ExecutionContext) extends SlickSingleKeyColumnStorageTemplate[Int, String] with StorageSpecs {
   import profile.api._
 
   override protected type Id = Int

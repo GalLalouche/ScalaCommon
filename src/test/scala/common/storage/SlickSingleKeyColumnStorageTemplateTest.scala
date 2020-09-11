@@ -7,7 +7,8 @@ import common.rich.func.BetterFutureInstances._
 
 import common.test.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 
-class SlickStorageTemplateTest extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndAfterEachAsync {
+class SlickSingleKeyColumnStorageTemplateTest
+    extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndAfterEachAsync {
   private val table = new TestTable
   override def beforeEach = table.utils.clearOrCreateTable()
   "storage" - {
