@@ -13,7 +13,7 @@ import common.test.AsyncAuxSpecs
 
 class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AsyncAuxSpecs {
   private val existingValues = mutable.HashMap[Int, Int]()
-  private val $ = new StorageTemplate[Int, Int]() {
+  private val $: Storage[Int, Int] = new StorageTemplate[Int, Int]() {
     override protected def internalDelete(k: Int) = Future successful existingValues.remove(k)
     override protected def internalForceStore(k: Int, v: Int) = {
       existingValues += k -> v
@@ -39,7 +39,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   "forceStore" - {
     "has existing value returns old value" in {
       existingValues += 1 -> 2
-      $.forceStore(1, 4).mapValue(_ shouldReturn 2) >| (existingValues(1) shouldReturn 4)
+      $.forceStore(1, 4).valueShouldEventuallyReturn(2) >| (existingValues(1) shouldReturn 4)
     }
     "has no existing value returns None" in {
       $.forceStore(1, 4).shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 4)
@@ -51,14 +51,14 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     }
     "maps existing value if present" in {
       existingValues += 1 -> 2
-      $.mapStore(1, _ * 2, ???).mapValue(_ shouldReturn 2) >| (existingValues(1) shouldReturn 4)
+      $.mapStore(1, _ * 2, ???).valueShouldEventuallyReturn(2) >| (existingValues(1) shouldReturn 4)
     }
   }
   "delete" - {
     "existing value" in {
       existingValues += 1 -> 2
       checkAll(
-        $.delete(1).mapValue(_ shouldReturn 2),
+        $.delete(1).valueShouldEventuallyReturn(2),
         $.load(1).shouldEventuallyReturnNone(),
       )
     }
@@ -75,6 +75,61 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     }
     "false" in {
       $.store(1, 4) >> $.exists(2) shouldEventuallyReturn false
+    }
+  }
+
+  "xmap" - {
+    import scalaz.syntax.invariantFunctor.ToInvariantFunctorOps
+    val $2 = $.xmap[String](_.toString, _.toInt)
+    "store" - {
+      "has existing value throws" in {
+        existingValues += 1 -> 2
+        $2.store(1, "4").shouldFail() >| (existingValues(1) shouldReturn 2)
+      }
+      "no existing value should insert the value and return true" in {
+        $2.store(1, "4") >| (existingValues(1) shouldReturn 4)
+      }
+    }
+    "forceStore" - {
+      "has existing value returns old value" in {
+        existingValues += 1 -> 2
+        $2.forceStore(1, "4").valueShouldEventuallyReturn("2") >| (existingValues(1) shouldReturn 4)
+      }
+      "has no existing value returns None" in {
+        $2.forceStore(1, "4").shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 4)
+      }
+    }
+    "mapStore" - {
+      "has no existing value uses default" in {
+        $2.mapStore(1, _ => ???, "2").shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 2)
+      }
+      "maps existing value if present" in {
+        existingValues += 1 -> 2
+        $2.mapStore(1, _ + "2", ???).valueShouldEventuallyReturn("2") >| (existingValues(1) shouldReturn 22)
+      }
+    }
+    "delete" - {
+      "existing value" in {
+        existingValues += 1 -> 2
+        checkAll(
+          $2.delete(1).valueShouldEventuallyReturn("2"),
+          $2.load(1).shouldEventuallyReturnNone(),
+        )
+      }
+      "no existing value" in {
+        checkAll(
+          $2.delete(1).shouldEventuallyReturnNone(),
+          $2.load(1).shouldEventuallyReturnNone(),
+        )
+      }
+    }
+    "exists" - {
+      "true" in {
+        $2.store(1, "4") >> $2.exists(1) shouldEventuallyReturn true
+      }
+      "false" in {
+        $2.store(1, "4") >> $2.exists(2) shouldEventuallyReturn false
+      }
     }
   }
 }
