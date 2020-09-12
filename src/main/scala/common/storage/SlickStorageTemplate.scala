@@ -3,9 +3,10 @@ package common.storage
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import scalaz.syntax.functor.ToFunctorOps
+import scalaz.OptionT
 import common.rich.func.BetterFutureInstances._
 import common.rich.func.ToMoreFunctorOps._
 
@@ -26,8 +27,9 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
   protected val tableQuery: TableQuery[EntityTable]
   protected def toEntity(k: Key, v: Value): Entity
   protected def extractValue(e: Entity): Value
-  /** If a previous value exists, override it. */
-  override protected def internalForceStore(k: Key, v: Value) =
+  override protected def internalUpdate(k: Key, v: Value): Future[_] =
+    db.run(tableQuery.filter(keyFilter(k)).update(toEntity(k, v)))
+  override protected def internalReplace(k: Key, v: Value): Future[_] =
     db.run(tableQuery.insertOrUpdate(toEntity(k, v)))
 
   protected def keyFilter(k: Key)(e: EntityTable): Rep[Boolean]
