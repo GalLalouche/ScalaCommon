@@ -82,6 +82,9 @@ object RichT {
     @inline def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
     @inline def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
       (f1($), f2($), f3($), f4($))
+    @inline def toTuple[S1, S2, S3, S4, S5](
+        f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4, f5: T => S5): (S1, S2, S3, S4, S5) =
+      (f1($), f2($), f3($), f4($), f5($))
 
     @inline def tryOrKeep(f: T => T): T = Try(f($)) getOrElse $
     @inline def optionOrKeep(f: T => Option[T]): T = f($) getOrElse $
