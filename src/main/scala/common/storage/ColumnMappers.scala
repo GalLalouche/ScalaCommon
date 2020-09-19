@@ -1,10 +1,14 @@
 package common.storage
 
+import java.time.{LocalDate, LocalDateTime}
+
 import slick.jdbc.{JdbcProfile, JdbcType}
 
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 import scala.reflect.ClassTag
+
+import common.rich.RichTime.{RichLocalDateTime, RichLong}
 
 class ColumnMappers(implicit d: JdbcProfile) {
   import d.api._
@@ -24,4 +28,8 @@ class ColumnMappers(implicit d: JdbcProfile) {
           s.split(ssEv.separator).map(ssEv.parse).foreach(builder.+=)
         builder.result()
       })
+  implicit val localDateTimeColumn: JdbcType[LocalDateTime] =
+    MappedColumnType.base[LocalDateTime, Long](_.toMillis, _.toLocalDateTime)
+  implicit val localDateColumn: JdbcType[LocalDate] =
+    MappedColumnType.base[LocalDate, Long](_.toEpochDay, LocalDate.ofEpochDay)
 }
