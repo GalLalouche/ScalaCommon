@@ -2,7 +2,7 @@ package common.rich
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import rx.lang.scala.{Observable, Observer}
+import rx.lang.scala.{Observable, Observer, Subscriber}
 
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -10,9 +10,14 @@ import scala.language.higherKinds
 
 import scalaz.OptionT
 
+import common.rich.primitives.RichBoolean.richBoolean
+
 object RichObservable {
   trait Unsubscribable[A] {
     def apply(a: A): Unit
+  }
+  implicit class RichSubscriber(private val $: Subscriber[_]) extends AnyVal {
+    def isSubscribed: Boolean = $.isUnsubscribed.isFalse
   }
   implicit class richObservable[A](private val $: Observable[A]) extends AnyVal {
     /**
@@ -101,4 +106,10 @@ object RichObservable {
         case Some(value) => Observable.just(value)
         case None => Observable.empty
       }
+  def continually[A](initial: => A): Observable[A] = Observable.apply {s =>
+    val value = initial
+    while (s.isSubscribed)
+      s.onNext(value)
+    s.onCompleted()
+  }
 }

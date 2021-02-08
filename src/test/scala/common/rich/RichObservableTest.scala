@@ -63,7 +63,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "flattenElements" in {
       val x: Observable[Int] = Observable.just(Vector(1, 2, 3, 4)).flattenElements
-      x.toFuture[Vector] shouldEventuallyReturn Vector(1, 2, 3, 4)
+      x.toFuture shouldEventuallyReturn Vector(1, 2, 3, 4)
     }
 
     "subscribeWithNotification" - {
@@ -155,7 +155,7 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
 
     "filterFuture" in {
       Observable.just(1, 2, 3).filterFuture(i => Future.successful(i % 2 == 0))
-          .toFuture[Vector] shouldEventuallyReturn Vector(2)
+          .toFuture shouldEventuallyReturn Vector(2)
     }
 
     "mapFutureOption" in {
@@ -245,6 +245,10 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
           buffer shouldReturn ArrayBuffer(1, 2)
         }
       }
+    }
+
+    "continually" in {
+      RichObservable.continually("foo").take(10).toFuture shouldEventuallyReturn Vector.fill(10)("foo")
     }
   }
 }
