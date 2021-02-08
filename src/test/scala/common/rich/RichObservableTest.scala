@@ -250,5 +250,8 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
     "continually" in {
       RichObservable.continually("foo").take(10).toFuture shouldEventuallyReturn Vector.fill(10)("foo")
     }
+    "iterate" in {
+      RichObservable.iterate(0)(_ + 1).take(10).toFuture shouldEventuallyReturn 0.to(9).toVector
+    }
   }
 }

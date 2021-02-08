@@ -112,4 +112,6 @@ object RichObservable {
       s.onNext(value)
     s.onCompleted()
   }
+  def iterate[A](initial: => A)(f: A => A): Observable[A] =
+    continually(initial).scan[A](initial)((e, _) => f(e))
 }
