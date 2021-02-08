@@ -1,7 +1,7 @@
 package common.rich
 
 import java.util.NoSuchElementException
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.{LinkedBlockingQueue, Semaphore}
 
 import org.scalatest.AsyncFreeSpec
 import rx.lang.scala.{Observable, Observer}
@@ -12,8 +12,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.language.postfixOps
 
-import scalaz.syntax.functor.ToFunctorOps
 import scalaz.OptionT
+import scalaz.std.vector.vectorInstance
+import scalaz.syntax.functor.ToFunctorOps
 import common.rich.func.BetterFutureInstances._
 
 import common.rich.RichObservable._
@@ -161,7 +162,40 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
     "mapFutureOption" in {
       Observable.just(1, 2, 3)
           .mapFutureOption[String](i => if (i % 2 == 0) OptionT.some(i.toString) else OptionT.none)
-          .toFuture[Vector] shouldEventuallyReturn Vector("2")
+          .toFuture shouldEventuallyReturn Vector("2")
+    }
+
+    "groupByBuffer" - {
+      "empty returns an empty observable" in {
+        Observable.just[Int]().groupByBuffer(_ => ???).toFuture.map(_ shouldBe empty)
+      }
+      "Single element returns the single element" in {
+        Observable.just(1).groupByBuffer(_.toString).toFuture shouldEventuallyReturn Vector("1" -> Vector(1))
+      }
+      "No repeats returns singletons" in {
+        val expected = Vector("1" -> Vector(1), "2" -> Vector(2), "3" -> Vector(3))
+        Observable.just(1, 2, 3).groupByBuffer(_.toString).toFuture shouldEventuallyReturn expected
+      }
+      "Groups by key" in {
+        val expected = Vector(0 -> Vector(1), 1 -> Vector(2, 3), 2 -> Vector(4, 5))
+        Observable.just(1, 2, 3, 4, 5).groupByBuffer(_ / 2).toFuture shouldEventuallyReturn expected
+      }
+      "Lazy (blocking)" in {
+        // An extra permit is needed to transition to a new group and publish an event.
+        val semaphore = new Semaphore(3)
+        RichObservable.iterate(0)(_ + 1)
+            .groupByBuffer {e =>
+              semaphore.acquire()
+              e / 2
+            }
+            .doOnNext(_ => semaphore.release(2))
+            .take(5)
+            .toFuture shouldEventuallyReturn 0.to(4).toVector.fproduct(e => Vector(2 * e, 2 * e + 1))
+      }
+      "Lazy (infinite)" in {
+        RichObservable.iterate(0)(_ + 1).groupByBuffer(_ / 10).take(2)
+            .toFuture shouldEventuallyReturn Vector(0 -> 0.to(9), 1 -> 10.to(19))
+      }
     }
   }
 

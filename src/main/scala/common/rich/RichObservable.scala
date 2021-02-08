@@ -3,6 +3,7 @@ package common.rich
 import java.util.concurrent.atomic.AtomicInteger
 
 import rx.lang.scala.{Observable, Observer, Subscriber}
+import rx.lang.scala.subjects.BehaviorSubject
 
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -11,6 +12,7 @@ import scala.language.higherKinds
 import scalaz.OptionT
 
 import common.rich.primitives.RichBoolean.richBoolean
+import common.rich.RichT._
 
 object RichObservable {
   trait Unsubscribable[A] {
@@ -71,6 +73,39 @@ object RichObservable {
 
     def mapFutureOption[B](f: A => OptionT[Future, B])(implicit ec: ExecutionContext): Observable[B] =
       $.flatMap(a => RichObservable.from(f(a)))
+
+    // TODO This should be possible for all Traverse?
+    /**
+     * Emits an observable which groups successive elements together according to some key function.
+     * Unlike groupBy, only successive elements can be in the same group.
+     */
+    def groupByBuffer[B](f: A => B): Observable[(B, Seq[A])] = Observable {s =>
+      val lastSubject = BehaviorSubject[(B, Seq[A])]()
+      def publish(e: (B, Seq[A])): Unit = s.onNext(e._1 -> e._2.toVector.reverse)
+      $.map(e => f(e) -> e).scan[Option[(B, List[A])]](None) {
+        case (agg, x) =>
+          Some((agg match {
+            case Some(agg@(key, values)) =>
+              if (key == x._1)
+                key -> (x._2 :: values)
+              else {
+                publish(agg)
+                x._1 -> List(x._2)
+              }
+            case None =>
+              x._1 -> List(x._2)
+          }) <| lastSubject.onNext)
+      }
+          .takeUntil(s.isSubscribed.isFalse.const)
+          .subscribe(new Subscriber[Option[(B, List[A])]]() {
+            override def onCompleted(): Unit = {
+              lastSubject.subscribe(publish _)
+              lastSubject.onCompleted()
+              s.onCompleted()
+            }
+            override def onError(error: Throwable): Unit = s.onError(error)
+          })
+    }
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
