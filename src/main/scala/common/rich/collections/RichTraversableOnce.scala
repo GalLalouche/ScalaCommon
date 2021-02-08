@@ -119,6 +119,9 @@ object RichTraversableOnce {
 
     /** Throws if size != 1. */
     def single: A = singleOpt.get
+
+    /** Throws if there is more than one unique result. */
+    def mapSingle[B](f: A => B): B = $.map(f).toSet.single
     /** Returns None if empty, but throws if size > 1. */
     def singleOpt: Option[A] = {
       val i = $.toIterator

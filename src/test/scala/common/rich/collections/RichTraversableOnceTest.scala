@@ -116,11 +116,22 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     "returns the single element when one exists" in {
       Vector(1).singleOpt shouldReturn Some(1)
     }
-    "throws an exception on empty traversable" in {
+    "Returns None an on empty traversable" in {
       Nil.singleOpt shouldReturn None
     }
     "throws an exception on a traversable with more than 1 element" in {
       an[UnsupportedOperationException] should be thrownBy Vector(1, 2).single
+    }
+  }
+  "mapSingle" - {
+    "returns the single element when one exists" in {
+      Vector("1", "2", "3").mapSingle(_.length) shouldReturn 1
+    }
+    "throws an exception on empty traversable" in {
+      an[UnsupportedOperationException] should be thrownBy Vector("1", "").mapSingle(_.length)
+    }
+    "throws an exception on a traversable with more than 1 element" in {
+      a[NoSuchElementException] should be thrownBy Vector.empty[String].mapSingle(_.length)
     }
   }
 
