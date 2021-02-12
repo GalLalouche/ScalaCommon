@@ -8,7 +8,7 @@ import scalaz.syntax.functor.ToFunctorOps
 import scalaz.Id.Id
 
 object RichStreamT {
-  implicit class richStreamT[A, F[_]](private val $: StreamT[F, A]) extends AnyVal {
+  implicit class richStreamT[F[_], A](private val $: StreamT[F, A]) extends AnyVal {
     def last(implicit ev: Monad[F]): F[A] = $.toStream.map(_.last)
     def oMapM[B](f: A => OptionT[F, B])(implicit ev: Applicative[F]): StreamT[F, B] =
       $.flatMap(a => StreamT.fromStream(f(a).run.map(_.toStream)))
@@ -25,7 +25,7 @@ object RichStreamT {
       }
   }
 
-  def iterateM[A, F[_] : Applicative](a: A)(f: A => OptionT[F, A]): StreamT[F, A] = {
+  def iterateM[F[_] : Applicative, A](a: A)(f: A => OptionT[F, A]): StreamT[F, A] = {
     def notFirst(a: A) = (a, a -> false)
     StreamT.unfoldM((a, true)) {
       case (a, isFirst) => (if (isFirst) OptionT.some(notFirst(a)) else f(a).map(notFirst)).run
@@ -33,7 +33,7 @@ object RichStreamT {
   }
 
   def fillM[F[_] : Applicative, A](a: => OptionT[F, A]): StreamT[F, A] =
-    iterateM[Either[Unit, A], F](Left(Unit)) {
+    iterateM[F, Either[Unit, A]](Left(Unit)) {
       case Left(_) => a.map(Right(_))
       case Right(_) => a.map(Right(_))
     }.tail.map(_.fold(_ => ???, identity))
