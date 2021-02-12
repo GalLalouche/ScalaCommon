@@ -32,6 +32,12 @@ object RichStreamT {
     }
   }
 
+  def fillM[F[_] : Applicative, A](a: => OptionT[F, A]): StreamT[F, A] =
+    iterateM[Either[Unit, A], F](Left(Unit)) {
+      case Left(_) => a.map(Right(_))
+      case Right(_) => a.map(Right(_))
+    }.tail.map(_.fold(_ => ???, identity))
+
   def singleton[F[_] : Applicative, A](value: F[A]): StreamT[F, A] =
     StreamT.fromStream(value.map(Stream(_)))
   def fromStream[F[_] : Applicative, A](s: Stream[A]): StreamT[F, A] =

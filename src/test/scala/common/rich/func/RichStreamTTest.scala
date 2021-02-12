@@ -6,7 +6,9 @@ import scala.concurrent.Future
 
 import scalaz.{OptionT, StreamT}
 import common.rich.func.BetterFutureInstances._
+import common.rich.func.ToMoreMonadTransOps.toMoreMonadTransOps
 
+import common.rich.RichT.richT
 import common.test.AsyncAuxSpecs
 
 class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
@@ -75,6 +77,27 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
       "infinite" in {
         RichStreamT.iterateM(1)(e => RichOptionT.pointSome[Future].apply(e + 1)).take(5)
             .toStream shouldEventuallyReturn 1.to(5).toStream
+      }
+    }
+
+    "fillM" - {
+      "empty if the first element is None" in {
+        RichStreamT.fillM(OptionT.none[Future, Int]).toStream shouldEventuallyReturn Stream.empty
+      }
+      "basic" in {
+        var x = 1
+        RichStreamT.fillM {
+          val $ = x
+          x += 1
+          $.optFilter(_ <= 5).hoistId
+        }.toStream shouldEventuallyReturn 1.to(5).toStream
+      }
+      "infinite" in {
+        var x = 1
+        RichStreamT.fillM {
+          x += 1
+          OptionT.some(x - 1)
+        }.take(5).toStream shouldEventuallyReturn 1.to(5).toStream
       }
     }
 
