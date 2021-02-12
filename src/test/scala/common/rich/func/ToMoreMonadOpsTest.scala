@@ -19,7 +19,6 @@ private object ToMoreMonadOpsTest {
 }
 
 class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs {
-
   "conditionals" - {
     type StringWriter[A] = Writer[String, A]
     val writer: Writer[String, Unit] = tell("foo")
