@@ -1,6 +1,6 @@
 package common.rich.func
 
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.{Assertion, AsyncFreeSpec}
 
 import scala.concurrent.Future
 
@@ -39,6 +39,30 @@ class RichStreamTTest extends AsyncFreeSpec with AsyncAuxSpecs {
           .tail
           .subFlatMap(e => Stream.iterate(e)(_ * e))
           .take(4) valueShouldEventuallyReturn Stream(2, 4, 8, 16)
+    }
+
+    "unconsBatch" - {
+      def checkBoth(
+          $: StreamT[Future, Int],
+          n: Int,
+          initAssertion: Seq[Int] => Assertion,
+          tailAssertion: Seq[Int] => Assertion,
+      ): Future[Assertion] = for {
+        (b, next) <- $.unconsBatch(n)
+        nextStream <- next.toStream
+      } yield initAssertion(b) && tailAssertion(nextStream)
+      "returns empty when empty" in {
+        checkBoth(StreamT.empty[Future, Int], 10, _ shouldBe 'empty, _ shouldBe 'empty)
+      }
+      "returns empty when n = 0" in {
+        checkBoth(RichStreamT.fromEvaluatedIterable(0.to(10)), 0, _ shouldBe 'empty, _ shouldReturn 0.to(10))
+      }
+      "Same as uncons when n = 1" in {
+        checkBoth(RichStreamT.fromEvaluatedIterable(0.to(10)), 1, _.shouldContainExactly(0), _ shouldReturn 1.to(10))
+      }
+      "non trivial n" in {
+        checkBoth(RichStreamT.fromEvaluatedIterable(0.to(10)), 5, _ shouldReturn 0.to(4), _ shouldReturn 5.to(10))
+      }
     }
   }
 

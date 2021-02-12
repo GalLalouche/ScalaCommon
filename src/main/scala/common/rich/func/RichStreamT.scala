@@ -3,6 +3,7 @@ package common.rich.func
 import scala.language.higherKinds
 
 import scalaz.{~>, Applicative, Hoist, Monad, OptionT, StreamT}
+import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.Id.Id
 
@@ -13,6 +14,15 @@ object RichStreamT {
       $.flatMap(a => StreamT.fromStream(f(a).run.map(_.toStream)))
     def subFlatMap[B](f: A => Stream[B])(implicit ev: Applicative[F]): StreamT[F, B] =
       $.flatMap(f andThen fromStream[F, B])
+    def unconsBatch(n: Int)(implicit ev: Monad[F]): F[(Seq[A], StreamT[F, A])] =
+      if (n == 0)
+        ev.point(Nil -> $)
+      else {
+        $.uncons.flatMap {
+          case None => ev.point(Nil -> $)
+          case Some(value) => value._2.unconsBatch(n - 1).map(TuplePLenses.tuple2First.modify(value._1 :: _.toList))
+        }
+      }
   }
 
   def iterateM[A, F[_] : Applicative](a: A)(f: A => OptionT[F, A]): StreamT[F, A] = {
