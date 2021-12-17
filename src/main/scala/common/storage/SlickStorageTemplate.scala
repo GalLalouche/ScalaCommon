@@ -13,6 +13,9 @@ import common.rich.func.ToMoreFunctorOps._
 /**
  * Although [[Storage]] is key-valued, it's only an abstraction above a possibly more complex, but
  * still relational (hence Slick), DAL.
+ *
+ * To ensure uniqueness of keys, the key column should be defined using [[slick.ast.ColumnOption.PrimaryKey]].
+ * *This is not enforced by this class*!
  */
 abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) extends
     StorageTemplate[Key, Value] {

@@ -20,9 +20,9 @@ trait Storage[Key, Value] {
    * Returns the previous value associated with the key.
    */
   def replace(k: Key, v: Value): OptionT[Future, Value]
-  /** Does not override; fails on existing value. */
+  /** Does not overwrite; fails on existing value. */
   def store(k: Key, v: Value): Future[Unit]
-  /** Does not override. Returns true if *no* keys already exist in the database, false otherwise. */
+  /** Does not overwrite; fails if *any* key already existed in the database. */
   def storeMultiple(kvs: Seq[(Key, Value)]): Future[Unit]
   /**
    * If there is already a value for the supplied key, update or replace it using the supplied function.
