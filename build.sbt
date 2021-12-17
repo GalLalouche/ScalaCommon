@@ -5,8 +5,8 @@ lazy val scalaCommon = (project in file("."))
       version := "1.0",
       isSnapshot := true,
       name := "scalacommon",
-      scalaVersion := "2.12.10", // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
-      crossScalaVersions := Seq("2.11.11", "2.12.10"),
+      scalaVersion := "2.12.15", // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
+      crossScalaVersions := Seq("2.11.11", "2.12.15"),
       libraryDependencies ++= Seq(
         "org.scalaz" %% "scalaz-core" % "7.2.15",
 
@@ -24,7 +24,7 @@ lazy val scalaCommon = (project in file("."))
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
       ),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
-      addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
+      addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
       scalacOptions += "-Ypartial-unification",
     ).settings(scalacOptions in(Compile, doc) ++= Vector(
   "-no-link-warnings" // Suppresses problems with Scaladoc @throws links
