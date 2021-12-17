@@ -13,10 +13,8 @@ import common.rich.RichTime.{RichLocalDateTime, RichLong}
 class ColumnMappers(implicit d: JdbcProfile) {
   import d.api._
 
-  implicit def enumColumn[E <: Enum[E] : ClassTag]: JdbcType[E] = {
-    lazy val values = EnumUtils.values
-    MappedColumnType.base[E, Int](_.ordinal, values.apply)
-  }
+  implicit def enumColumn[E <: Enum[E] : ClassTag]: JdbcType[E] =
+    MappedColumnType.base[E, String](_.name, EnumUtils.valueOf[E])
   implicit def traversable[T, F[X] <: Traversable[X]](implicit ssEv: StringSerializable[T],
       fromSeq: CanBuildFrom[Nothing, T, F[T]],
       ct: ClassTag[F[T]]): JdbcType[F[T]] =
