@@ -25,6 +25,11 @@ trait Storage[Key, Value] {
   /** Does not overwrite; fails if *any* key already existed in the database. */
   def storeMultiple(kvs: Seq[(Key, Value)]): Future[Unit]
   /**
+   * Overwrites any existing values with the input keys. Named void right now because future versions of
+   * Storage might provide a method returning overwritten values.
+   */
+  def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit]
+  /**
    * If there is already a value for the supplied key, update or replace it using the supplied function.
    * Otherwise just place the supplied value. Returns the previous value.
    */
@@ -49,6 +54,8 @@ object Storage {
           override def store(k: K, v: B) = ma.store(k, g(v))
           override def storeMultiple(kvs: Seq[(K, B)]) =
             ma.storeMultiple(kvs.map(TuplePLenses.tuple2Second.modify(g)))
+          override def overwriteMultipleVoid(kvs: Seq[(K, B)]) =
+            ma.overwriteMultipleVoid(kvs.map(TuplePLenses.tuple2Second.modify(g)))
           override def mapStore(mode: StoreMode, k: K, f2: B => B, default: => B) =
             ma.mapStore(mode, k, a => g(f2(f(a))), g(default)).map(f)
           override def load(k: K) = ma.load(k).map(f)

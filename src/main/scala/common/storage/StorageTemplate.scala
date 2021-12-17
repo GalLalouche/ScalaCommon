@@ -4,7 +4,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import scalaz.syntax.bind._
 import scalaz.OptionT
+import scalaz.syntax.traverse.ToTraverseOps
 import common.rich.func.BetterFutureInstances._
+import common.rich.func.MoreTraverseInstances._
 import common.rich.func.RichOptionT._
 
 /**
@@ -26,7 +28,10 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext) extend
     })
   override def replace(k: Key, v: Value): OptionT[Future, Value] =
     OptionT(load(k).run `<*ByName` internalReplace(k, v))
+
   override def store(k: Key, v: Value) = storeMultiple(Vector(k -> v))
+  override def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit] =
+    kvs.traverse(Function.tupled(internalReplace)).void
   override def mapStore(mode: StoreMode, k: Key, f: Value => Value, default: => Value) = for {
     value <- load(k).map(f).|(default).liftSome
     storer = mode match {

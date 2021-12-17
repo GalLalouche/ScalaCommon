@@ -34,13 +34,26 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
       if ((existingValues.keySet & kvs.map(_._1).toSet).nonEmpty)
         Future failed new IllegalArgumentException
       else
-        Future successful existingValues.++=(kvs)
+        overwriteMultipleVoid(kvs)
+    override def overwriteMultipleVoid(kvs: Seq[(Int, Int)]) = Future successful existingValues.++=(kvs)
     override def utils = ???
   }
   "store" - {
     "has existing value throws" in {
       existingValues += 1 -> 2
       $.store(1, 4).shouldFail() >| (existingValues(1) shouldReturn 2)
+    }
+    "no existing value should insert the value and return true" in {
+      $.store(1, 4) >| (existingValues(1) shouldReturn 4)
+    }
+  }
+  "overwriteMultipleVoid" - {
+    "Overwrites existing values, add new values" in {
+      existingValues += 1 -> 2
+      $.overwriteMultipleVoid(Vector(1 -> 4, 3 -> 5)) >| assertAll(Vector(
+        existingValues(1) shouldReturn 4,
+        existingValues(3) shouldReturn 5,
+      ))
     }
     "no existing value should insert the value and return true" in {
       $.store(1, 4) >| (existingValues(1) shouldReturn 4)

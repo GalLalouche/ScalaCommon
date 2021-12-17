@@ -6,7 +6,6 @@ import slick.jdbc.meta.MTable
 import scala.concurrent.{ExecutionContext, Future}
 
 import scalaz.syntax.functor.ToFunctorOps
-import scalaz.OptionT
 import common.rich.func.BetterFutureInstances._
 import common.rich.func.ToMoreFunctorOps._
 
@@ -40,7 +39,16 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext) e
   override protected def internalDelete(k: Key) = db.run(toFilter(k).delete)
 
   override def storeMultiple(kvs: Seq[(Key, Value)]) =
-    db.run(tableQuery ++= kvs.map(e => toEntity(e._1, e._2))).void
+    db.run(tableQuery ++= kvs.map(Function.tupled(toEntity))).void
+  override def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit] =
+  // Adapted from https://stackoverflow.com/a/35006433/73650
+    db.run(
+      DBIO.sequence(
+        kvs
+            .map(Function.tupled(toEntity))
+            .map(tableQuery.insertOrUpdate)
+      ).withPinnedSession).void
+
   override def load(k: Key) = db.run(toFilter(k).result).toOptionTF(_.headOption map extractValue)
 
   override def utils = new TableUtilsTemplate() {
