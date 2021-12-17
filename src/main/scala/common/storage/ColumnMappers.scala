@@ -2,6 +2,7 @@ package common.storage
 
 import java.time.{LocalDate, LocalDateTime}
 
+import enumeratum.EnumEntry
 import slick.jdbc.{JdbcProfile, JdbcType}
 
 import scala.collection.generic.CanBuildFrom
@@ -15,6 +16,8 @@ class ColumnMappers(implicit d: JdbcProfile) {
 
   implicit def enumColumn[E <: Enum[E] : ClassTag]: JdbcType[E] =
     MappedColumnType.base[E, String](_.name, EnumUtils.valueOf[E])
+  def enumeratumColumn[A <: EnumEntry : ClassTag](enum: enumeratum.Enum[A]): JdbcType[A] =
+    MappedColumnType.base[A, String](_.entryName, enum.withName)
   implicit def traversable[T, F[X] <: Traversable[X]](implicit ssEv: StringSerializable[T],
       fromSeq: CanBuildFrom[Nothing, T, F[T]],
       ct: ClassTag[F[T]]): JdbcType[F[T]] =

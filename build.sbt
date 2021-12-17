@@ -11,6 +11,7 @@ lazy val scalaCommon = (project in file("."))
         "org.scalaz" %% "scalaz-core" % "7.2.15",
 
         // The below are provided to avoid pulling them in unless explicitly needed in other projects.
+        "com.beachape" %% "enumeratum" % "1.5.13",
         "com.typesafe.slick" %% "slick" % "3.2.1" % "provided",
         "io.reactivex" %% "rxscala" % "0.26.4" % "provided",
         "org.scalacheck" %% "scalacheck" % "1.13.5" % "provided", // Not in test scope due to AuxSpecs
