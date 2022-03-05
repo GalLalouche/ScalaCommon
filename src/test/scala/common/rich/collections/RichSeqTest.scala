@@ -130,17 +130,46 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
   }
 
   "pairSliding" - {
-    "empty returns an empty iterator" in {
+    "empty returns an empty seq" in {
       Vector().pairSliding shouldBe empty
     }
-    "size 1 returns an empty iterator" in {
+    "size 1 returns an empty seq" in {
       Vector(1).pairSliding shouldBe empty
     }
-    "size 2 returns an iterator with a single element" in {
+    "size 2 returns a seq with a single element" in {
       Vector(1, 2).pairSliding.toVector should ===(Vector(1 -> 2))
     }
-    "size n returns the correct iterator" in {
+    "size n returns the correct seq" in {
       Vector(1, 2, 3, 4).pairSliding.toVector should ===(Vector(1 -> 2, 2 -> 3, 3 -> 4))
+    }
+  }
+
+  "takeUntilIncluding" - {
+    "throw on an empty seq" in {
+      a[NoSuchElementException] shouldBe thrownBy {Vector[Int]().takeUntilIncluding(_ => ???)}
+    }
+    "throw on a sequence contain no element satisfying the predicate" in {
+      a[NoSuchElementException] shouldBe thrownBy {Vector(1, 2, 3).takeUntilIncluding(_ < 0)}
+    }
+    "returns all the elements not satisfying the predicate and first one satisfying it" in {
+      Stream.iterate(0)(_ + 1).takeUntilIncluding(_ > 3) shouldReturn Vector(0, 1, 2, 3, 4)
+    }
+  }
+
+  "safeZipWith" - {
+    "fine with empties" in {
+      Vector[Int]().safeZipWith(Vector[String]())((_, _) => ???) shouldBe empty
+    }
+    "throws if left is smaller than right" in {
+      val e = the[NoSuchElementException] thrownBy {Vector[Int]().safeZipWith(Vector("foo"))((_, _) => ???)}
+      e.getMessage should startWith("Right")
+    }
+    "throws if left is bigger than right" in {
+      val e = the[NoSuchElementException] thrownBy {Vector("foo").safeZipWith(Vector[Int]())((_, _) => ???)}
+      e.getMessage should startWith("Left")
+    }
+    "Returns the map zipped value" in {
+      Vector("x", "y", "z").safeZipWith(Vector(1, 2, 0))(_ * _) shouldReturn Vector("x", "yy", "")
     }
   }
 }

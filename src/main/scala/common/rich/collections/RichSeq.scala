@@ -1,10 +1,12 @@
 package common.rich.collections
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import common.rich.RichTuple._
 import scala.reflect.ClassTag
 import scala.util.Random
 
 import common.rich.RichT._
+import common.rich.primitives.RichBoolean
 
 object RichSeq {
   class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
@@ -96,6 +98,22 @@ object RichSeq {
 
     def pairSliding: Iterator[(T, T)] =
       if ($.size <= 1) Iterator.empty else $.sliding(2).map(e => e(0) -> e(1))
+
+    /** Throws [[NoSuchElementException]] if no element satisfies the predicate. */
+    def takeUntilIncluding(predicate: T => Boolean): Seq[T] =
+      $.toStream.span(RichBoolean.negate(predicate)).reduce(_ :+ _.head).toVector
+
+    /** Throws [[NoSuchElementException]] if sequences aren't the same length. */
+    def safeZipWith[S, W](other: Seq[S])(f: (T, S) => W): Seq[W] = {
+      val i1 = $.iterator
+      val i2 = other.iterator
+      val b = $.genericBuilder[W]
+      while (i1.hasNext && i2.hasNext)
+        b += f(i1.next(), i2.next())
+      if (i1.hasNext || i2.hasNext)
+        throw new NoSuchElementException(s"${if (i1.hasNext) "Left" else "Right"} side still has values")
+      b.result()
+    }
   }
 
   implicit class richSeqTuplesDouble[T, S](private val $: Seq[(T, S)]) extends AnyVal {
