@@ -9,6 +9,7 @@ object RichBoolean {
     @inline def ⊕(other: Boolean): Boolean = xor(other)
     @inline def implies(other: Boolean): Boolean = !b || other
     @inline def ==>(other: Boolean): Boolean = implies(other)
+    @inline def neither(other: Boolean): Boolean = !b && !other
   }
 
   def or[A](p1: A => Boolean, p2: A => Boolean, rest: (A => Boolean)*): A => Boolean =
