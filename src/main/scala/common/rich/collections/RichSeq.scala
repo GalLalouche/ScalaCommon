@@ -1,11 +1,11 @@
 package common.rich.collections
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import common.rich.RichTuple._
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.util.Random
 
 import common.rich.RichT._
+import common.rich.RichTuple._
 import common.rich.primitives.RichBoolean
 
 object RichSeq {
@@ -18,7 +18,7 @@ object RichSeq {
       require(index >= 0)
       if ($.size < index)
         throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-      else $ splitAt index mapTo (xs => (xs._1.to[ArrayBuffer] += elementToInsert) ++ xs._2)
+      else $ splitAt index thrush (xs => (xs._1.to[ArrayBuffer] += elementToInsert) ++ xs._2)
     }
     def after(index: Int): Seq[T] = at(index + 1)
     def before(index: Int): Seq[T] = at(index - 1)
@@ -60,7 +60,7 @@ object RichSeq {
      *
      * @param shiftSize the number of elements to shift by. It can be either negative or positive.
      */
-    def shift(shiftSize: Int): Seq[T] = $ splitAt shiftSize mapTo (e => e._2 ++ e._1)
+    def shift(shiftSize: Int): Seq[T] = $ splitAt shiftSize thrush (e => e._2 ++ e._1)
 
     /** All shifts iterators. */
     def shifts: Iterator[Seq[T]] = Iterator.range(0, $.size) map shift
@@ -71,7 +71,7 @@ object RichSeq {
       if ($.size <= i)
         throw new IndexOutOfBoundsException(s"requested to remove at $i when size is ${$.size}")
       else
-        $.splitAt(i).mapTo(e => e._1.to[ArrayBuffer] ++ e._2.drop(1))
+        $.splitAt(i).|>(e => e._1.to[ArrayBuffer] ++ e._2.drop(1))
     }
 
     /**

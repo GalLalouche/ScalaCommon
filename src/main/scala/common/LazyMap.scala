@@ -18,7 +18,7 @@ class LazyMap[K, V] private(f: K => V, currentMap: Map[K, V]) extends Function[K
     if (currentValue.isDefined)
       currentValue.get -> this
     else
-      f(k).mapTo(v => v -> new LazyMap(f, currentMap + (k -> v)))
+      f(k).|>(v => v -> new LazyMap(f, currentMap + (k -> v)))
   }
 
   def apply(k: K): V = get(k).getOrElse(f(k))

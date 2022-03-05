@@ -29,7 +29,7 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter {self: Suite =>
     def mapByName[P <: RichPath[_]](ps: TraversableOnce[P]): Map[String, P] =
       ps.mapBy(_.name)
     val dir1Files = dir1.files
-    val dir2Files = dir1.files map RichFile.apply mapTo mapByName
+    val dir2Files = dir1.files map RichFile.apply thrush mapByName
     assert(dir1Files.size == dir2Files.size,
       s"dir1 <$dir1> doesn't have the same number of files as <$dir2>")
     dir1Files.foreach {dir1File =>

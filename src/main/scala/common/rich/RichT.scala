@@ -43,9 +43,9 @@ object RichT {
 
     @inline def joinOption[S](o: Option[S])(f: (T, S) => T): T = o.fold($)(f($, _))
     /** When you really want a fluent API. */
-    @inline def mapTo[S](f: T => S): S = f($)
+    @inline def thrush[S](f: T => S): S = f($)
     /** For the F# lovers in the audience. */
-    @inline def |>[S](f: T => S): S = mapTo(f)
+    @inline def |>[S](f: T => S): S = thrush(f)
 
     @inline def mapIf(p: T => Boolean): __Mapper[T] = new __Mapper[T]($, p)
     @inline def mapIf(p: Boolean): __Mapper[T] = new __Mapper[T]($, p.const)
