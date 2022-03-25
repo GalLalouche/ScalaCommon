@@ -16,6 +16,7 @@ class Percentage private(val p: Double) extends AnyVal {
   override def toString: String = p withPrecision 2
   /** Returns true with probability p. */
   def roll(r: Random): Boolean = r.nextDouble() <= p
+  def inverse: Percentage = new Percentage(1 - p)
 }
 
 object Percentage {
