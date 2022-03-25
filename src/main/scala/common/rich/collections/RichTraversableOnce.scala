@@ -105,7 +105,7 @@ object RichTraversableOnce {
     def allUnique: Boolean =
       $.toIterator.scanLeft(Set[A]())(_ + _).zipWithIndex.forall(_.reduce(_.size == _))
 
-    /** Finds the percentage of elements satisfying the predicate */
+    /** Finds the percentage of elements satisfying the predicate, throws on empty */
     def percentageSatisfying(p: A => Boolean): Double = {
       val (total, satisfy) = $.foldLeft((0, 0)) {(agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0))}
       satisfy.toDouble / total

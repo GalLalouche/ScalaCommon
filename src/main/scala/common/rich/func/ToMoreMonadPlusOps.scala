@@ -24,4 +24,6 @@ trait ToMoreMonadPlusOps {
   }
 }
 
-object ToMoreMonadPlusOps extends ToMoreMonadPlusOps
+object ToMoreMonadPlusOps extends ToMoreMonadPlusOps {
+  def void[F[_] : MonadPlus]: F[Unit] = implicitly[MonadPlus[F]].empty.void
+}
