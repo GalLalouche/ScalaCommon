@@ -1,5 +1,6 @@
 package common.rich.collections
 
+import com.google.common.collect.ImmutableBiMap
 import org.scalatest.FreeSpec
 import org.scalatest.OptionValues._
 
@@ -212,5 +213,11 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
 
   "range" in {
     Iterator(1, 2, 3).range shouldReturn(1, 3)
+  }
+
+  "bimap" in {
+    // Needed for type inference
+    val result: ImmutableBiMap[Int, Int] = Vector(1 -> 2, 3 -> 4).toBiMap
+    result shouldReturn ImmutableBiMap.builder().put(1, 2).put(3, 4).build()
   }
 }

@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import com.google.common.collect.ImmutableBiMap
+
 import scala.collection.TraversableOnce
 import scala.language.higherKinds
 import scala.math.log10
@@ -47,6 +49,12 @@ object RichTraversableOnce {
                 s"but is also requested as a key for value <$nextValue>")
         map + (key -> nextValue)
       }
+
+    def toBiMap[B, C](implicit eq: A =:= (B, C)): ImmutableBiMap[B, C] = {
+      val builder = ImmutableBiMap.builder[B, C]()
+      $.foreach(eq(_).reduce(builder.put))
+      builder.build()
+    }
 
     /**
      * Performs a foreach iteration, running a function between each two items.
