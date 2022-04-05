@@ -36,6 +36,8 @@ object RichMap {
         map + (k2 -> v)
       }
     }
+    /** Doesn't return a view. */
+    def properMapValues[V2](f: V => V2): Map[K, V2] = $.mapValues(f).view.force
   }
 
   implicit class richSemigroupMap[K, V: Semigroup]($: Map[K, V]) {
