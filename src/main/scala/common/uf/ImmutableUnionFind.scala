@@ -4,10 +4,11 @@ import common.rich.RichT._
 
 /**
  * An immutable implementation of the UnionFind (Disjoint Set) algorithm. Since it's immutable, path
- * shortening (which actually ensures O(log*(n)) performance) can only be done on unions, but on sameSet
+ * shortening (which actually ensures O(log*(n)) performance) can only be done on unions, but not on sameSet
  * checks. In other words, this could mean that the actual performance would be O(n) in the worst case for
- * some specific union operations.
- * See MutableUnionFind for the by-the-book implementation and performance.
+ * some specific union operations. This could in theory be implemented using a State monad, but we aren't in
+ * Haskell land anymore.
+ * See [[MutableUnionFind]] for the by-the-book implementation and performance.
  */
 class ImmutableUnionFind[A] private(
     parents: Vector[Int],
@@ -27,6 +28,7 @@ class ImmutableUnionFind[A] private(
     val shortened = paths1.iterator.++(paths2.iterator)./:(parents)(_.updated(_, destination))
     new ImmutableUnionFind[A](shortened, index, numberOfSets.mapIf(differentSet).to(_ - 1))
   }
+  override def getRepresentative(a: A): A = reverseMap(getSet(a))
 }
 
 object ImmutableUnionFind {

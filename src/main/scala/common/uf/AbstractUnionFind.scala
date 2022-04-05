@@ -2,8 +2,9 @@ package common.uf
 
 import common.rich.func.MoreIterableInstances._
 import scalaz.syntax.functor._
-
 import scala.annotation.tailrec
+
+import common.rich.collections.RichTraversableOnce.richTraversableOnce
 
 abstract class AbstractUnionFind[A] extends UnionFind[A] {
   protected def index: Map[A, Int]
@@ -27,4 +28,9 @@ abstract class AbstractUnionFind[A] extends UnionFind[A] {
   override def sets = index.keys.fproduct(getSet).groupBy(_._2).values.map(_.map(_._1))
   override def values = index.keys
   override def hasSingleSet = numberOfSets == 1
+  protected lazy val reverseMap: Map[Int, A] = index.map(_.swap)
+  assert(reverseMap.size == index.size)
+  override def getRepresentative(a: A): A = reverseMap(getSet(a))
+  // TODO Not too efficient, but I'm too too lazy to add inverse pointers right now.
+  override def set(a: A): Set[A] = sets.filter(_.contains(a)).single.toSet
 }

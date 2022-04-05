@@ -36,4 +36,29 @@ abstract class UnionFindTest extends FreeSpec with AuxSpecs {
   "singleSet" in {
     createUnionFind(Vector(1, 2, 3)).union(1, 2).union(2, 3).hasSingleSet shouldReturn true
   }
+
+  "representative" - {
+    "all elements representative is initially themselves" in {
+      val v = Vector(1, 2, 3)
+      val uf = createUnionFind(v)
+      assertAll(v.map(e => uf.getRepresentative(e) shouldReturn e))
+    }
+    "representative is consistent" in {
+      val uf = createUnionFind(Vector(1, 2, 3, 4, 5, 6)).union(1, 2).union(2, 3).union(4, 5).union(4, 6)
+      assertAll(Vector(1, 2, 3).map(e => uf.getRepresentative(e) shouldReturn uf.getRepresentative(3)))
+      assertAll(Vector(4, 5, 6).map(e => uf.getRepresentative(e) shouldReturn uf.getRepresentative(4)))
+    }
+  }
+  "set" - {
+    "all elements sets is initially themselves" in {
+      val v = Vector(1, 2, 3)
+      val uf = createUnionFind(v)
+      assertAll(v.map(e => uf.set(e) shouldReturn Set(e)))
+    }
+    "sets are consistent" in {
+      val uf = createUnionFind(Vector(1, 2, 3, 4, 5, 6)).union(1, 2).union(2, 3).union(4, 5).union(4, 6)
+      assertAll(Vector(1, 2, 3).map(e => uf.set(e) shouldReturn Set(1, 2, 3)))
+      assertAll(Vector(4, 5, 6).map(e => uf.set(e) shouldReturn Set(4, 5, 6)))
+    }
+  }
 }
