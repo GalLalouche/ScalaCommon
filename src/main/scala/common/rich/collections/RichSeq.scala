@@ -1,12 +1,15 @@
 package common.rich.collections
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.util.Random
 
 import common.rich.RichT._
 import common.rich.RichTuple._
+import common.rich.collections.RichIterable.richIterable
 import common.rich.primitives.RichBoolean
+import common.rich.primitives.RichBoolean.richBoolean
 
 object RichSeq {
   class __Inserter[T] private[RichSeq]($: Seq[T], elementToInsert: T) {
@@ -113,6 +116,16 @@ object RichSeq {
       if (i1.hasNext || i2.hasNext)
         throw new NoSuchElementException(s"${if (i1.hasNext) "Left" else "Right"} side still has values")
       b.result()
+    }
+
+    def intersperse(a: => T): Seq[T] =
+      $.mapIf(_ hasAtLeastSizeOf 2).to($.head +: $.tail.flatMap(Vector(a, _)))
+
+    /** Like groupBy, but retains the order of the elements encountered */
+    def orderedGroupBy[S](f: T => S): Seq[(S, Seq[T])] = {
+      val result = new mutable.LinkedHashMap[S, mutable.Buffer[T]]
+      $.foreach(x => result.getOrElseUpdate(f(x), new ArrayBuffer[T]) += x)
+      result.mapValues(_.toVector).toVector
     }
   }
 

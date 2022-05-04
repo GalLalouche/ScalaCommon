@@ -172,4 +172,28 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
       Vector("x", "y", "z").safeZipWith(Vector(1, 2, 0))(_ * _) shouldReturn Vector("x", "yy", "")
     }
   }
+
+  "intersperse" - {
+    "empty returns empty" in {
+      Vector[Int]().intersperse(???) shouldBe empty
+    }
+    "Size 1 returns self" in {
+      Vector(1).intersperse(???) shouldReturn Vector(1)
+    }
+    "Places element between each two elements" in {
+      var x = 0
+      Vector(10, 20, 30).intersperse {
+        x += 1
+        x
+      } shouldReturn Vector(10, 1, 20, 2, 30)
+    }
+  }
+
+  "orderedGroupBy" in {
+    Vector("foo", "bar", "bazz", "y", "moo", "x").orderedGroupBy(_.length) shouldReturn Vector(
+      3 -> Vector("foo", "bar", "moo"),
+      4 -> Vector("bazz"),
+      1 -> Vector("y", "x"),
+    )
+  }
 }
