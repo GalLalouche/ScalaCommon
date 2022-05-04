@@ -12,14 +12,16 @@ lazy val scalaCommon = (project in file("."))
 
         // The below are provided to avoid pulling them in unless explicitly needed in other projects.
         "com.beachape" %% "enumeratum" % "1.5.13",
-        "com.typesafe.slick" %% "slick" % "3.2.1" % "provided",
-        "io.reactivex" %% "rxscala" % "0.26.4" % "provided",
-        "org.scalacheck" %% "scalacheck" % "1.13.5" % "provided", // Not in test scope due to AuxSpecs
-        "org.scalatest" %% "scalatest" % "3.0.4" % "provided", // Not in test scope due to AuxSpecs
+        "com.github.julien-truffaut" %% "monocle-core" % "1.5.0" % "provided",
         "com.google.inject" % "guice" % GuiceVersion % "provided",
         "com.google.inject.extensions" % "guice-assistedinject" % GuiceVersion % "provided",
-        "com.github.julien-truffaut" %% "monocle-core" % "1.5.0" % "provided",
+        "com.typesafe.slick" %% "slick" % "3.2.1" % "provided",
+        "io.reactivex" %% "rxscala" % "0.26.4" % "provided",
         "net.codingwell" %% "scala-guice" % "4.2.3" % "provided",
+        "org.scalafx" %% "scalafx" % "17.0.1-R26" % "provided",
+
+        "org.scalacheck" %% "scalacheck" % "1.13.5" % "provided", // Not in test scope due to AuxSpecs
+        "org.scalatest" %% "scalatest" % "3.0.4" % "provided", // Not in test scope due to AuxSpecs
 
         "com.h2database" % "h2" % "1.4.196" % "test",
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
