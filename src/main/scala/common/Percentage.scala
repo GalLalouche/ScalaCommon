@@ -17,6 +17,7 @@ class Percentage private(val p: Double) extends AnyVal {
   /** Returns true with probability p. */
   def roll(r: Random): Boolean = r.nextDouble() <= p
   def inverse: Percentage = new Percentage(1 - p)
+  def prettyPrint(decimalDigits: Int): String = s"${(100 * p).withPrecision(decimalDigits)}%"
 }
 
 object Percentage {

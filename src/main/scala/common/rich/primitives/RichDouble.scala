@@ -15,8 +15,13 @@ object RichDouble {
     def shiftedLog: Double = Math.log(d + 1)
     /** For those who cannot for the life of them remember string formatting. */
     def withPrecision(p: Int): String = {
-      val $ = f"$d%.10f".split("\\.")
-      $(0) + "." + $(1).take(p)
+      require(p >= 0)
+      if (p == 0)
+        d.toInt.toString
+      else {
+        val $ = f"$d%.10f".split("\\.")
+        $(0) + "." + $(1).take(p)
+      }
     }
   }
 }

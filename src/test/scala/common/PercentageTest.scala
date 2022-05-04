@@ -45,4 +45,13 @@ class PercentageTest extends FreeSpec with AuxSpecs {
     Percentage(1.0).roll(new Random(0)) shouldReturn true
     Percentage(0.0).roll(new Random(0)) shouldReturn false
   }
+
+  "prettyPrint" - {
+    "No digits" in {
+      Percentage(0.5).prettyPrint(0) shouldReturn "50%"
+    }
+    "Some digits" in {
+      Percentage(0.375).prettyPrint(2) shouldReturn "37.50%"
+    }
+  }
 }
