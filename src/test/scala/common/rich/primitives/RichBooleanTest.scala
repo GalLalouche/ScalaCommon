@@ -58,7 +58,6 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
       b1: Boolean, b2: Boolean, f: (Boolean, Boolean) => Boolean, expectedOutput: Boolean): Unit = {
     def toString(b: Boolean) = if (b) "T" else "F"
     s"${toString(b1)}${toString(b2)}" in {
-      println("Hi!")
       f(b1, b2) shouldBe expectedOutput
     }
   }
