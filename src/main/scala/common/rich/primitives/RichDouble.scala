@@ -9,7 +9,7 @@ object RichDouble {
     def sqrt: Double = Math sqrt d
     def isInt: Boolean = d - d.toInt == 0
     def inAngles: Double = d * 180 / Math.PI
-    def isRoughly(o: Double, precision: Double = 0.001): Boolean = d - o < precision
+    def isRoughly(o: Double, precision: Double = 0.001): Boolean = math.abs(d - o) < precision
     /** Checks that this double isn't NaN or one of the infinities. */
     def isRealDouble: Boolean = (d.isNaN || d.isPosInfinity || d.isNegInfinity).isFalse
     def shiftedLog: Double = Math.log(d + 1)
