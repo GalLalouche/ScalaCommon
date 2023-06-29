@@ -7,10 +7,11 @@ import common.rich.RichT.richT
 
 object RichNode {
   implicit class richNode(n: Node) {
-    def setBackgroundColor(color: String): Unit = runLater(n.setStyle(Styles.backgroundColor(color)))
-    def setBaseColor(color: String): Unit = runLater(n.setStyle(Styles.baseColor(color)))
-    def setFontWeight(style: String): Unit = runLater(n.setStyle(Styles.fontWeight(style)))
-    def setFontSize(size: Int): Unit = runLater(n.setStyle(Styles.fontSize(size)))
+    def setStyleLater(style: String): Unit = runLater(n.style = style)
+    def setBackgroundColor(color: String): Unit = setStyleLater(Styles.backgroundColor(color))
+    def setBaseColor(color: String): Unit = setStyleLater(Styles.baseColor(color))
+    def setFontWeight(style: String): Unit = setStyleLater(Styles.fontWeight(style))
+    def setFontSize(size: Int): Unit = setStyleLater(Styles.fontSize(size))
     def makeBold(): Node = n.<|(_ setFontWeight "bold")
   }
 }
