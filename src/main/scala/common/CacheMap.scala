@@ -8,14 +8,17 @@ package common
  * wouldn't guarantee a minimum number of applications of the memoized function.
  */
 class CacheMap[K, V] private(@volatile private var lazyMap: LazyMap[K, V]) extends Function[K, V] {
-  override def apply(k: K): V = lazyMap.get(k).getOrElse {
-    this.synchronized {
-      lazyMap.get(k).getOrElse {
-        val (value, newMap) = lazyMap.update(k)
-        this.lazyMap = newMap
-        value
-      }
-    }
+  override def apply(k: K): V =
+    lazyMap.get(k).getOrElse(synchronized(lazyMap.get(k).getOrElse(force(k))))
+
+  /** Returns the value if it was already computed. */
+  def get(k: K): Option[V] = lazyMap.get(k)
+
+  /** Forces the re-evaluation of the function. */
+  def force(k: K): V = synchronized {
+    val (value, newMap) = lazyMap.update(k)
+    this.lazyMap = newMap
+    value
   }
 }
 
