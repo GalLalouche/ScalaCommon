@@ -6,9 +6,13 @@ import scalaz.{Bind, Functor, IdT, ListT, OptionT}
 import scalaz.Id.Id
 import scalaz.Scalaz.{ToBindOps, ToFunctorOps}
 
+/** Defines the relationship between a monad transformer and the original monad, e.g., List and ListT. */
 trait Transable[M[_], MT[_[_], _]] {
+  /** Like liftM, but doesn't require a Monad. */
   def hoistId[F[_] : Point, A](fa: M[A]): MT[F, A]
+  /** Unwraps a monad transformer. */
   def run[F[_], A](fa: MT[F, A]): F[M[A]]
+  /** Wraps a monad transformer. */
   def unrun[F[_], A](fa: F[M[A]]): MT[F, A]
   def subFlatMap[F[_], A, B](fa: MT[F, A])(f: A => M[B])(implicit evF: Functor[F], evM: Bind[M]): MT[F, B] = {
     val x: F[M[A]] = run(fa)
