@@ -5,11 +5,11 @@ import org.scalatest.FreeSpec
 import scalaz.{IdT, ListT, OptionT}
 import scalaz.Id.Id
 import scalaz.std.option.optionInstance
-import common.rich.func.ToMoreMonadTransOps._
+import common.rich.func.ToTransableOps.toHoistIdOps
 
 import common.test.AuxSpecs
 
-class ToMoreMonadTransOpsTest extends FreeSpec with AuxSpecs {
+class ToTransableOpsTest extends FreeSpec with AuxSpecs {
   "List" in {
     List(1, 2, 3).hoistId shouldReturn ListT(Some(List(1, 2, 3)))
   }

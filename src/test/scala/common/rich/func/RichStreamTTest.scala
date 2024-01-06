@@ -6,7 +6,7 @@ import scala.concurrent.Future
 
 import scalaz.{OptionT, StreamT}
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreMonadTransOps.toMoreMonadTransOps
+import common.rich.func.ToTransableOps.toHoistIdOps
 
 import common.rich.RichT.richT
 import common.test.AsyncAuxSpecs

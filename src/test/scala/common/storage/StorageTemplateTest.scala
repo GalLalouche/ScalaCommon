@@ -7,7 +7,7 @@ import scala.concurrent.Future
 
 import scalaz.syntax.bind._
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreMonadTransOps._
+import common.rich.func.ToTransableOps.toHoistIdOps
 
 import common.test.AsyncAuxSpecs
 
