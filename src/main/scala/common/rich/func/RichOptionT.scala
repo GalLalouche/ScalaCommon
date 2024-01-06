@@ -9,14 +9,13 @@ import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 import scalaz.syntax.monad.ToMonadOps
 import common.rich.func.ToMoreFunctorOps._
+import common.rich.func.ToTransableOps.toTransableOps
 
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 
 object RichOptionT {
   implicit class richOptionT[F[_], A](private val $: OptionT[F, A]) extends AnyVal {
-    def subFlatMap[B](f: A => Option[B])(implicit F: Functor[F]): OptionT[F, B] =
-      OptionT(F.map($.run)(_ flatMap f))
     def ||||(other: => F[A])(implicit ev: Monad[F]): F[A] = $ getOrElseF other
     def orError[S](s: => S)(implicit ev: MonadError[F, S]): F[A] = ev.bind($.run) {
       case Some(value) => Monad[F].point(value)
@@ -29,11 +28,14 @@ object RichOptionT {
       b <- e.fold(false.pure)(p)
     } yield e.filter(b.const))
 
-    def collect[B](pf: PartialFunction[A, B])(implicit F: Functor[F]): OptionT[F, B] = subFlatMap(pf.lift)
+    def collect[B](pf: PartialFunction[A, B])(implicit F: Functor[F]): OptionT[F, B] = {
+      import scalaz.std.option.optionInstance
+      $.subFlatMap(pf.lift)
+    }
   }
 
   // An alternative to OptionT.some that requires a point rather than a full Applicative.
-  def pointSome[F[_] : Point]: Id ~> OptionT[F, *] = new (Id ~> OptionT[F, *]) {
+  def pointSome[F[_] : Point]: Id ~> OptionT[F, *] = new(Id ~> OptionT[F, *]) {
     override def apply[A](a: A) = OptionT(Point[F].point(Some(a)))
   }
 
