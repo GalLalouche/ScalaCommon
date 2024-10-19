@@ -1,6 +1,6 @@
 package common.rich.collections
 
-import org.scalatest.{Assertion, FreeSpec}
+import org.scalatest.FreeSpec
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.SpanSugar._
 

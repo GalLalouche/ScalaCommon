@@ -10,7 +10,7 @@ import common.rich.func.ToMoreFunctorOps._
 import common.rich.RichT._
 
 object RichFuture {
-  implicit class richFuture[A]($: Future[A])(implicit ec: ExecutionContext) {
+  implicit class richFuture[A]($ : Future[A])(implicit ec: ExecutionContext) {
     def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
     def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isSuccess) f else ()))
     def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isFailure) f else ()))
@@ -22,11 +22,13 @@ object RichFuture {
         triedT.failed.get
       catch {
         case _: UnsupportedOperationException =>
-          throw new UnsupportedOperationException(s"Expected failure but was success <${triedT.get}>")
+          throw new UnsupportedOperationException(
+            s"Expected failure but was success <${triedT.get}>",
+          )
       }
     }
 
-    def consumeTry(c: Try[A] => Any): Future[A] = toTry listen c flatMap {
+    def consumeTry(c: Try[A] => Any): Future[A] = toTry.listen(c).flatMap {
       case Success(t) => Future.successful(t)
       case Failure(e) => Future.failed(e)
     }

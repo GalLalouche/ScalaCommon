@@ -6,18 +6,19 @@ trait StringSerializable[T] {
   def stringify(t: T): String
   def parse(s: String): T
   /**
-   * Used for converting collections of StringSerializables to a string string.
-   * Override if your serializer outputs ";".
+   * Used for converting collections of StringSerializables to a string string. Override if your
+   * serializer outputs ";".
    */
   def separator = ";"
 }
 
 object StringSerializable {
-  implicit def EnumStringSerializable[E <: Enum[E] : ClassTag]: StringSerializable[E] = new StringSerializable[E] {
-    private lazy val values: Array[E] = EnumUtils.values
-    override def stringify(e: E): String = e.ordinal.toString
-    override def parse(s: String): E = values(s.toInt)
-  }
+  implicit def EnumStringSerializable[E <: Enum[E]: ClassTag]: StringSerializable[E] =
+    new StringSerializable[E] {
+      private lazy val values: Array[E] = EnumUtils.values
+      override def stringify(e: E): String = e.ordinal.toString
+      override def parse(s: String): E = values(s.toInt)
+    }
   implicit object IntStringSerializable extends StringSerializable[Int] {
     override def stringify(t: Int): String = t.toString
     override def parse(s: String): Int = s.toInt

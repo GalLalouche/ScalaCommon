@@ -1,7 +1,5 @@
 package common.rich.func
 
-import java.util.NoSuchElementException
-
 import org.scalatest.FreeSpec
 
 import scalaz.OptionT

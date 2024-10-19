@@ -3,41 +3,46 @@ package common.rich.collections
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 
-import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
+import common.rich.primitives.RichBoolean._
 
 object RichIterator {
-  implicit class richIterator[A](private val $: Iterator[A]) extends AnyVal {
+  implicit class richIterator[A](private val $ : Iterator[A]) extends AnyVal {
     /** Returns an iterator that throws an exception on the first item that does not satisfy f */
-    def verify(f: A => Boolean,
-        exceptionMessage: (A, Int) => String = (e, i) => s"Item $e @ $i failed f"): Iterator[A] =
-      $.zipWithIndex.map(e => if (f(e._1)) e._1 else throw new Exception(exceptionMessage(e._1, e._2)))
+    def verify(
+        f: A => Boolean,
+        exceptionMessage: (A, Int) => String = (e, i) => s"Item $e @ $i failed f",
+    ): Iterator[A] =
+      $.zipWithIndex.map(e =>
+        if (f(e._1)) e._1 else throw new Exception(exceptionMessage(e._1, e._2)),
+      )
 
     /**
      * Returns an iterator that outputs to the console its iteration number
      *
-     * @param frequency the frequency of the output, i.e., how often should the message be printed.
-     *                  Default is every time, i.e., at every step.
+     * @param frequency
+     *   the frequency of the output, i.e., how often should the message be printed. Default is
+     *   every time, i.e., at every step.
      */
-    def withCounter(frequency: Int = 1): Iterator[A] = withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
+    def withCounter(frequency: Int = 1): Iterator[A] =
+      withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
 
     /**
      * Returns an iterator that outputs to the console its progress
      *
-     * @param f A function from iteration number to an optional string.
-     *          If the None, nothing will be printed.
-     *          Otherwise, f(e) will be printed, where e is the current element being processed.
+     * @param f
+     *   A function from iteration number to an optional string. If the None, nothing will be
+     *   printed. Otherwise, f(e) will be printed, where e is the current element being processed.
      */
     def withCounter(f: Int => Option[String]): Iterator[A] = new AbstractIterator[A] {
       private var i = 0
-      override def hasNext = {
+      override def hasNext =
         if ($.hasNext)
           true
         else {
           print("\r")
           false
         }
-      }
       override def next() = {
         i += 1
         for (l <- f(i))
@@ -49,11 +54,12 @@ object RichIterator {
     /**
      * Returns an iterator that outputs to the console its progress in percentages
      *
-     * @param size the total number of elements in the iterator
+     * @param size
+     *   the total number of elements in the iterator
      */
     def withPercentage(size: Int): Iterator[A] = {
       var lastPercentage = 0
-      withCounter {i =>
+      withCounter { i =>
         val currentPercentage = i * 100 / size
         if (currentPercentage > lastPercentage) {
           lastPercentage = currentPercentage
@@ -74,7 +80,9 @@ object RichIterator {
     def reducingIterator(f: (A, A) => A): Iterator[A] =
       if ($.isEmpty) Iterator() else $.scanLeft($.next)(f)
 
-    /** Similar to takeWhile, except the first element not satisfying the predicate is also included. */
+    /**
+     * Similar to takeWhile, except the first element not satisfying the predicate is also included.
+     */
     def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A] {
       private var stopped: Boolean = false
       override def hasNext = stopped.isFalse && $.hasNext
@@ -102,7 +110,7 @@ object RichIterator {
     def headOption(): Option[A] = $.optMap(_.hasNext, _.next())
     def lastOption(): Option[A] = if ($.hasNext) Some(last()) else None
     def lazyFoldl[B](b: B)(f: (A, B) => Option[B]): B = {
-      @tailrec def go(agg: B): B = {
+      @tailrec def go(agg: B): B =
         if ($.hasNext)
           f($.next(), agg) match {
             case None => agg
@@ -110,7 +118,6 @@ object RichIterator {
           }
         else
           agg
-      }
       go(b)
     }
   }

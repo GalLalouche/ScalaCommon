@@ -1,12 +1,13 @@
 package common.rich.func
 
 import scala.language.higherKinds
+
 import scalaz.{Foldable, MonadPlus, Monoid}
 
 // Extending IterableInstances messes up other collections
 trait MoreIterableInstances {
   implicit object IterableMonadPlus extends MonadPlus[Iterable] with Foldable[Iterable] {
-    override def bind[A, B](fa: Iterable[A])(f: A => Iterable[B]) = fa flatMap f
+    override def bind[A, B](fa: Iterable[A])(f: A => Iterable[B]) = fa.flatMap(f)
     override def point[A](a: => A) = Iterable(a)
     override def empty[A] = Iterable.empty
     override def plus[A](a: Iterable[A], b: => Iterable[A]) = a ++ b

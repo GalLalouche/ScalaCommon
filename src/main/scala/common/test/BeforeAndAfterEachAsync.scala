@@ -4,7 +4,7 @@ import org.scalatest.{AsyncTestSuite, AsyncTestSuiteMixin, FutureOutcome}
 
 import scala.concurrent.Future
 
-trait BeforeAndAfterEachAsync extends AsyncTestSuiteMixin {this: AsyncTestSuite =>
+trait BeforeAndAfterEachAsync extends AsyncTestSuiteMixin { this: AsyncTestSuite =>
   protected def beforeEach(): Future[_] = BeforeAndAfterEachAsync.EmptyFuture
   protected def afterEach(): Future[_] = BeforeAndAfterEachAsync.EmptyFuture
   override def withFixture(test: NoArgAsyncTest): FutureOutcome =

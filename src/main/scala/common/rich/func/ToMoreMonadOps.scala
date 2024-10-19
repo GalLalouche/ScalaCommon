@@ -8,7 +8,7 @@ import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
 
 trait ToMoreMonadOps {
-  implicit class toMonadBooleanOps[F[_] : Monad]($: F[Boolean]) {
+  implicit class toMonadBooleanOps[F[_]: Monad]($ : F[Boolean]) {
     def ifFalse(f: => F[_]): F[Unit] = $.ifM(ifTrue = ().pure, ifFalse = f.void)
     def ifTrue(f: => F[_]): F[Unit] = $.ifM(ifTrue = f.void, ifFalse = ().pure)
   }

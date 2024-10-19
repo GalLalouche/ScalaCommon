@@ -1,11 +1,12 @@
 package common.rich.func
 
 import scala.language.higherKinds
+
 import scalaz.{Foldable, MonadPlus, Monoid}
 
 trait MoreTraversableInstances {
   implicit object TraversableMonadPlus extends MonadPlus[Traversable] with Foldable[Traversable] {
-    override def bind[A, B](fa: Traversable[A])(f: A => Traversable[B]) = fa flatMap f
+    override def bind[A, B](fa: Traversable[A])(f: A => Traversable[B]) = fa.flatMap(f)
     override def point[A](a: => A) = Traversable(a)
     override def empty[A] = Traversable.empty
     override def plus[A](a: Traversable[A], b: => Traversable[A]) = a ++ b

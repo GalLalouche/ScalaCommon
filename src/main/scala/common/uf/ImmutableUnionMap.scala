@@ -1,16 +1,16 @@
 package common.uf
 
-import scalaz.Scalaz.ToFunctorOpsUnapply
 import common.rich.func.MoreIteratorInstances._
-import monocle.syntax.fields._1
 import monocle.Monocle.toApplyLensOps
+import monocle.syntax.fields._1
+import scalaz.Scalaz.ToFunctorOpsUnapply
 
 import common.rich.collections.RichMap.richMap
 
 /** See [[ImmutableUnionFind]] for performance analysis. */
 // TODO the mutable version
-class ImmutableUnionMap[K, V](
-    override val keySet: ImmutableUnionFind[K], map: Map[K, V]) extends UnionMap[K, V] {
+class ImmutableUnionMap[K, V](override val keySet: ImmutableUnionFind[K], map: Map[K, V])
+    extends UnionMap[K, V] {
   assert(
     keySet.sets.forall(_.forall(map.contains _ compose keySet.getRepresentative)),
     "Inconsistency in representative and index map",

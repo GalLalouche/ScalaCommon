@@ -4,10 +4,11 @@ import java.io.{ByteArrayOutputStream, File, FileOutputStream, InputStream, Outp
 
 import scala.annotation.tailrec
 import scala.io.Source
-import RichT._
+
+import common.rich.RichT._
 
 object RichInputStream {
-  implicit class richInputStream(private val $: InputStream) extends AnyVal {
+  implicit class richInputStream(private val $ : InputStream) extends AnyVal {
     def asString: String = Source.fromInputStream($).mkString
     def toBytes: Array[Byte] = new ByteArrayOutputStream().<|(writeTo).toByteArray
     def writeTo(outputStream: OutputStream): Unit = {

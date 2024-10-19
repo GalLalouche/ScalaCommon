@@ -20,25 +20,27 @@ object RichT {
 
   // A nice little syntax helper: this allows us to use structures such as mapIf(p).to(something)
   // This is used instead of a local class for performance.
-  class __Mapper[T] private[RichT](e: T, p: T => Boolean) {
+  class __Mapper[T] private[RichT] (e: T, p: T => Boolean) {
     @inline def to(f: T => T): T = if (p(e)) f(e) else e
     @inline def to(t: => T): T = if (p(e)) t else e
   }
-  class __Thrower[T] private[RichT]($: T, b: Boolean) {
+  class __Thrower[T] private[RichT] ($ : T, b: Boolean) {
     def thenThrow(f: T => Throwable): T = if (b) $ else throw f($)
     def thenThrow(e: => Throwable): T = if (b) $ else throw e
   }
 
-  implicit class richT[T](private val $: T) extends AnyVal {
+  implicit class richT[T](private val $ : T) extends AnyVal {
     /**
      * Logs the given string to console and returns this.
      *
-     * @param f An optional stringifier to use; by default, .toString is used
+     * @param f
+     *   An optional stringifier to use; by default, .toString is used
      */
-    @inline def log(f: T => Any = x => x.toString): T = applyAndReturn {e => println(f(e))}
+    @inline def log(f: T => Any = x => x.toString): T = applyAndReturn(e => println(f(e)))
     /** Converts this into an Option; this also works for null, beautifully enough :D */
     @inline def opt: Option[T] = Option($)
-    @inline def optFilter(p: T => Boolean): Option[T] = if ($ == null || p($).isFalse) None else Some($)
+    @inline def optFilter(p: T => Boolean): Option[T] =
+      if ($ == null || p($).isFalse) None else Some($)
     @inline def optMap[S](p: T => Boolean, f: T => S): Option[S] = optFilter(p).map(f)
 
     @inline def joinOption[S](o: Option[S])(f: (T, S) => T): T = o.fold($)(f($, _))
@@ -79,33 +81,45 @@ object RichT {
     }
 
     @inline def toTuple[S1, S2](f1: T => S1, f2: T => S2): (S1, S2) = (f1($), f2($))
-    @inline def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) = (f1($), f2($), f3($))
-    @inline def toTuple[S1, S2, S3, S4](f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4): (S1, S2, S3, S4) =
+    @inline def toTuple[S1, S2, S3](f1: T => S1, f2: T => S2, f3: T => S3): (S1, S2, S3) =
+      (f1($), f2($), f3($))
+    @inline def toTuple[S1, S2, S3, S4](
+        f1: T => S1,
+        f2: T => S2,
+        f3: T => S3,
+        f4: T => S4,
+    ): (S1, S2, S3, S4) =
       (f1($), f2($), f3($), f4($))
     @inline def toTuple[S1, S2, S3, S4, S5](
-        f1: T => S1, f2: T => S2, f3: T => S3, f4: T => S4, f5: T => S5): (S1, S2, S3, S4, S5) =
+        f1: T => S1,
+        f2: T => S2,
+        f3: T => S3,
+        f4: T => S4,
+        f5: T => S5,
+    ): (S1, S2, S3, S4, S5) =
       (f1($), f2($), f3($), f4($), f5($))
 
-    @inline def tryOrKeep(f: T => T): T = Try(f($)) getOrElse $
-    @inline def optionOrKeep(f: T => Option[T]): T = f($) getOrElse $
+    @inline def tryOrKeep(f: T => T): T = Try(f($)).getOrElse($)
+    @inline def optionOrKeep(f: T => Option[T]): T = f($).getOrElse($)
 
-    def coerceIn(min: T, max: T)(implicit o: Ordering[T]): T = if ($ < min) min else if ($ > max) max else $
+    def coerceIn(min: T, max: T)(implicit o: Ordering[T]): T =
+      if ($ < min) min else if ($ > max) max else $
 
     def ifNot(p: T => Boolean) = new __Thrower($, p($))
     def ifNot(b: Boolean) = new __Thrower($, b)
   }
 
-  implicit class lazyT[T]($: => T) {
+  implicit class lazyT[T]($ : => T) {
     def const[S]: S => T = _ => $
-    def partialConst[S]: PartialFunction[S, T] = {case _ => $}
+    def partialConst[S]: PartialFunction[S, T] = { case _ => $ }
 
     /** Returns Some($) if the condition is true; if not, returns None. */
     def onlyIf(b: Boolean): Option[T] = if (b) Some($) else None
     def onlyIfNot(b: Boolean): Option[T] = onlyIf(b.isFalse)
   }
 
-  implicit class anyRefT[T <: AnyRef](private val $: T) extends AnyVal {
-    @inline def neq(other: T): Boolean = !$.eq(other)
+  implicit class anyRefT[T <: AnyRef](private val $ : T) extends AnyVal {
+    @inline def neq(other: T): Boolean = ! $.eq(other)
   }
 
   trait IsATrait[A]
@@ -119,7 +133,8 @@ object RichT {
       import c.universe._
       val tpA = weakTypeOf[A]
       val ts = tpA.typeSymbol.asClass
-      if (ts.isTrait) q"new IsATrait[$tpA] {}" else c.abort(c.enclosingPosition, s"$tpA is not a trait")
+      if (ts.isTrait) q"new IsATrait[$tpA] {}"
+      else c.abort(c.enclosingPosition, s"$tpA is not a trait")
     }
   }
 }

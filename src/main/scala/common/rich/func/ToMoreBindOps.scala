@@ -6,7 +6,7 @@ import scalaz.{Bind, OptionT}
 import scalaz.syntax.bind.ToBindOps
 
 trait ToMoreBindOps {
-  implicit class toMoreBindOps[F[_] : Bind, A]($: F[A]) {
+  implicit class toMoreBindOps[F[_]: Bind, A]($ : F[A]) {
     def toOptionTB[B](f: A => F[Option[B]]): OptionT[F, B] = OptionT($ >>= f)
   }
 }

@@ -12,6 +12,6 @@ object RichNode {
     def setBaseColor(color: String): Unit = setStyleLater(Styles.baseColor(color))
     def setFontWeight(style: String): Unit = setStyleLater(Styles.fontWeight(style))
     def setFontSize(size: Int): Unit = setStyleLater(Styles.fontSize(size))
-    def makeBold(): Node = n.<|(_ setFontWeight "bold")
+    def makeBold(): Node = n.<|(_.setFontWeight("bold"))
   }
 }

@@ -4,10 +4,10 @@ import common.rich.primitives.RichBoolean._
 
 /**
  * A mutable implementation of the UnionFind (Disjoint Set) algorithm. Since it's mutable, path
- * shortening can be done on unions *and* sameSet queries, so it has true O(log*(n)) amortized performance.
- * This class is *not* thread-safe!
+ * shortening can be done on unions *and* sameSet queries, so it has true O(log*(n)) amortized
+ * performance. This class is *not* thread-safe!
  */
-class MutableUnionFind[A] private(parents: Array[Int], override protected val index: Map[A, Int])
+class MutableUnionFind[A] private (parents: Array[Int], protected override val index: Map[A, Int])
     extends AbstractUnionFind[A] {
   override type UF = MutableUnionFind[A]
   private var _numberOfSets: Int = parents.length
@@ -16,8 +16,8 @@ class MutableUnionFind[A] private(parents: Array[Int], override protected val in
     val next = i.next
     i.foreach(parents(_) = next)
   }
-  override protected def getParent(i: Int): Int = parents(i)
-  override protected def getSet(a: A): Int = {
+  protected override def getParent(i: Int): Int = parents(i)
+  protected override def getSet(a: A): Int = {
     val path = getPathToParent(a)
     shorten(path.iterator)
     path.head

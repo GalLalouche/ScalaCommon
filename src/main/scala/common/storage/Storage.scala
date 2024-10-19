@@ -2,22 +2,22 @@ package common.storage
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import scalaz.{InvariantFunctor, OptionT}
 import common.rich.func.TuplePLenses
+import scalaz.{InvariantFunctor, OptionT}
 
 /** A store of key-value pairs. */
 trait Storage[Key, Value] {
   /**
-   * Will not delete the previous value if it exists, however, it may be slower than just replacing it.
-   * Returns the previous value associated with the key.
+   * Will not delete the previous value if it exists, however, it may be slower than just replacing
+   * it. Returns the previous value associated with the key.
    */
   def update(k: Key, v: Value): OptionT[Future, Value]
   /**
-   * *May* delete the previous value if it exists, however, it may be faster than checking if it exists to
-   * begin with. Whether or not the value is actually deleted depends on the internal implementation, so
-   * if you want to make sure, use delete(k) >> store(k, v). Usually, we won't care if a value is deleted or
-   * not, but depending on, e.g., SQL CASCADE configurations, we might.
-   * Returns the previous value associated with the key.
+   * *May* delete the previous value if it exists, however, it may be faster than checking if it
+   * exists to begin with. Whether or not the value is actually deleted depends on the internal
+   * implementation, so if you want to make sure, use delete(k) >> store(k, v). Usually, we won't
+   * care if a value is deleted or not, but depending on, e.g., SQL CASCADE configurations, we
+   * might. Returns the previous value associated with the key.
    */
   def replace(k: Key, v: Value): OptionT[Future, Value]
   /** Does not overwrite; fails on existing value. */
@@ -25,15 +25,20 @@ trait Storage[Key, Value] {
   /** Does not overwrite; fails if *any* key already existed in the database. */
   def storeMultiple(kvs: Seq[(Key, Value)]): Future[Unit]
   /**
-   * Overwrites any existing values with the input keys. Named void right now because future versions of
-   * Storage might provide a method returning overwritten values.
+   * Overwrites any existing values with the input keys. Named void right now because future
+   * versions of Storage might provide a method returning overwritten values.
    */
   def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit]
   /**
-   * If there is already a value for the supplied key, update or replace it using the supplied function.
-   * Otherwise just place the supplied value. Returns the previous value.
+   * If there is already a value for the supplied key, update or replace it using the supplied
+   * function. Otherwise just place the supplied value. Returns the previous value.
    */
-  def mapStore(mode: StoreMode, k: Key, f: Value => Value, default: => Value): OptionT[Future, Value]
+  def mapStore(
+      mode: StoreMode,
+      k: Key,
+      f: Value => Value,
+      default: => Value,
+  ): OptionT[Future, Value]
   /** Returns the value associated with the key. */
   def load(k: Key): OptionT[Future, Value]
   def exists(k: Key): Future[Boolean]

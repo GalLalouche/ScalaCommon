@@ -3,7 +3,7 @@ package common.rich.path
 import java.io.File
 
 /** A special RichFile that supports appending lines in different levels of indentations. */
-class IndentableRichFile private(f: File, indentLevel: Int) extends RichFile(f) {
+class IndentableRichFile private (f: File, indentLevel: Int) extends RichFile(f) {
   require(indentLevel >= 0, "indentLevel cannot be negative")
   def this(f: File) = this(f, 0)
 

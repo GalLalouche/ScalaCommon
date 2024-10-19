@@ -5,7 +5,7 @@ import common.rich.collections.RichIterator.richIterator
 import common.rich.primitives.RichBoolean._
 
 object RichIterable {
-  implicit class richIterable[A](private val $: Iterable[A]) extends AnyVal {
+  implicit class richIterable[A](private val $ : Iterable[A]) extends AnyVal {
     // Same method as in Seq, used by infinite Iterables
     // This method doesn't exist in RichIterator (or RichTraversableOnce) since checking single-time
     // consumable length consumes it, i.e., it has side-effects.

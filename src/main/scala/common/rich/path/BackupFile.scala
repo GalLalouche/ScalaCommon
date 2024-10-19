@@ -6,7 +6,10 @@ import java.nio.file._
 import common.rich.path.RichFile._
 import common.rich.primitives.RichBoolean._
 
-/** An abstraction for backing up and restoring files. By default, these files are deleted on exit regardless of their use. */
+/**
+ * An abstraction for backing up and restoring files. By default, these files are deleted on exit
+ * regardless of their use.
+ */
 class BackupFile(file: File, deleteOnExit: Boolean = true) {
   require(file.exists)
   require(file.isDirectory.isFalse)
@@ -20,11 +23,11 @@ class BackupFile(file: File, deleteOnExit: Boolean = true) {
   }
   assert(backupFile.exists)
   assert(backupFile != file)
-  assert(file hasSameContentAs backupFile)
+  assert(file.hasSameContentAs(backupFile))
 
   /** overrides any changes made to the backup file with the copy backed up by this file */
   def restore() {
     Files.copy(backupFile.toPath, file.toPath, StandardCopyOption.REPLACE_EXISTING)
-    assert(file hasSameContentAs backupFile)
+    assert(file.hasSameContentAs(backupFile))
   }
 }

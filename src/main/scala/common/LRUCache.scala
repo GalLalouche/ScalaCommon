@@ -2,7 +2,8 @@ package common
 
 /**
  * A mutable LRU Cache implementation. *not* thread-safe.
- * @param maxSize the maximum size of the cache.
+ * @param maxSize
+ *   the maximum size of the cache.
  */
 class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
   require(maxSize > 0)
@@ -34,9 +35,9 @@ class LRUCache[K, V](maxSize: Int) extends collection.mutable.Map[K, V] {
 
   override def contains(key: K) =
     if (keyToIndex contains key) {
-      val value = this (key)
+      val value = this(key)
       this -= key
-      this (key) = value
+      this(key) = value
       true
     } else
       false

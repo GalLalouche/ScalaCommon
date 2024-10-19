@@ -6,7 +6,7 @@ object RichDouble {
   implicit class richDouble(private val d: Double) extends AnyVal {
     def **(d2: Double): Double = Math.pow(d, d2)
     def sq: Double = d * d
-    def sqrt: Double = Math sqrt d
+    def sqrt: Double = Math.sqrt(d)
     def isInt: Boolean = d - d.toInt == 0
     def inAngles: Double = d * 180 / Math.PI
     def isRoughly(o: Double, precision: Double = 0.001): Boolean = math.abs(d - o) < precision

@@ -9,8 +9,8 @@ import scala.collection.mutable
 import common.rich.primitives.RichBoolean._
 
 object RichSet {
-  implicit class richSet[T](private val $: Set[T]) extends AnyVal {
-    def <=(other: Set[T]): Boolean = $ forall other
+  implicit class richSet[T](private val $ : Set[T]) extends AnyVal {
+    def <=(other: Set[T]): Boolean = $.forall(other)
     def <(other: Set[T]): Boolean = <=(other) && $.size < other.size
     def >=(other: Set[T]): Boolean = new richSet(other) <= $
     def >(other: Set[T]): Boolean = new richSet(other) < $

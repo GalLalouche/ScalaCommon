@@ -9,7 +9,7 @@ trait Point[F[_]] {
 }
 object Point {
   @inline def apply[F[_]](implicit F: Point[F]): Point[F] = F
-  implicit def applicativeToPoint[F[_] : Applicative]: Point[F] = new Point[F] {
+  implicit def applicativeToPoint[F[_]: Applicative]: Point[F] = new Point[F] {
     override def point[A](a: => A) = implicitly[Applicative[F]].point(a)
   }
 }

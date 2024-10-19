@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
-abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
+abstract case class RichPath[T <: RichPath[T]] protected (f: File) {
   require(f.getAbsoluteFile.exists, f.getAbsolutePath + " doesn't exist")
 
   override def equals(obj: Any): Boolean = obj match {
@@ -48,13 +48,15 @@ abstract case class RichPath[T <: RichPath[T]] protected(f: File) {
   /**
    * Copies this path to another location with the same name.
    *
-   * @throws FileAlreadyExistsException if a file (or directory) with the same name already exists in the destination
+   * @throws FileAlreadyExistsException
+   *   if a file (or directory) with the same name already exists in the destination
    */
   def copyTo(dstDir: Directory): T = copyTo(dstDir, name)
   /**
    * Copies this file to another location with the same name.
    *
-   * @throws FileAlreadyExistsException if a file (or directory) with the same name already exists in the destination
+   * @throws FileAlreadyExistsException
+   *   if a file (or directory) with the same name already exists in the destination
    */
   def copyTo(dstDir: Directory, newName: String): T = {
     val dstFile = dstDir \ newName

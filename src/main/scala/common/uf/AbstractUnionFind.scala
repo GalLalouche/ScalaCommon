@@ -1,8 +1,9 @@
 package common.uf
 
+import scala.annotation.tailrec
+
 import common.rich.func.MoreIterableInstances._
 import scalaz.syntax.functor._
-import scala.annotation.tailrec
 
 import common.rich.collections.RichTraversableOnce.richTraversableOnce
 

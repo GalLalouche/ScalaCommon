@@ -8,7 +8,9 @@ object ScalaCheckTypes {
     Arbitrary(Gen.alphaNumStr.map(AlphaNumericString))
   /** Useful when a large intersection between the strings is needed. */
   case class BinaryString(s: String) extends AnyVal
-  implicit val ArbitrarySimpleString: Arbitrary[BinaryString] = Arbitrary(binaryString.map(BinaryString))
+  implicit val ArbitrarySimpleString: Arbitrary[BinaryString] = Arbitrary(
+    binaryString.map(BinaryString),
+  )
   def binaryString: Gen[String] =
     implicitly[Arbitrary[Seq[Int]]].arbitrary.map(_.view.map(_.abs % 2).mkString)
 }

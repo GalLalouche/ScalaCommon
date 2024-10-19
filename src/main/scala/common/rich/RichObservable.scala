@@ -11,17 +11,17 @@ import scala.language.higherKinds
 
 import scalaz.OptionT
 
-import common.rich.primitives.RichBoolean.richBoolean
 import common.rich.RichT._
+import common.rich.primitives.RichBoolean.richBoolean
 
 object RichObservable {
   trait Unsubscribable[A] {
     def apply(a: A): Unit
   }
-  implicit class RichSubscriber(private val $: Subscriber[_]) extends AnyVal {
+  implicit class RichSubscriber(private val $ : Subscriber[_]) extends AnyVal {
     def isSubscribed: Boolean = $.isUnsubscribed.isFalse
   }
-  implicit class richObservable[A](private val $: Observable[A]) extends AnyVal {
+  implicit class richObservable[A](private val $ : Observable[A]) extends AnyVal {
     /**
      * Returns a Future of a collection of all elements emitted by this observable. Future will not
      * complete if this observable does not complete.
@@ -40,8 +40,8 @@ object RichObservable {
     }
 
     /**
-     * Subscribes, but also returns a future that will complete when this Observable completes.
-     * If the observable calls onError, the failure will propagate to the future.
+     * Subscribes, but also returns a future that will complete when this Observable completes. If
+     * the observable calls onError, the failure will propagate to the future.
      */
     def subscribeWithNotification(observer: Observer[A]): Future[Unit] = {
       val promise = Promise[Unit]()
@@ -62,16 +62,19 @@ object RichObservable {
     def flattenElements[B](implicit ev: A <:< Iterable[B]): Observable[B] = $.flatMapIterable(ev)
 
     /** Note that if the future action fails, the returned Observable will fail as well. */
-    def doOnNextAsync(f: A => Future[_])(implicit ec: ExecutionContext): Observable[A] = $.flatMap(a =>
-      Observable
+    def doOnNextAsync(f: A => Future[_])(implicit ec: ExecutionContext): Observable[A] =
+      $.flatMap(a =>
+        Observable
           .from(f(a))
-          .map(_ => a)
-    )
+          .map(_ => a),
+      )
 
     def filterFuture(p: A => Future[Boolean])(implicit ec: ExecutionContext): Observable[A] =
       $.flatMap(a => Observable.from(p(a)).filter(identity).map(_ => a))
 
-    def mapFutureOption[B](f: A => OptionT[Future, B])(implicit ec: ExecutionContext): Observable[B] =
+    def mapFutureOption[B](f: A => OptionT[Future, B])(implicit
+        ec: ExecutionContext,
+    ): Observable[B] =
       $.flatMap(a => RichObservable.from(f(a)))
 
     // TODO This should be possible for all Traverse?
@@ -79,13 +82,13 @@ object RichObservable {
      * Emits an observable which groups successive elements together according to some key function.
      * Unlike groupBy, only successive elements can be in the same group.
      */
-    def groupByBuffer[B](f: A => B): Observable[(B, Seq[A])] = Observable {s =>
+    def groupByBuffer[B](f: A => B): Observable[(B, Seq[A])] = Observable { s =>
       val lastSubject = BehaviorSubject[(B, Seq[A])]()
       def publish(e: (B, Seq[A])): Unit = s.onNext(e._1 -> e._2.toVector.reverse)
-      $.map(e => f(e) -> e).scan[Option[(B, List[A])]](None) {
-        case (agg, x) =>
+      $.map(e => f(e) -> e)
+        .scan[Option[(B, List[A])]](None) { case (agg, x) =>
           Some((agg match {
-            case Some(agg@(key, values)) =>
+            case Some(agg @ (key, values)) =>
               if (key == x._1)
                 key -> (x._2 :: values)
               else {
@@ -95,28 +98,28 @@ object RichObservable {
             case None =>
               x._1 -> List(x._2)
           }) <| lastSubject.onNext)
-      }
-          .takeUntil(s.isSubscribed.isFalse.const)
-          .subscribe(new Subscriber[Option[(B, List[A])]]() {
-            override def onCompleted(): Unit = {
-              lastSubject.subscribe(publish _)
-              lastSubject.onCompleted()
-              s.onCompleted()
-            }
-            override def onError(error: Throwable): Unit = s.onError(error)
-          })
+        }
+        .takeUntil(s.isSubscribed.isFalse.const)
+        .subscribe(new Subscriber[Option[(B, List[A])]]() {
+          override def onCompleted(): Unit = {
+            lastSubject.subscribe(publish _)
+            lastSubject.onCompleted()
+            s.onCompleted()
+          }
+          override def onError(error: Throwable): Unit = s.onError(error)
+        })
     }
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
-    Observable[A] {s =>
+    Observable[A] { s =>
       callback(s.onNext)
       if (unsubscribe != null)
-        s.add {unsubscribe(); ()}
+        s.add { unsubscribe(); () }
     }
 
   def registerUnsubscribable[A, S: Unsubscribable](callback: (A => Unit) => S): Observable[A] =
-    Observable[A] {subscriber =>
+    Observable[A] { subscriber =>
       val subscription = callback(subscriber.onNext)
       subscriber.add(implicitly[Unsubscribable[S]].apply(subscription))
     }
@@ -125,23 +128,26 @@ object RichObservable {
   def concat[A](os: TraversableOnce[Observable[A]]): Observable[A] = {
     val seq = os.toVector
     val size = seq.size
-    if (seq.isEmpty) Observable.empty else Observable[A] {s =>
-      val completed: AtomicInteger = new AtomicInteger(0)
-      val subs = seq.map(_.subscribe(new Observer[A] {
-        override def onNext(value: A) = s.onNext(value)
-        override def onError(error: Throwable) = s.onError(error)
-        override def onCompleted() = if (completed.incrementAndGet() >= size) s.onCompleted()
-      }))
-      s.add(subs.foreach(_.unsubscribe()))
-    }
+    if (seq.isEmpty) Observable.empty
+    else
+      Observable[A] { s =>
+        val completed: AtomicInteger = new AtomicInteger(0)
+        val subs = seq.map(_.subscribe(new Observer[A] {
+          override def onNext(value: A) = s.onNext(value)
+          override def onError(error: Throwable) = s.onError(error)
+          override def onCompleted() = if (completed.incrementAndGet() >= size) s.onCompleted()
+        }))
+        s.add(subs.foreach(_.unsubscribe()))
+      }
   }
 
-  def from[A](fo: OptionT[Future, A])(implicit ec: ExecutionContext): Observable[A] = Observable.from(fo.run)
-      .flatMap {
-        case Some(value) => Observable.just(value)
-        case None => Observable.empty
-      }
-  def continually[A](initial: => A): Observable[A] = Observable.apply {s =>
+  def from[A](fo: OptionT[Future, A])(implicit ec: ExecutionContext): Observable[A] = Observable
+    .from(fo.run)
+    .flatMap {
+      case Some(value) => Observable.just(value)
+      case None => Observable.empty
+    }
+  def continually[A](initial: => A): Observable[A] = Observable.apply { s =>
     val value = initial
     while (s.isSubscribed)
       s.onNext(value)

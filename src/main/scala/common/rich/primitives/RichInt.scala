@@ -46,8 +46,7 @@ object RichInt {
         if (currentN % primes.head == 0) {
           $ = $.updated(primes.head, $(primes.head) + 1)
           currentN = currentN / primes.head
-        }
-        else
+        } else
           primes = primes.tail
       if (currentN != 1)
         $ = $.updated(currentN, $(currentN) + 1)
@@ -69,12 +68,12 @@ object RichInt {
       val $ = n.toString
       val length = $.length
       if (length > minSize)
-        throw new IllegalArgumentException(s"${$} is longer than <$minSize>")
+        throw new IllegalArgumentException(s"$$ is longer than <$minSize>")
       "0".*(minSize - length) + $
     }
 
     def ceilDiv(k: Int): Int = Math.ceil(n.toDouble / k).toInt
   }
   @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
-  lazy val primes: Stream[Int] = Stream from 2 filter (_.isPrime)
+  lazy val primes: Stream[Int] = Stream.from(2).filter(_.isPrime)
 }

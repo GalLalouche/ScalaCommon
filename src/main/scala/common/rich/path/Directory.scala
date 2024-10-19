@@ -1,6 +1,7 @@
 package common.rich.path
 
 import java.io.File
+
 import common.rich.primitives.RichBoolean._
 
 /** Helper class for Directory methods. */
@@ -8,7 +9,6 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
   require(dir.getAbsoluteFile.isDirectory, s"${dir.getAbsolutePath} is not a directory")
 
   def listFiles: Seq[File] = dir.listFiles
-
 
   /** Adds a new file under the directory if one doesn't exist, and returns it. */
   def addFile(name: String): RichFile = {
@@ -26,10 +26,10 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
   /** Returns all direct sub-directory of this directory. */
   def dirs: Seq[Directory] =
     Option(dir.listFiles)
-        .getOrElse(Array())
-        .toVector
-        .filter(_.isDirectory)
-        .map(Directory(_))
+      .getOrElse(Array())
+      .toVector
+      .filter(_.isDirectory)
+      .map(Directory(_))
 
   /** All direct files of this directory, that are *not* directories */
   def files: Seq[File] = listFiles.toVector.filterNot(_.isDirectory)
@@ -54,7 +54,9 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
     dirs.foreach(_.deleteAll())
     this
   }
-  /** Returns all files that are not directories nested inside this directory (in any given depth). */
+  /**
+   * Returns all files that are not directories nested inside this directory (in any given depth).
+   */
   def deepFiles: Stream[File] = files.toStream ++ dirs.flatMap(_.deepFiles)
   /** Returns all directories nested inside this directory (in any given depth). */
   def deepDirs: Stream[Directory] = dirs.toStream ++ dirs.flatMap(_.deepDirs)
@@ -62,8 +64,8 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
   def deepPaths: Stream[File] = files.toStream ++ dirs.flatMap(_.deepPaths)
 
   /**
-   * Clones the directory, creating a copy of it suffixed with "clone" by default.
-   * This will override any other cloned directory
+   * Clones the directory, creating a copy of it suffixed with "clone" by default. This will
+   * override any other cloned directory
    */
   def cloneDir(suffix: String = "_clone"): Directory = {
     require(suffix.nonEmpty, "Must provide a suffix when cloning")
@@ -72,7 +74,7 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
     copyTo(parent, newName)
   }
 
-  override protected def internalCopyTo(f: File): Directory = {
+  protected override def internalCopyTo(f: File): Directory = {
     import RichFile._
     f.mkdir()
     val $ = Directory(f)

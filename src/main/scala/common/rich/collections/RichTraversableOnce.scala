@@ -18,7 +18,10 @@ import common.rich.collections.RichMap._
 import common.rich.primitives.RichBoolean._
 
 object RichTraversableOnce {
-  class __Joiner[A, B] private[RichTraversableOnce]($: TraversableOnce[A], other: TraversableOnce[B]) {
+  class __Joiner[A, B] private[RichTraversableOnce] (
+      $ : TraversableOnce[A],
+      other: TraversableOnce[B],
+  ) {
     def where(predicate: (A, B) => Boolean): TraversableOnce[(A, B)] =
       for (i <- $; j <- other; if predicate(i, j)) yield (i, j)
 
@@ -31,7 +34,7 @@ object RichTraversableOnce {
     }
   }
 
-  implicit class richTraversableOnce[A](private val $: TraversableOnce[A]) extends AnyVal {
+  implicit class richTraversableOnce[A](private val $ : TraversableOnce[A]) extends AnyVal {
     def filterNot(p: A => Boolean): TraversableOnce[A] = $.filter(!p(_))
 
     def reduceByKey[Key](toKey: A => Key)(implicit ev: Semigroup[A]): Map[Key, A] =
@@ -41,12 +44,13 @@ object RichTraversableOnce {
 
     /** Throws on repeat keys. */
     def mapBy[B](f: A => B): Map[B, A] =
-      $.foldLeft(Map[B, A]()) {(map, nextValue) =>
+      $.foldLeft(Map[B, A]()) { (map, nextValue) =>
         val key = f(nextValue)
         if (map.contains(key))
           throw new IllegalArgumentException(
             s"key <$key> is already used for value <${map(key)}>, " +
-                s"but is also requested as a key for value <$nextValue>")
+              s"but is also requested as a key for value <$nextValue>",
+          )
         map + (key -> nextValue)
       }
 
@@ -57,11 +61,13 @@ object RichTraversableOnce {
     }
 
     /**
-     * Performs a foreach iteration, running a function between each two items.
-     * Can be thought of as a side-effect-full alternative to mkString.
+     * Performs a foreach iteration, running a function between each two items. Can be thought of as
+     * a side-effect-full alternative to mkString.
      *
-     * @param f       the function to apply to the elements
-     * @param between the function to apply between elements
+     * @param f
+     *   the function to apply to the elements
+     * @param between
+     *   the function to apply between elements
      */
     def foreachWithBetween(f: A => Unit, between: () => Unit) {
       val iterator = $.toIterator
@@ -84,9 +90,9 @@ object RichTraversableOnce {
       val f = frequencies
       val size = f.values.sum
       f.values
-          .map(_.toDouble / size)
-          .map(p => -p * log10(p) / log10(2))
-          .sum
+        .map(_.toDouble / size)
+        .map(p => -p * log10(p) / log10(2))
+        .sum
     }
 
     /** Retrieves all <i>N choose 2<\i> pairs */
@@ -107,7 +113,9 @@ object RichTraversableOnce {
 
     /** Finds the percentage of elements satisfying the predicate, throws on empty */
     def percentageSatisfying(p: A => Boolean): Double = {
-      val (total, satisfy) = $.foldLeft((0, 0)) {(agg, next) => (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0))}
+      val (total, satisfy) = $.foldLeft((0, 0)) { (agg, next) =>
+        (agg._1 + 1, agg._2 + (if (p(next)) 1 else 0))
+      }
       satisfy.toDouble / total
     }
 
@@ -138,22 +146,22 @@ object RichTraversableOnce {
       val next = i.next()
       if (i.hasNext)
         throw new UnsupportedOperationException(
-          s"Traversable contained more than a single element ($next and ${i.next} at least)")
+          s"Traversable contained more than a single element ($next and ${i.next} at least)",
+        )
       Some(next)
     }
 
     def mapFirst[B](f: A => Option[B]): Option[B] = $.toIterator.flatMap(f(_)).headOption()
-    def mapFirstF[G[_] : Monad, B](f: A => G[Option[B]]): G[Option[B]] = {
+    def mapFirstF[G[_]: Monad, B](f: A => G[Option[B]]): G[Option[B]] = {
       val iterator = $.toIterator
       def go(): G[Option[B]] =
         if (iterator.hasNext.isFalse)
           implicitly[Monad[G]].pure(None)
-        else {
+        else
           implicitly[Monad[G]].bind(f(iterator.next)) {
             case None => go()
             case e => implicitly[Monad[G]].pure(e)
           }
-        }
       go()
     }
 
@@ -161,10 +169,11 @@ object RichTraversableOnce {
 
     def filterAndSortBy[B](f: A => B, order: Seq[B]): Seq[A] = {
       val orderMap = order.zipWithIndex.toMap
-      Functor[Vector].fproduct($.toVector)(f)
-          .filter(_._2 |> orderMap.contains)
-          .sortBy(_._2 |> orderMap)
-          .map(_._1)
+      Functor[Vector]
+        .fproduct($.toVector)(f)
+        .filter(_._2 |> orderMap.contains)
+        .sortBy(_._2 |> orderMap)
+        .map(_._1)
     }
 
     def fornone(p: A => Boolean): Boolean = $.exists(p).isFalse
@@ -173,7 +182,9 @@ object RichTraversableOnce {
     def range(implicit ev: Ordering[A]): (A, A) = {
       val i = $.toIterator
       val initial = i.next()
-      i.foldLeft(initial -> initial) {case (agg, next) => ev.min(next, agg._1) -> ev.max(next, agg._2)}
+      i.foldLeft(initial -> initial) { case (agg, next) =>
+        ev.min(next, agg._1) -> ev.max(next, agg._2)
+      }
     }
   }
 }

@@ -1,6 +1,5 @@
 package common.rich
 
-import java.util.NoSuchElementException
 import java.util.concurrent.{LinkedBlockingQueue, Semaphore}
 
 import org.scalatest.AsyncFreeSpec

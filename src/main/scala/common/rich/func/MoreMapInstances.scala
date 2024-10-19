@@ -1,6 +1,5 @@
 package common.rich.func
 
-import scalaz.std.MapInstances
 import scalaz.Monoid
 
 object MoreMapInstances {
