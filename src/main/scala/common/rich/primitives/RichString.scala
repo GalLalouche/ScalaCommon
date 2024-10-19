@@ -6,6 +6,8 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
+import scalaz.Scalaz.ToTuple2Ops
+
 import common.rich.primitives.RichBoolean._
 import common.rich.RichT._
 import common.rich.path.RichFile.richFile
@@ -53,7 +55,7 @@ object RichString {
      * The split regex will be returns as a single element in the returned sequence. For example:
      * {{{
      *   "foo ,;. bar".splitWithDelimiters("[, ;. ]+") == Seq("foo", " ,;. ", "bar")
-     * }}}*/
+     * }}} */
     def splitWithDelimiters(pattern: String): Seq[String] = splitWithDelimiters(Pattern compile pattern)
     def splitWithDelimiters(pattern: Pattern): Seq[String] = {
       @tailrec
@@ -98,6 +100,9 @@ object RichString {
     def simpleRemove(search: String): String = simpleReplace(search, "")
 
     def split(p: Pattern): Array[String] = p split $
+
+    def longestCommonSuffix(other: String): String =
+      $.takeRight($.reverseIterator.zip(other.reverseIterator).takeWhile(_.fold(_ == _)).length)
   }
 
   private val WrappingQuotes = Pattern compile """^["']+|["']+$"""
