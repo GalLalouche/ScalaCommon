@@ -101,6 +101,18 @@ object RichIterator {
     }
     def headOption(): Option[A] = $.optMap(_.hasNext, _.next())
     def lastOption(): Option[A] = if ($.hasNext) Some(last()) else None
+    def lazyFoldl[B](b: B)(f: (A, B) => Option[B]): B = {
+      @tailrec def go(agg: B): B = {
+        if ($.hasNext)
+          f($.next(), agg) match {
+            case None => agg
+            case Some(n) => go(n)
+          }
+        else
+          agg
+      }
+      go(b)
+    }
   }
 
   def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =

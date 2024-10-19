@@ -1,6 +1,7 @@
 package common.rich.collections
 
 import common.rich.RichT._
+import common.rich.collections.RichIterator.richIterator
 import common.rich.primitives.RichBoolean._
 
 object RichIterable {
@@ -23,6 +24,7 @@ object RichIterable {
       val res = $.lengthCompare(n)
       if (res < 0) Smaller else if (res == 0) Equal else Larger
     }
+    def lazyFoldl[B](b: B)(f: (A, B) => Option[B]): B = $.iterator.lazyFoldl(b)(f)
   }
 
   sealed trait CheckLengthResult

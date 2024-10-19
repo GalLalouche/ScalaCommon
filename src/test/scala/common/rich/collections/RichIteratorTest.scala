@@ -1,6 +1,6 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
+import org.scalatest.{Assertion, FreeSpec}
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.SpanSugar._
 
@@ -124,6 +124,23 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
       "Returns the last element in a stack safe manner" in {
         farthest(1)(i => if (i < 10000) Some(i + 1) else None) shouldReturn 10000
       }
+    }
+  }
+
+  "lazyFoldl" - {
+    def checkSum(i: Iterator[Int]): Int =
+      i.lazyFoldl(1)((x, y) => if (x + y < 10) Some(x * y) else None)
+    "empty" in {
+      Iterator.empty.lazyFoldl("foo")((_, _) => ???) shouldReturn "foo"
+    }
+    "finite1" in {
+      checkSum(Iterator(1, 2, 3, 4, 5)) shouldReturn 6
+    }
+    "finite2" in {
+      checkSum(Iterator(1, 2)) shouldReturn 2
+    }
+    "infinite" in {
+      checkSum(Iterator.iterate(1)(_ + 1)) shouldReturn 6
     }
   }
 }
