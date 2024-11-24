@@ -1,7 +1,9 @@
 package common.rich.collections
 
 import org.scalatest.FreeSpec
+import org.scalatest.OptionValues.convertOptionToValuable
 
+import common.rich.RichT.richT
 import common.rich.collections.RichSeq.richSeq
 import common.test.AuxSpecs
 
@@ -41,6 +43,17 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
 
     "returns None if nothing is found" in {
       Vector(1, 2, 3).findIndex(_ % 6 == 0) shouldReturn None
+    }
+  }
+
+  "firstSome" - {
+    "empty returns None" in { Vector[Int]().firstSome(_ => ???) shouldReturn None }
+    "no matches returns None" in {
+      Vector("foo", "bar", "bazz").firstSome(_.length.optFilter(_ < 3)) shouldReturn None
+    }
+    "matches returns first match Some" in {
+      def cond(s: String) = s.optFilter(_.startsWith("b")).map(_.length)
+      Vector("foo", "bar", "bazz").firstSome(cond).value shouldReturn 3
     }
   }
 

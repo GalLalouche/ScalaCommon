@@ -8,6 +8,7 @@ import scala.util.Random
 import common.rich.RichT._
 import common.rich.RichTuple._
 import common.rich.collections.RichIterable.richIterable
+import common.rich.collections.RichIterator.richIterator
 import common.rich.primitives.RichBoolean
 
 object RichSeq {
@@ -42,6 +43,8 @@ object RichSeq {
 
     /** Returns a sample of uniformly random n elements */
     def sample(n: Int, random: Random = Random): Seq[T] = shuffle(random).take(n)
+
+    def firstSome[S](f: T => Option[S]): Option[S] = $.iterator.flatMap(f(_)).headOption()
 
     /** Same as indexWhere, but returns an option instead of -1 */
     def findIndex(pred: T => Boolean): Option[Int] = findWithIndex(pred).map(_._2)
