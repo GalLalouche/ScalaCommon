@@ -3,7 +3,7 @@ package common.rich.path
 import java.io.File
 import java.nio.file.{FileAlreadyExistsException, Files}
 
-import common.rich.path.RichFile._
+import common.rich.path.RichPath.richPath
 import common.rich.primitives.RichBoolean._
 
 /**

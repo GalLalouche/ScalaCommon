@@ -1,32 +1,31 @@
 package common.rich.path
 
 import java.io.File
-import java.nio.file.{FileAlreadyExistsException, Path}
+import java.nio.file.Path
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
-abstract case class RichPath[T <: RichPath[T]] protected (f: File) {
-  require(f.getAbsoluteFile.exists, f.getAbsolutePath + " doesn't exist")
-
+class RichPath protected (protected val f: File) {
   override def equals(obj: Any): Boolean = obj match {
     // Fix for MacOS (of course).
-    case RichPath(otherF) => f.getCanonicalPath == otherF.getCanonicalPath
+    case otherF: RichPath => f.getCanonicalPath == otherF.f.getCanonicalPath
     case _ => false
   }
+  override def hashCode(): Int = f.hashCode()
 
-  val path: String = f.getCanonicalPath.replaceAll("\\\\", "/")
-  val name: String = f.getName // including its extension
+  def path: String = f.getCanonicalPath.replaceAll("\\\\", "/")
+  def name: String = f.getName // including its extension
 
-  def /(s: String): RichPath[_] = {
+  def /(s: String): RichPath = {
     val f = new File(path + "/" + s)
-    if (f.isDirectory) Directory(f) else new RichFile(f)
+    if (f.isDirectory) new Directory(f) else new RichFile(f)
   }
   def \(s: String): File = new File(path + "/" + s)
   def \(): File = RichPath.this \ ""
 
-  def / = new Directory(f)
+  def / : Directory = Directory(f)
 
   override def toString = path
 
@@ -39,35 +38,19 @@ abstract case class RichPath[T <: RichPath[T]] protected (f: File) {
 
   def parents: Seq[Directory] = {
     @tailrec
-    def go(xs: ArrayBuffer[Directory], rp: RichPath[_]): Seq[Directory] =
+    def go(xs: ArrayBuffer[Directory], rp: RichPath): Seq[Directory] =
       if (rp.f.getParentFile == null) xs.toVector else go(xs += rp.parent, rp.parent)
     go(ArrayBuffer(), RichPath.this)
-  }
-
-  protected def internalCopyTo(f: File): T
-  /**
-   * Copies this path to another location with the same name.
-   *
-   * @throws FileAlreadyExistsException
-   *   if a file (or directory) with the same name already exists in the destination
-   */
-  def copyTo(dstDir: Directory): T = copyTo(dstDir, name)
-  /**
-   * Copies this file to another location with the same name.
-   *
-   * @throws FileAlreadyExistsException
-   *   if a file (or directory) with the same name already exists in the destination
-   */
-  def copyTo(dstDir: Directory, newName: String): T = {
-    val dstFile = dstDir \ newName
-    if (dstFile.exists())
-      throw new FileAlreadyExistsException(dstFile.getPath)
-    internalCopyTo(dstFile)
   }
 
   def toPath: Path = f.toPath
 }
 
 object RichPath {
-  implicit def poorPath(rp: RichPath[_]): File = rp.f
+  implicit def richPath(file: File): RichPath = {
+    require(file.exists())
+    new RichPath(file)
+  }
+
+  implicit def poorPath(rp: RichPath): File = rp.f
 }

@@ -5,9 +5,7 @@ import java.io.File
 import common.rich.primitives.RichBoolean._
 
 /** Helper class for Directory methods. */
-class Directory(val dir: File) extends RichPath[Directory](dir) {
-  require(dir.getAbsoluteFile.isDirectory, s"${dir.getAbsolutePath} is not a directory")
-
+class Directory private[path] (val dir: File) extends RichPath(dir) {
   def listFiles: Seq[File] = dir.listFiles
 
   /** Adds a new file under the directory if one doesn't exist, and returns it. */
@@ -20,16 +18,12 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
   def addSubDir(name: String): Directory = {
     val $ = new File(dir, name)
     $.mkdir()
-    Directory($)
+    new Directory($)
   }
 
   /** Returns all direct sub-directory of this directory. */
   def dirs: Seq[Directory] =
-    Option(dir.listFiles)
-      .getOrElse(Array())
-      .toVector
-      .filter(_.isDirectory)
-      .map(Directory(_))
+    dir.listFiles.iterator.filter(_.isDirectory).map(new Directory(_)).toVector
 
   /** All direct files of this directory, that are *not* directories */
   def files: Seq[File] = listFiles.toVector.filterNot(_.isDirectory)
@@ -57,41 +51,41 @@ class Directory(val dir: File) extends RichPath[Directory](dir) {
   /**
    * Returns all files that are not directories nested inside this directory (in any given depth).
    */
-  def deepFiles: Stream[File] = files.toStream ++ dirs.flatMap(_.deepFiles)
+  def deepFiles: Stream[File] = {
+    val (files, dirs) = filesAndDirs
+    files ++ dirs.flatMap(_.deepFiles)
+  }
+
+  private def filesAndDirs: (Stream[File], Stream[Directory]) = {
+    val (files, dirs) = listFiles.toStream.partition(_.isFile)
+    (files, dirs.map(new Directory(_)))
+  }
+
   /** Returns all directories nested inside this directory (in any given depth). */
-  def deepDirs: Stream[Directory] = dirs.toStream ++ dirs.flatMap(_.deepDirs)
+  def deepDirs: Stream[Directory] = {
+    val d = dirs.toStream
+    d ++ d.flatMap(_.deepDirs)
+  }
   /** Returns all files and directories nested inside this directory (in any given depth). */
-  def deepPaths: Stream[File] = files.toStream ++ dirs.flatMap(_.deepPaths)
-
-  /**
-   * Clones the directory, creating a copy of it suffixed with "clone" by default. This will
-   * override any other cloned directory
-   */
-  def cloneDir(suffix: String = "_clone"): Directory = {
-    require(suffix.nonEmpty, "Must provide a suffix when cloning")
-    val newName = name + suffix
-    parent.addSubDir(newName).deleteAll() // delete previous directory if it exists
-    copyTo(parent, newName)
+  def deepPaths: Stream[File] = {
+    val (files, dirs) = filesAndDirs
+    files ++ dirs.flatMap(_.deepPaths)
   }
 
-  protected override def internalCopyTo(f: File): Directory = {
-    import RichFile._
-    f.mkdir()
-    val $ = Directory(f)
-    files.foreach(_.copyTo($))
-    dirs.foreach(_.copyTo($))
-    Directory($)
-  }
+  override def toString = s"Directory($dir)"
 }
 
 object Directory {
-  def apply(f: File): Directory = new Directory(f)
+  def apply(f: File): Directory = {
+    require(f.exists && f.isDirectory, s"${f.getAbsolutePath} is not a directory")
+    new Directory(f)
+  }
   def apply(s: String): Directory = Directory(new File(s))
   /** Creates all directories along the path as needed */
   def makeDir(f: File): Directory = {
     if (f.isDirectory.isFalse)
       require(f.mkdirs(), "Could not create directories path " + f)
-    Directory(f)
+    new Directory(f)
   }
 
   def makeDir(fullPath: String): Directory = makeDir(new File(fullPath))

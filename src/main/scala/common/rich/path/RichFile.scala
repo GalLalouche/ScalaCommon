@@ -9,10 +9,7 @@ import scala.language.implicitConversions
 import common.rich.RichT._
 
 // Not an implicit class since it is returned from some methods and it would be annoying if it was nested.
-class RichFile(f: File) extends RichPath[RichFile](f) {
-  // this is required - if a RichFile is created for a file that is a directory, it is considered a programming bug
-  // Why is this commented out??
-  // require(f.isDirectory == false, s"Rich file $f cannot be a directory")
+class RichFile private[path] (f: File) extends RichPath(f) {
   lazy val extension: String = {
     val i = f.getName.lastIndexOf('.')
     if (i == -1) "" else f.getName.substring(i + 1).toLowerCase
@@ -73,19 +70,23 @@ class RichFile(f: File) extends RichPath[RichFile](f) {
 
   /** Returns a backup file of this file */
   def backup = new BackupFile(f)
-
-  protected override def internalCopyTo(dstFile: File): RichFile = {
-    Files.copy(this.toPath, dstFile.toPath)
-    new RichFile(dstFile)
-  }
 }
 
 object RichFile {
   implicit def poorFile(f: RichFile): File = f.f
 
-  implicit def richFile(f: File): RichFile = new RichFile(f)
+  /**
+   * One should be careful with this extension: Since Java does not differentiate between files and
+   * dirs, importing `RichFile.richFile` and calling something like `file.parent`, would fail if
+   * `file` is a directory. For those cases, you should import `RichPath.richPath`.
+   */
+  implicit def richFile(f: File): RichFile = apply(f)
 
-  def apply(f: File) = new RichFile(f)
+  def apply(f: File): RichFile = {
+    require(f.exists)
+    require(f.isFile)
+    new RichFile(f)
+  }
 
-  def apply(s: String): RichFile = new RichFile(new File(s))
+  def apply(s: String): RichFile = apply(new File(s))
 }

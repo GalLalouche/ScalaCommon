@@ -22,6 +22,8 @@ class TempDirectory(f: File) extends Directory(f: File) {
   }
 
   def addFile(): RichFile = addFile(Random.nextLong().toString)
+
+  override def toString = s"TempDirectory($dir)"
 }
 
 object TempDirectory {

@@ -1,7 +1,6 @@
 package common.rich.path
 
 import java.io.{File, PrintStream}
-import java.nio.file.FileAlreadyExistsException
 import java.util.Scanner
 
 import org.scalatest._
@@ -10,10 +9,9 @@ import common.test.{AuxSpecs, DirectorySpecs}
 
 class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
   private val f = tempFile
-  def managed[T <: AutoCloseable](t: T)(f: T => Unit): Unit = {
+  def managed[T <: AutoCloseable](t: T)(f: T => Unit): Unit =
     try f(t)
     finally t.close()
-  }
 
   private def checkClosedAndDelete(f: File) {
     managed(new PrintStream(f)) {
@@ -33,15 +31,15 @@ class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneIn
 
   "appendLine" - {
     "single line" in {
-      f appendLine "foobar"
+      f.appendLine("foobar")
       managed(new Scanner(f)) { scanner =>
         scanner.nextLine shouldBe "foobar"
         scanner.hasNext shouldBe false
       }
     }
     "multiple lines" in {
-      f appendLine "foo"
-      f appendLine "bar"
+      f.appendLine("foo")
+      f.appendLine("bar")
       managed(new Scanner(f)) { scanner =>
         scanner.nextLine shouldBe "foo"
         scanner.nextLine shouldBe "bar"
@@ -69,7 +67,7 @@ class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneIn
       f.readAll shouldBe ""
     }
     "closes" in {
-      f.f.exists shouldBe true
+      f.exists shouldBe true
       f.readAll
       checkClosedAndDelete(f)
     }
@@ -78,7 +76,7 @@ class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneIn
   "lines" - {
     "returns the lines in the file" in {
       val list = List("foobar!", "barfoo?", "nope, definitely foobar")
-      managed(new PrintStream(f)) { ps => list.foreach(ps.println) }
+      managed(new PrintStream(f))(ps => list.foreach(ps.println))
       f.lines.toList shouldBe list
     }
 
@@ -118,28 +116,8 @@ class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneIn
     }
   }
 
-  "copyTo" - {
-    "copies the file" in {
-      val f1 = tempDir.addFile().write("foo")
-      val newFile = f1.copyTo(tempDir, "new_file")
-      newFile.name shouldBe "new_file"
-      newFile.readAll shouldBe "foo"
-      checkClosedAndDelete(f1)
-      checkClosedAndDelete(newFile)
-    }
-
-    "throws an exception if the file already exists" in {
-      val f1 = tempDir.addFile().write("foo")
-      val f2 = tempDir.addFile("bar.txt").write("bar")
-      an[FileAlreadyExistsException] should be thrownBy f1.copyTo(tempDir, "bar.txt")
-      f2.readAll shouldBe "bar"
-      checkClosedAndDelete(f1)
-      checkClosedAndDelete(f2)
-    }
-  }
-
   "path is canonical" in {
-    val f1 = tempDir addFile "f1"
+    val f1 = tempDir.addFile("f1")
     val f2 = tempDir / "./f1"
     f1.path shouldReturn f2.path
   }

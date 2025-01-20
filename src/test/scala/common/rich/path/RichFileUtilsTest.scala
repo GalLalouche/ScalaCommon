@@ -2,9 +2,12 @@ package common.rich.path
 
 import java.nio.file.FileAlreadyExistsException
 
+import better.files.{File, FileExtensions}
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
+import common.rich.RichT.richT
 import common.rich.path.RichFile._
+import common.rich.path.RichPath.poorPath
 import common.test.DirectorySpecs
 
 class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
@@ -63,7 +66,11 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
       d.files shouldBe empty
     }
     val targetDir = dir2
-    val originalCopy = filledDir.cloneDir()
+    val originalCopy =
+      better.files
+        .File(filledDir.dir.toPath)
+        .copyTo(File(filledDir.parent.dir.toScala, filledDir.name + "_clone"))
+        .|>(Directory apply _.toJava)
     val originalName = filledDir.name
     "move directory" - {
       "happy path" in {

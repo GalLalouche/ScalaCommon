@@ -30,7 +30,7 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter { self: Suite =>
       assertSameName: Boolean = false,
   ): Unit = {
     if (assertSameName) assert(dir1.name == dir2.name, "Directories have different names")
-    def mapByName[P <: RichPath[_]](ps: TraversableOnce[P]): Map[String, P] =
+    def mapByName[P <: RichPath](ps: TraversableOnce[P]): Map[String, P] =
       ps.mapBy(_.name)
     val dir1Files = dir1.files
     val dir2Files = dir1.files.map(RichFile.apply).thrush(mapByName)

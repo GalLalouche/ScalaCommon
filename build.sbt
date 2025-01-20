@@ -24,6 +24,7 @@ lazy val scalaCommon = (project in file("."))
 
       "com.h2database" % "h2" % "1.4.196" % "test",
       "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
+      "com.github.pathikrit" %% "better-files" % "3.9.2" % "test",
     ),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
     addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.2").cross(CrossVersion.full)),
