@@ -4,17 +4,17 @@ import org.scalatest.FreeSpec
 
 import scala.language.higherKinds
 
+import common.rich.func.MoreIterableInstances._
+import common.rich.func.MoreSeqInstances._
+import common.rich.func.MoreSetInstances._
+import common.rich.func.MoreTraversableInstances._
+import common.rich.func.ToMoreFoldableOps._
 import scalaz.Foldable
 import scalaz.std.list.listInstance
 import scalaz.std.option.optionInstance
 import scalaz.std.stream.streamInstance
 import scalaz.std.string.stringInstance
 import scalaz.std.vector.vectorInstance
-import common.rich.func.MoreIterableInstances._
-import common.rich.func.MoreSeqInstances._
-import common.rich.func.MoreSetInstances._
-import common.rich.func.MoreTraversableInstances._
-import common.rich.func.ToMoreFoldableOps._
 
 import common.test.AuxSpecs
 
@@ -27,9 +27,8 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
     s shouldReturn "123123"
   }
   "printPerLine should not overflow" - {
-    def test[F[_] : Foldable](f: Int => F[Int]): Unit = {
-      Console.withOut(_ => ()) {f(10000).printPerLine()}
-    }
+    def test[F[_]: Foldable](f: Int => F[Int]): Unit =
+      Console.withOut(_ => ())(f(10000).printPerLine())
     "Seq" in test(Seq.fill(_)(1))
     "List" in test(List.fill(_)(1))
     "Set" in test(1.to(_).toSet)
@@ -45,11 +44,11 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
       Nil.mapHeadOrElse((_: Int) => ???, 2) shouldReturn 2
     }
   }
-  "head" in {Vector(1, 2, 3).head shouldReturn 1}
+  "head" in { Vector(1, 2, 3).head shouldReturn 1 }
   "headOpt" - {
-    "empty" in {Vector().headOpt shouldReturn None}
-    "nonEmpty" in {Vector(1, 2, 3).headOpt shouldReturn Some(1)}
-    "infinite" in {Stream.iterate(1)(_ + 1).headOpt shouldReturn Some(1)}
+    "empty" in { Vector().headOpt shouldReturn None }
+    "nonEmpty" in { Vector(1, 2, 3).headOpt shouldReturn Some(1) }
+    "infinite" in { Stream.iterate(1)(_ + 1).headOpt shouldReturn Some(1) }
   }
 
   "topK" - {
@@ -68,5 +67,11 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
   }
   "asum" in {
     Vector(Option("foo"), Option("moo"), Option("bar")).asum.get shouldReturn "foomoobar"
+  }
+
+  "partitionEithers" in {
+    val expected: (Vector[String], Vector[Int]) = (Vector("foo", "bar"), Vector(42, 54))
+    val vector: Seq[Either[String, Int]] = Vector(Left("foo"), Right(42), Left("bar"), Right(54))
+    vector.partitionEithers shouldReturn expected
   }
 }

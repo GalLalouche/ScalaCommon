@@ -1,7 +1,7 @@
 package common.rich.func
 
 import scala.Ordering.Implicits._
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.language.higherKinds
 
 import scalaz.{Applicative, Foldable, MonadError, Monoid, PlusEmpty}
@@ -53,6 +53,22 @@ trait ToMoreFoldableOps {
       )
     // Doesn't collide with the standard library fold method for Traversables.
     def foldMonoid(implicit m: Monoid[A]): A = $.fold
+  }
+
+  // Can't use ev A =:= Either[B, C], since the compiler can't infer those apparently...
+  // TODO this can be slightly more efficient if we knew the size of $ beforehand, so we could preallocate the
+  //  array. For some collections, we get this for cheap, so it might make sense to implement this in RichSeq
+  //  and check the type there?
+  implicit class EitherFoldableOps[B, C, F[_]: Foldable]($ : F[Either[B, C]]) {
+    def partitionEithers: (Seq[B], Seq[C]) = {
+      val bs = new ArrayBuffer[B]()
+      val cs = new ArrayBuffer[C]()
+      $.doForEach {
+        case Left(b) => bs += b
+        case Right(c) => cs += c
+      }
+      (bs.toVector, cs.toVector)
+    }
   }
 }
 
