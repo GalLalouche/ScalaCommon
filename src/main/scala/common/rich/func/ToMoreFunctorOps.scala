@@ -9,6 +9,11 @@ import common.rich.RichT._
 
 trait ToMoreFunctorOps {
   implicit class toMoreFunctorOps[F[_]: Functor, A]($ : F[A]) {
+    /**
+     * N.B. If `f` returns an effectful `F[_]` value, this method can't/won't actually run/wait for
+     * that F to complete! (it is a Functor op, after all.) If you wish to run a proper effect while
+     * returning the original value, use Bind's `>>!`
+     */
     def listen(f: A => Any): F[A] = $.map(_ <| f)
     def toOptionTF[B](f: A => Option[B]): OptionT[F, B] = OptionT($.map(f))
     def unzip[B, C](implicit ev: A <:< (B, C)): (F[B], F[C]) = $.map(_._1) -> $.map(_._2)
