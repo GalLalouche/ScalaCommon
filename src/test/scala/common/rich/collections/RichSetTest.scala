@@ -11,7 +11,7 @@ import common.rich.collections.RichSet._
 import common.test.AuxSpecs
 
 class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
-  implicit override val generatorDrivenConfig =
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSize = 10, sizeRange = 1000)
 
   private implicit def BuildableSet[T]: Buildable[T, Set[T]] = new Buildable[T, Set[T]] {
@@ -34,14 +34,13 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
     }
   }
   property("The empty set is <= for all sets") {
-    forAll { xs: Set[Int] => {
+    forAll { xs: Set[Int] =>
       Set.empty <= xs shouldReturn true
-    }
     }
   }
 
   property("All sets are <= and >= themselves") {
-    forAll { $: Set[Int] =>
+    forAll { $ : Set[Int] =>
       $ <= $ shouldReturn true
       $ >= $ shouldReturn true
     }
@@ -58,35 +57,30 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
   }
 
   property("> and >=") {
-    forAll {
-      xs: Set[Int] => {
-        whenever(xs.nonEmpty) {
-          xs > xs.tail shouldReturn true
-          xs > xs shouldReturn false
-          xs.tail > xs shouldReturn false
-          xs >= xs shouldReturn true
-          xs >= xs.tail shouldReturn true
-        }
+    forAll { xs: Set[Int] =>
+      whenever(xs.nonEmpty) {
+        xs > xs.tail shouldReturn true
+        xs > xs shouldReturn false
+        xs.tail > xs shouldReturn false
+        xs >= xs shouldReturn true
+        xs >= xs.tail shouldReturn true
       }
     }
   }
 
   property("The empty set is disjoint to all sets") {
-    forAll {
-      $: Set[Int] =>
-        Set[Int]() isDisjointTo $ shouldReturn true
+    forAll { $ : Set[Int] =>
+      Set[Int]().isDisjointTo($) shouldReturn true
     }
   }
   property("No set is disjoint to itself but the empty set") {
-    forAll {
-      $: Set[Int] =>
-        $ isDisjointTo $ shouldReturn $.isEmpty
+    forAll { $ : Set[Int] =>
+      $.isDisjointTo($) shouldReturn $.isEmpty
     }
   }
   property("&~ should be disjoint to ys") {
-    forAll {
-      (xs: Set[Int], ys: Set[Int]) =>
-        xs &~ ys isDisjointTo ys shouldReturn true
+    forAll { (xs: Set[Int], ys: Set[Int]) =>
+      (xs &~ ys).isDisjointTo(ys) shouldReturn true
     }
   }
 }

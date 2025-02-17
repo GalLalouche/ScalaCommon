@@ -5,7 +5,7 @@ import org.scalacheck.Gen
 
 import scala.util.Random
 
-import common.rich.RichRandom.richRandom
+import common.rich.RichRandomSpecVer.richRandomSpecVer
 import common.rich.collections.RichSeq._
 import common.rich.primitives.RichOption._
 

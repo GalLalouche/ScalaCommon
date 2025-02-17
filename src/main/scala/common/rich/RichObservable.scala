@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import rx.lang.scala.{Observable, Observer, Subscriber}
 import rx.lang.scala.subjects.BehaviorSubject
 
-import scala.collection.generic.CanBuildFrom
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.language.higherKinds
 
@@ -22,13 +21,6 @@ object RichObservable {
     def isSubscribed: Boolean = $.isUnsubscribed.isFalse
   }
   implicit class richObservable[A](private val $ : Observable[A]) extends AnyVal {
-    /**
-     * Returns a Future of a collection of all elements emitted by this observable. Future will not
-     * complete if this observable does not complete.
-     */
-    def toFuture[Coll[_]](implicit cbf: CanBuildFrom[Nothing, A, Coll[A]]): Future[Coll[A]] =
-      richObservable($.to[Coll]).firstFuture
-
     /**
      * Returns a Future of the first element emitted by this observable, or a failed Future that
      * fails with a NoSuchElementException if the observable is empty.

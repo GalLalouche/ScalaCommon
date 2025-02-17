@@ -26,10 +26,10 @@ class RichStreamTest extends FreeSpec with AuxSpecs {
       var x = -1
       val buffer = new ArrayBuffer[Int]()
       val stream = Stream.continually {
-        x +=1
+        x += 1
         if (x > 0)
           buffer += x
-        Unit
+        ()
       }
       (buffer, stream)
     }

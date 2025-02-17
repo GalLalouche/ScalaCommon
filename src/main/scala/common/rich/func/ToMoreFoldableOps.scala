@@ -2,7 +2,6 @@ package common.rich.func
 
 import scala.Ordering.Implicits._
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import scala.language.higherKinds
 
 import scalaz.{Applicative, Foldable, MonadError, Monoid, PlusEmpty}
 import scalaz.syntax.foldable.ToFoldableOps
@@ -13,7 +12,9 @@ import common.rich.primitives.RichBoolean._
 trait ToMoreFoldableOps {
   implicit class toMoreFoldableOps[A, F[_]: Foldable]($ : F[A]) {
     // because scalaz isn't tail recursive 🔔 shame 🔔 shame 🔔
-    def doForEach(f: A => Unit): F[A] = $.<|(Foldable[F].foldl(_, ())(_ => e => f(e)))
+    // This uses foldr because some implementations of foldable, e.g., Set's, doesn't implement foldl
+    // properly, which can cause an overflow.
+    def doForEach(f: A => Unit): F[A] = $.<|(Foldable[F].foldl(_, ())(_ => f))
     def printPerLine(): F[A] = doForEach(println)
     // Why isn't this in the scalaz library? Who knows
     def foldMapPE[M[_]: PlusEmpty, B](f: A => M[B]): M[B] =

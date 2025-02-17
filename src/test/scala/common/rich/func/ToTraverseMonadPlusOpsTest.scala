@@ -2,16 +2,16 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
+import common.rich.func.ToTraverseMonadPlusOps._
 import scalaz.std.option.optionInstance
 import scalaz.std.vector.vectorInstance
-import common.rich.func.ToTraverseMonadPlusOps._
 
 import common.test.AuxSpecs
 
 class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs {
   "filterM" - {
     "Small input" in {
-      import common.rich.func.MoreSetInstances._
+      import common.rich.func.BetterSetInstances._
       import common.rich.func.MoreTraverseInstances._
       Set(1, 2, 3).filterM[Option](x => Some(x % 2 == 0)).get shouldReturn Set(2)
     }

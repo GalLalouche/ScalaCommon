@@ -88,7 +88,7 @@ object RichString {
         val delim = input.substring(start, end)
         go(input.substring(end), delim :: head :: result)
       }
-      go($, Nil).view.filterNot(_.isEmpty).reverse.toVector
+      go($, Nil).reverseIterator.filterNot(_.isEmpty).toVector
     }
 
     def captureWith(regex: Regex): String = $ match { case regex(result) => result }

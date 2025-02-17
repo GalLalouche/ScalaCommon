@@ -5,37 +5,38 @@ import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
 import scala.collection.mutable
 import scala.concurrent.Future
 
-import scalaz.syntax.bind._
 import common.rich.func.BetterFutureInstances._
 import common.rich.func.ToTransableOps.toHoistIdOps
+import scalaz.syntax.bind._
 
 import common.test.AsyncAuxSpecs
 
 class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with AsyncAuxSpecs {
   private val existingValues = mutable.HashMap[Int, Int]()
   private val deletedRows = mutable.Buffer[(Int, Int)]()
-  private val $: Storage[Int, Int] = new StorageTemplate[Int, Int]() {
-    override protected def internalDelete(k: Int) = {
+  private val $ : Storage[Int, Int] = new StorageTemplate[Int, Int]() {
+    protected override def internalDelete(k: Int) = {
       val $ = existingValues.remove(k)
       $.foreach(deletedRows += k -> _)
-      Future successful $
+      Future.successful($)
     }
-    override protected def internalUpdate(k: Int, v: Int) = {
+    protected override def internalUpdate(k: Int, v: Int) = {
       existingValues.put(k, v)
-      Future successful Unit
+      Future.successful(())
     }
-    override protected def internalReplace(k: Int, v: Int) =
+    protected override def internalReplace(k: Int, v: Int) =
       if (existingValues.contains(k))
         internalDelete(k) >> internalUpdate(k, v)
       else
         internalUpdate(k, v)
     override def load(k: Int) = existingValues.get(k).hoistId
-    override def storeMultiple(kvs: Seq[(Int, Int)]) =
+    override def storeMultiple(kvs: Seq[(Int, Int)]): Future[Unit] =
       if ((existingValues.keySet & kvs.map(_._1).toSet).nonEmpty)
-        Future failed new IllegalArgumentException
+        Future.failed(new IllegalArgumentException)
       else
         overwriteMultipleVoid(kvs)
-    override def overwriteMultipleVoid(kvs: Seq[(Int, Int)]) = Future successful existingValues.++=(kvs)
+    override def overwriteMultipleVoid(kvs: Seq[(Int, Int)]): Future[Unit] =
+      Future.successful(existingValues.++=(kvs))
     override def utils = ???
   }
   "store" - {
@@ -50,10 +51,12 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   "overwriteMultipleVoid" - {
     "Overwrites existing values, add new values" in {
       existingValues += 1 -> 2
-      $.overwriteMultipleVoid(Vector(1 -> 4, 3 -> 5)) >| assertAll(Vector(
-        existingValues(1) shouldReturn 4,
-        existingValues(3) shouldReturn 5,
-      ))
+      $.overwriteMultipleVoid(Vector(1 -> 4, 3 -> 5)) >| assertAll(
+        Vector(
+          existingValues(1) shouldReturn 4,
+          existingValues(3) shouldReturn 5,
+        ),
+      )
     }
     "no existing value should insert the value and return true" in {
       $.store(1, 4) >| (existingValues(1) shouldReturn 4)
@@ -62,46 +65,55 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   "update" - {
     "has existing value returns old value but does not delete" in {
       existingValues += 1 -> 2
-      $.update(1, 4).valueShouldEventuallyReturn(2)
-          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
+      $.update(1, 4)
+        .valueShouldEventuallyReturn(2)
+        .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
     }
     "has no existing value returns None" in {
-      $.update(1, 4).shouldEventuallyReturnNone()
-          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
+      $.update(1, 4)
+        .shouldEventuallyReturnNone()
+        .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
     }
   }
   "replace" - {
     "has existing value returns old value and deletes" in {
       existingValues += 1 -> 2
-      $.replace(1, 4).valueShouldEventuallyReturn(2).>|(existingValues(1) shouldReturn 4)
-          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldContainExactly(1 -> 2))
+      $.replace(1, 4)
+        .valueShouldEventuallyReturn(2)
+        .>|(existingValues(1) shouldReturn 4)
+        .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldContainExactly(1 -> 2))
     }
     "has no existing value returns None" in {
-      $.update(1, 4).shouldEventuallyReturnNone()
-          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
+      $.update(1, 4)
+        .shouldEventuallyReturnNone()
+        .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
     }
   }
   "mapStore" - {
     "update" - {
       "has no existing value uses default" in {
-        $.mapStore(StoreMode.Update, 1, _ => ???, 2).shouldEventuallyReturnNone()
-            .>|(existingValues(1).shouldReturn(2) && deletedRows.shouldBe(empty))
+        $.mapStore(StoreMode.Update, 1, _ => ???, 2)
+          .shouldEventuallyReturnNone()
+          .>|(existingValues(1).shouldReturn(2) && deletedRows.shouldBe(empty))
       }
       "maps existing value if present but does not delete" in {
         existingValues += 1 -> 2
-        $.mapStore(StoreMode.Update, 1, _ * 2, ???).valueShouldEventuallyReturn(2)
-            .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
+        $.mapStore(StoreMode.Update, 1, _ * 2, ???)
+          .valueShouldEventuallyReturn(2)
+          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
       }
     }
     "replace" - {
       "has no existing value uses default" in {
-        $.mapStore(StoreMode.Replace, 1, _ => ???, 2).shouldEventuallyReturnNone()
-            .>|(existingValues(1).shouldReturn(2) && deletedRows.shouldBe(empty))
+        $.mapStore(StoreMode.Replace, 1, _ => ???, 2)
+          .shouldEventuallyReturnNone()
+          .>|(existingValues(1).shouldReturn(2) && deletedRows.shouldBe(empty))
       }
       "maps existing value if present and deletes" in {
         existingValues += 1 -> 2
-        $.mapStore(StoreMode.Replace, 1, _ * 2, ???).valueShouldEventuallyReturn(2)
-            .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldContainExactly(1 -> 2))
+        $.mapStore(StoreMode.Replace, 1, _ * 2, ???)
+          .valueShouldEventuallyReturn(2)
+          .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldContainExactly(1 -> 2))
       }
     }
   }
@@ -163,20 +175,26 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     "mapStore" - {
       "update" - {
         "has no existing value uses default" in {
-          $.mapStore(StoreMode.Update, 1, _ => ???, 2).shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 2)
+          $.mapStore(StoreMode.Update, 1, _ => ???, 2)
+            .shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 2)
         }
         "maps existing value if present" in {
           existingValues += 1 -> 2
-          $.mapStore(StoreMode.Update, 1, _ * 2, ???).valueShouldEventuallyReturn(2) >| (existingValues(1) shouldReturn 4)
+          $.mapStore(StoreMode.Update, 1, _ * 2, ???).valueShouldEventuallyReturn(
+            2,
+          ) >| (existingValues(1) shouldReturn 4)
         }
       }
       "replace" - {
         "has no existing value uses default" in {
-          $.mapStore(StoreMode.Replace, 1, _ => ???, 2).shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 2)
+          $.mapStore(StoreMode.Replace, 1, _ => ???, 2)
+            .shouldEventuallyReturnNone() >| (existingValues(1) shouldReturn 2)
         }
         "maps existing value if present" in {
           existingValues += 1 -> 2
-          $.mapStore(StoreMode.Replace, 1, _ * 2, ???).valueShouldEventuallyReturn(2) >| (existingValues(1) shouldReturn 4)
+          $.mapStore(StoreMode.Replace, 1, _ * 2, ???).valueShouldEventuallyReturn(
+            2,
+          ) >| (existingValues(1) shouldReturn 4)
         }
       }
     }
