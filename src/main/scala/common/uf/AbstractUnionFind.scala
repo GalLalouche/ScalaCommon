@@ -2,7 +2,7 @@ package common.uf
 
 import scala.annotation.tailrec
 
-import common.rich.func.MoreIterableInstances._
+import common.rich.func.scalazz.MoreIterableInstances._
 import scalaz.syntax.functor._
 
 import common.rich.collections.RichTraversableOnce.richTraversableOnce

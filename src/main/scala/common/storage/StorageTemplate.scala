@@ -3,8 +3,8 @@ package common.storage
 import scala.concurrent.{ExecutionContext, Future}
 
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.MoreTraverseInstances._
-import common.rich.func.RichOptionT._
+import common.rich.func.scalazz.MoreTraverseInstances._
+import common.rich.func.scalazz.RichOptionT._
 import scalaz.OptionT
 import scalaz.syntax.bind._
 import scalaz.syntax.traverse.ToTraverseOps

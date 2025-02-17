@@ -1,6 +1,6 @@
 package common.uf
 
-import common.rich.func.MoreIteratorInstances._
+import common.rich.func.scalazz.MoreIteratorInstances._
 import monocle.Monocle.toApplyLensOps
 import monocle.syntax.fields._1
 import scalaz.Scalaz.ToFunctorOpsUnapply

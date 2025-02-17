@@ -3,7 +3,7 @@ package common.rich.primitives
 import scala.language.higherKinds
 import scala.util.{Failure, Success, Try}
 
-import common.rich.func.ToMoreFoldableOps._
+import common.rich.func.scalazz.ToMoreFoldableOps._
 import scalaz.std.option.optionInstance
 
 object RichOption {

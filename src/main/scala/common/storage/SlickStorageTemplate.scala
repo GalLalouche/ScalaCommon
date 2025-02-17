@@ -6,7 +6,7 @@ import slick.jdbc.meta.MTable
 import scala.concurrent.{ExecutionContext, Future}
 
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreFunctorOps._
+import common.rich.func.scalazz.ToMoreFunctorOps.toMoreFunctorOps
 import scalaz.syntax.functor.ToFunctorOps
 
 /**

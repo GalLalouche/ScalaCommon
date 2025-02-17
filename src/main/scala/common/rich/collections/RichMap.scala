@@ -4,7 +4,7 @@ import java.util
 
 import scala.language.higherKinds
 
-import common.rich.func.ToMoreFoldableOps._
+import common.rich.func.scalazz.ToMoreFoldableOps._
 import scalaz.{Foldable, Plus, Semigroup}
 import scalaz.std.option.optionInstance
 import scalaz.syntax.foldable.ToFoldableOps

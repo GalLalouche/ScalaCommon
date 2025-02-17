@@ -8,10 +8,9 @@ lazy val scalaCommon = (project in file("."))
     scalaVersion := "2.12.15", // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
     crossScalaVersions := Seq("2.11.11", "2.12.15"),
     libraryDependencies ++= Seq(
-      "org.scalaz" %% "scalaz-core" % "7.2.15",
-
       // The below are provided to avoid pulling them in unless explicitly needed in other projects.
-      "com.beachape" %% "enumeratum" % "1.5.13",
+      "org.scalaz" %% "scalaz-core" % "7.2.15" % "provided",
+      "com.beachape" %% "enumeratum" % "1.5.13" % "provided",
       "com.github.julien-truffaut" %% "monocle-core" % "1.5.0" % "provided",
       "com.google.inject" % "guice" % GuiceVersion % "provided",
       "com.google.inject.extensions" % "guice-assistedinject" % GuiceVersion % "provided",

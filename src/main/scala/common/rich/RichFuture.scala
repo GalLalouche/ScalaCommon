@@ -5,7 +5,7 @@ import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
 import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreFunctorOps._
+import common.rich.func.scalazz.ToMoreFunctorOps._
 
 import common.rich.RichT._
 
