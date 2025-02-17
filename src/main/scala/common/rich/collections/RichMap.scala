@@ -28,6 +28,8 @@ object RichMap {
   }
 
   implicit class richMap[K, V](private val $ : Map[K, V]) extends AnyVal {
+    /** Doesn't return a view. */
+    def properMapValues[V2](f: V => V2): Map[K, V2] = RichMapSpecVer.properMapValues($, f)
     /** Throws on duplicate keys. */
     def mapKeys[K2](f: K => K2): Map[K2, V] =
       $.foldLeft(Map[K2, V]()) { case (map, (k, v)) =>
@@ -38,22 +40,21 @@ object RichMap {
           )
         map + (k2 -> v)
       }
-    /** Doesn't return a view. */
-    def properMapValues[V2](f: V => V2): Map[K, V2] = $.mapValues(f).view.force
   }
 
   implicit class richSemigroupMap[K, V: Semigroup]($ : Map[K, V]) {
+    def mergeIntersecting(other: Map[K, V]): Map[K, V] =
+      RichMapSpecVer.mergeIntersectingSemigroup($, other)
     def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
     def upsert[V2 >: V: Semigroup](kv: (K, V2)): Map[K, V2] = upsert(kv._1, kv._2)
     def upsert[V2 >: V: Semigroup](k: K, v: => V2): Map[K, V2] =
       $.updated(k, $.get(k).asInstanceOf[Option[V2]].mapHeadOrElse(_ ⊹ v, v))
-    def mergeIntersecting(other: Map[K, V]): Map[K, V] =
-      $.filterKeys(other.contains).map(e => (e._1, e._2 ⊹ other(e._1)))
   }
   implicit class richPlusMap[K, V[_]: Plus, A]($ : Map[K, V[A]]) {
     private val asSemigroup = richSemigroupMap($)(Plus[V].semigroup)
     def merge(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup.merge(other)
-    def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup.mergeIntersecting(other)
+    def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] =
+      richSemigroupMap($)(Plus[V].semigroup).mergeIntersecting(other)
   }
   implicit class richFoldableMap[K, V[_]: Foldable, A]($ : Map[K, V[A]]) {
     def flattenValues: Seq[(K, A)] = $.toSeq.flatMap(e => e._2.toVector.map(e._1.->))

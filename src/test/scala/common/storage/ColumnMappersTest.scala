@@ -6,21 +6,27 @@ import enumeratum.EnumEntry
 import org.scalatest.AsyncFreeSpec
 import slick.jdbc.JdbcType
 
-import scalaz.syntax.bind.ToBindOpsUnapply
 import common.rich.func.BetterFutureInstances._
+import scalaz.syntax.bind.ToBindOpsUnapply
 
 import common.rich.RichFuture._
 import common.rich.collections.RichTraversableOnce._
 import common.storage.ColumnMappersTest.TestEnumeratum
 import common.test.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 
-class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs
-    with BeforeAndAfterEachAsync with StorageSpecs {
+class ColumnMappersTest
+    extends AsyncFreeSpec
+    with AsyncAuxSpecs
+    with BeforeAndAfterEachAsync
+    with StorageSpecs {
   private val cm = new ColumnMappers()
+  private val cmsv = new ColumnMappersSpecVer()
   import cm._
+  import cmsv._
   import profile.api._
 
-  private implicit val enumeratumMapper: JdbcType[TestEnumeratum] = cm.enumeratumColumn(TestEnumeratum)
+  private implicit val enumeratumMapper: JdbcType[TestEnumeratum] =
+    cm.enumeratumColumn(TestEnumeratum)
   private class Rows(tag: Tag)
       extends Table[(TestEnum, TestEnumeratum, Seq[Int], LocalDate, LocalDateTime)](tag, "table") {
     def enum = column[TestEnum]("enum")
@@ -38,23 +44,30 @@ class ColumnMappersTest extends AsyncFreeSpec with AsyncAuxSpecs
   private val date = LocalDate.of(2006, 7, 8)
   private val time = LocalDateTime.of(2010, 2, 3, 10, 20, 30)
   "Can save and load" in {
-    db.run(table += (
+    db.run(
+      table += (
         TestEnum.BAZZ,
         TestEnumeratum.Quux,
         Vector(4, 8, 15, 16, 23, 42),
         date,
         time,
-    )) >> db.run(table.result).map(_.single shouldReturn(
-        TestEnum.BAZZ,
-        TestEnumeratum.Quux,
-        Vector(4, 8, 15, 16, 23, 42),
-        date,
-        time,
-    ))
+      ),
+    ) >> db
+      .run(table.result)
+      .map(
+        _.single shouldReturn (
+          TestEnum.BAZZ,
+          TestEnumeratum.Quux,
+          Vector(4, 8, 15, 16, 23, 42),
+          date,
+          time,
+        ),
+      )
   }
   "Can handle empty seqs" in {
     db.run(table += (TestEnum.BAR, TestEnumeratum.Foo, Nil, date, time)) >>
-        db.run(table.result).map(_.single shouldReturn(TestEnum.BAR, TestEnumeratum.Foo, Nil, date, time))
+      db.run(table.result)
+        .map(_.single shouldReturn (TestEnum.BAR, TestEnumeratum.Foo, Nil, date, time))
   }
 }
 

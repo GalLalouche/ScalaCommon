@@ -2,14 +2,9 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
-import scala.language.higherKinds
-
-import common.rich.func.MoreIterableInstances._
-import common.rich.func.MoreSeqInstances._
-import common.rich.func.MoreSetInstances._
-import common.rich.func.MoreTraversableInstances._
-import common.rich.func.ToMoreFoldableOps._
-import scalaz.Foldable
+import common.rich.func.BetterSetInstances.betterSetInstances
+import common.rich.func.ToMoreFoldableOps.{toMoreFoldableOps, EitherFoldableOps}
+import scalaz.{Foldable, Traverse}
 import scalaz.std.list.listInstance
 import scalaz.std.option.optionInstance
 import scalaz.std.stream.streamInstance
@@ -19,6 +14,10 @@ import scalaz.std.vector.vectorInstance
 import common.test.AuxSpecs
 
 class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
+  implicit val seqInstance: Traverse[Seq] =
+    common.rich.func.MoreTraverseInstances.traversableTraverse
+  implicit val iterableInstance: Traverse[Iterable] =
+    common.rich.func.MoreTraverseInstances.traversableTraverse
   "doForEach acts on left indices first" in {
     var s = ""
     // Seq and Vector have different default folds.
@@ -32,7 +31,7 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
     "Seq" in test(Seq.fill(_)(1))
     "List" in test(List.fill(_)(1))
     "Set" in test(1.to(_).toSet)
-    "Traversable" in test(Traversable.fill(_)(1))
+    "Traversable" in test(Iterable.fill(_)(1))
     "Iterable" in test(Iterable.fill(_)(1))
     "Vector" in test(Vector.fill(_)(1))
   }

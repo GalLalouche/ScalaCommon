@@ -13,24 +13,14 @@ import common.rich.primitives.RichBoolean
 
 object RichSeq {
   class __Inserter[T] private[RichSeq] ($ : Seq[T], elementToInsert: T) {
-    /**
-     * @param index
-     *   the index to insert at
-     * @throws IndexOutOfBoundsException
-     */
-    def at(index: Int): Seq[T] = {
-      require(index >= 0)
-      if ($.size < index)
-        throw new IndexOutOfBoundsException(s"requested to remove at $index when size is ${$.size}")
-      else $.splitAt(index).thrush(xs => (xs._1.to[ArrayBuffer] += elementToInsert) ++ xs._2)
-    }
+    def at(index: Int): Seq[T] = RichSeqSpecVer.at($, elementToInsert, index)
     def after(index: Int): Seq[T] = at(index + 1)
     def before(index: Int): Seq[T] = at(index - 1)
   }
   implicit class richSeq[T](private val $ : Seq[T]) extends AnyVal {
     /** Returns a random shuffle of this sequence in O(n), using the fisher-yates algorithm */
     def shuffle(random: Random): Seq[T] = {
-      val array = ArrayBuffer[T]($ : _*)
+      val array = $.toBuffer
       for (n <- array.length - 1 to 0 by -1) {
         val k = random.nextInt(n + 1)
         val temp = array(k)
@@ -81,7 +71,7 @@ object RichSeq {
       if ($.size <= i)
         throw new IndexOutOfBoundsException(s"requested to remove at $i when size is ${$.size}")
       else
-        $.splitAt(i).|>(e => e._1.to[ArrayBuffer] ++ e._2.drop(1))
+        $.splitAt(i).|>(e => e._1.toBuffer ++ e._2.drop(1)).toVector
     }
 
     /**
@@ -122,7 +112,7 @@ object RichSeq {
     def safeZipWith[S, W](other: Seq[S])(f: (T, S) => W): Seq[W] = {
       val i1 = $.iterator
       val i2 = other.iterator
-      val b = $.genericBuilder[W]
+      val b: mutable.Builder[W, Seq[W]] = RichSeqSpecVer.builder($)
       while (i1.hasNext && i2.hasNext)
         b += f(i1.next(), i2.next())
       if (i1.hasNext || i2.hasNext)
@@ -139,25 +129,19 @@ object RichSeq {
     def orderedGroupBy[S](f: T => S): Seq[(S, Seq[T])] = {
       val result = new mutable.LinkedHashMap[S, mutable.Buffer[T]]
       $.foreach(x => result.getOrElseUpdate(f(x), new ArrayBuffer[T]) += x)
-      result.mapValues(_.toVector).toVector
+      RichSeqSpecVer.finishOrderedGroupBy(result)
     }
   }
 
   implicit class richSeqTuplesDouble[T, S](private val $ : Seq[(T, S)]) extends AnyVal {
     def flatZip[U](other: Seq[U]): Seq[(T, S, U)] = $.zip(other).map(e => (e._1._1, e._1._2, e._2))
+    def toMultiMap: Map[T, Seq[S]] =
+      RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
     /**
      * Creates a map view from T to S. The map has linear search time, but on the other hand it
      * keeps the same order as the original.
      */
-    def asMap: Map[T, S] = new Map[T, S]() {
-      override def +[B1 >: S](kv: (T, B1)): Map[T, B1] = throw new UnsupportedOperationException
-      override def get(key: T): Option[S] = $.find(_._1 == key).map(_._2)
-      override def iterator: Iterator[(T, S)] = $.iterator
-      override def -(key: T): Map[T, S] = throw new UnsupportedOperationException
-      override def toSeq = $
-    }
-    def toMultiMap: Map[T, Seq[S]] =
-      RichTraversableOnce.richTraversableOnce($).toMultiMap(_._1, _._2)
+    def asMap: Map[T, S] = RichSeqSpecVer.asMap($)
   }
 
   implicit class richSeqTuplesTriplets[T, S, U](private val $ : Seq[(T, S, U)]) extends AnyVal {

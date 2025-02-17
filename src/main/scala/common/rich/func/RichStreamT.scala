@@ -2,7 +2,7 @@ package common.rich.func
 
 import scala.language.higherKinds
 
-import scalaz.{~>, Applicative, Hoist, Monad, OptionT, StreamT}
+import scalaz.{~>, Applicative, Functor, Hoist, Monad, OptionT, StreamT}
 import scalaz.Id.Id
 import scalaz.syntax.bind.ToBindOps
 import scalaz.syntax.functor.ToFunctorOps
@@ -23,6 +23,9 @@ object RichStreamT {
           case Some(value) =>
             value._2.unconsBatch(n - 1).map(TuplePLenses.tuple2First.modify(value._1 :: _.toList))
         }
+    /** Don't use iteratively! */
+    // This was deleted in newer versions for reason.
+    def tail(implicit ev: Functor[F]): StreamT[F, A] = $.drop(1)
   }
 
   def iterateM[F[_]: Applicative, A](a: A)(f: A => OptionT[F, A]): StreamT[F, A] = {
@@ -33,7 +36,7 @@ object RichStreamT {
   }
 
   def fillM[F[_]: Applicative, A](a: => OptionT[F, A]): StreamT[F, A] =
-    iterateM[F, Either[Unit, A]](Left(Unit)) {
+    iterateM[F, Either[Unit, A]](Left(())) {
       case Left(_) => a.map(Right(_))
       case Right(_) => a.map(Right(_))
     }.tail.map(_.fold(_ => ???, identity))

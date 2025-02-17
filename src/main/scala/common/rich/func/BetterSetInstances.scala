@@ -2,11 +2,14 @@ package common.rich.func
 
 import scala.language.higherKinds
 
-import scalaz.{Foldable, MonadPlus, Monoid}
-import scalaz.std.SetInstances
+import scalaz.{Foldable, IsEmpty, MonadPlus, Monoid}
 
-trait MoreSetInstances extends SetInstances {
-  implicit object SetMonadPlus extends MonadPlus[Set] /*Kinda*/ with Foldable[Set] {
+/** Has a non-overflowing implementation of foldl. */
+trait BetterSetInstances {
+  implicit object betterSetInstances
+      extends MonadPlus[Set] /*Kinda*/
+      with Foldable[Set]
+      with IsEmpty[Set] {
     override def bind[A, B](fa: Set[A])(f: A => Set[B]) = fa.flatMap(f)
     override def point[A](a: => A) = Set(a)
     override def empty[A] = Set.empty
@@ -18,7 +21,8 @@ trait MoreSetInstances extends SetInstances {
     override def foldMap[A, B: Monoid](fa: Set[A])(f: A => B): B =
       fa.map(f).fold(Monoid[B].zero)(Monoid[B].append(_, _))
     override def foldLeft[A, B](fa: Set[A], z: B)(f: (B, A) => B) = fa.foldLeft(z)(f)
+    override def isEmpty[A](fa: Set[A]): Boolean = fa.isEmpty
   }
 }
 
-object MoreSetInstances extends MoreSetInstances
+object BetterSetInstances extends BetterSetInstances
