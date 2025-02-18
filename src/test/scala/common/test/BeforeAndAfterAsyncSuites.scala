@@ -1,8 +1,10 @@
 package common.test
 
+import java.util.concurrent.Executors
+
 import org.scalatest.{Args, Assertion, AsyncFreeSpec, FreeSpec, Suite}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 import common.rich.primitives.RichBoolean._
 
@@ -19,12 +21,12 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var beforeCalled = 0
       var afterCalled = 0
 
-      override protected def beforeEach(): Future[_] = Future.successful {
+      protected override def beforeEach(): Future[_] = Future.successful {
         beforeCalled += 1
         setup = true
         tearDown = false
       }
-      override protected def afterEach(): Future[_] = Future.successful {
+      protected override def afterEach(): Future[_] = Future.successful {
         afterCalled += 1
         tearDown = true
         setup = false
@@ -45,19 +47,21 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
     $.afterCalled shouldReturn 2
   }
 
-  "before and after all should be called just once" in {
+  "before and after all should be called just once, and only after all tests completed" in {
     class MySuite extends AsyncFreeSpec with BeforeAndAfterAllAsync with AuxSpecs {
+      implicit override def executionContext: ExecutionContext =
+        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
       var setup = false
       var tearDown = false
       var beforeCalled = 0
       var afterCalled = 0
 
-      override protected def beforeAll(): Future[_] = Future.successful {
+      protected override def beforeAll(): Future[_] = Future.successful {
         beforeCalled += 1
         setup = true
         tearDown = false
       }
-      override protected def afterAll(): Future[_] = Future.successful {
+      protected override def afterAll(): Future[_] = Future.successful {
         afterCalled += 1
         tearDown = true
         setup = false
@@ -69,6 +73,8 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       }
       "test me1" in validate()
       "test me2" in validate()
+      "test me1 async" in Future(validate())
+      "test me2 async" in Future(validate())
     }
     val $ = run(new MySuite())
     $.setup shouldReturn false
@@ -78,7 +84,11 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
   }
 
   "composed with both" in {
-    class MySuite extends AsyncFreeSpec with BeforeAndAfterAllAsync with BeforeAndAfterEachAsync with AuxSpecs {
+    class MySuite
+        extends AsyncFreeSpec
+        with BeforeAndAfterAllAsync
+        with BeforeAndAfterEachAsync
+        with AuxSpecs {
       var setup = false
       var tearDown = false
       var setupAll = false
@@ -88,24 +98,24 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var beforeAllCalled = 0
       var afterAllCalled = 0
 
-      override protected def beforeEach(): Future[_] = Future.successful {
+      protected override def beforeEach(): Future[_] = Future.successful {
         assert(setupAll)
         beforeEachCalled += 1
         setup = true
         tearDown = false
       }
-      override protected def afterEach(): Future[_] = Future.successful {
+      protected override def afterEach(): Future[_] = Future.successful {
         assert(tearDownAll.isFalse)
         afterEachCalled += 1
         tearDown = true
         setup = false
       }
-      override protected def beforeAll(): Future[_] = Future.successful {
+      protected override def beforeAll(): Future[_] = Future.successful {
         beforeAllCalled += 1
         setupAll = true
         tearDownAll = false
       }
-      override protected def afterAll(): Future[_] = Future.successful {
+      protected override def afterAll(): Future[_] = Future.successful {
         afterAllCalled += 1
         tearDownAll = true
         setupAll = false

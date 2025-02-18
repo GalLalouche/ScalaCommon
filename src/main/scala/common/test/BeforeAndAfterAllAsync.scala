@@ -11,7 +11,7 @@ trait BeforeAndAfterAllAsync extends AsyncTestSuiteMixin { self: AsyncTestSuite 
   abstract override def run(testName: Option[String], args: Args): Status = {
     Await.result(beforeAll(), Duration.Inf)
     val $ = super.run(testName, args)
-    Await.result(afterAll(), Duration.Inf)
+    $.whenCompleted(_ => Await.result(afterAll(), Duration.Inf))
     $
   }
 }
