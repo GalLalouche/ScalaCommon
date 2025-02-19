@@ -48,6 +48,7 @@ trait AsyncAuxSpecs extends AuxSpecs { self: AsyncTestSuite =>
     def mapValue(f: Stream[A] => Assertion): Future[Assertion] = $.toStream.map(f.apply)
     def valueShouldEventuallyReturn(s: Stream[A]): Future[Assertion] = mapValue(_ shouldReturn s)
   }
+  // TODO why doesn't this varargs plus traverse?
   def checkAll(f1: => Future[Assertion], f2: => Future[Assertion]): Future[Assertion] =
     f1 >> f2
   def checkAll(
@@ -62,4 +63,11 @@ trait AsyncAuxSpecs extends AuxSpecs { self: AsyncTestSuite =>
       f3: => Future[Assertion],
       f4: => Future[Assertion],
   ): Future[Assertion] = f1 >> f2 >> f3 >> f4
+  def checkAll(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+      f3: => Future[Assertion],
+      f4: => Future[Assertion],
+      f5: => Future[Assertion],
+  ): Future[Assertion] = f1 >> f2 >> f3 >> f4 >> f5
 }
