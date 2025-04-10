@@ -11,19 +11,10 @@ import scalaz.syntax.foldable.ToFoldableOps
 import scalaz.syntax.semigroup.ToSemigroupOps
 
 import common.rich.RichT._
-import common.rich.primitives.RichBoolean._
 
 object RichMap {
   implicit class richJavaMap[K, V](private val $ : util.Map[K, V]) extends AnyVal {
-    /**
-     * *Not* inherently thread-safe. Use ConcurrentHashMap if you need one.
-     */
-    def getOrPutIfAbsent(k: K, v: => V): V = {
-      if ($.containsKey(k).isFalse) // Not using putIfAbsent since its strict in its argument
-        $.put(k, v)
-      $.get(k)
-    }
-
+    def getOrPutIfAbsent(k: K, v: => V): V = $.computeIfAbsent(k, _ => v)
     def getOpt(k: K): Option[V] = $.get(k).opt
   }
 
