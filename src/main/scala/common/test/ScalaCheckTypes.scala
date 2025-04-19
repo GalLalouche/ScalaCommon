@@ -19,7 +19,6 @@ object ScalaCheckTypes {
     Gen.choose(LocalDate.MIN.toEpochDay, LocalDate.MAX.toEpochDay).map(LocalDate.ofEpochDay),
   )
   /** Bound between the epoch day and now. */
-  implicit val arbitraryLocalDateBound: Arbitrary[LocalDate] = Arbitrary(
-    Gen.choose(0, LocalDate.now().toEpochDay).map(LocalDate.ofEpochDay),
-  )
+  implicit val arbitraryLocalDateBound: Arbitrary[LocalDate] =
+    Arbitrary(Gen.choose(0, LocalDate.now().toEpochDay).map(LocalDate.ofEpochDay))
 }

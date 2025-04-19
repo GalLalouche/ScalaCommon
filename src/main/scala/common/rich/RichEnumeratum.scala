@@ -8,6 +8,7 @@ import scala.util.Random
 import common.rich.RichRandomSpecVer.richRandomSpecVer
 import common.rich.collections.RichSeq._
 import common.rich.primitives.RichOption._
+import common.test.MoreGen
 
 object RichEnumeratum {
   implicit class richEnumeratum[A <: EnumEntry](e: Enum[A]) {
@@ -19,6 +20,6 @@ object RichEnumeratum {
       e.values.findIndex(a.==).getOrThrow(s"Could not find <$a> in <${e.values}>")
     def ordering: Ordering[A] = Ordering by ordinal
     def random(random: Random): A = random.select(e.values)
-    def gen: Gen[A] = Gen.choose(0, e.values.length - 1).map(e.values)
+    def gen: Gen[A] = MoreGen.oneOf(e.values)
   }
 }
