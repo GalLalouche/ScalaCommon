@@ -45,4 +45,11 @@ object RichFuture {
     f($.complete)
     $.future
   }
+
+  implicit class RichTryFuture[A]($ : Future[Try[A]])(implicit ec: ExecutionContext) {
+    def fromTry: Future[A] = $.flatMap {
+      case Success(s) => Future.successful(s)
+      case Failure(e) => Future.failed(e)
+    }
+  }
 }
