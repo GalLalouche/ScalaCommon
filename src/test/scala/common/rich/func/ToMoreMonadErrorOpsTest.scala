@@ -26,23 +26,23 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
     }
     "collectHandle" - {
       "success" in {
-        success.collectHandle {case _ => ???}.get shouldReturn 42
+        success.collectHandle { case _ => ??? }.get shouldReturn 42
       }
       "failure" - {
         "partial doesn't handle" in {
-          failure.collectHandle {
-            case "foobar" => 54
+          failure.collectHandle { case "foobar" =>
+            54
           }.getFailure shouldReturn "failure"
         }
         "partial handles" in {
-          failure.collectHandle {
-            case "failure" => 54
+          failure.collectHandle { case "failure" =>
+            54
           }.get shouldReturn 54
         }
         "Exception" in {
           val e: ContainerOrError[Int] = Error(new ConnectException("Failed to connect"))
-          e.collectHandle {
-            case _: ConnectException => 42
+          e.collectHandle { case _: ConnectException =>
+            42
           }.get shouldReturn 42
         }
       }
@@ -87,12 +87,13 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
           success.filterWith(_ == 42, unusedError).get shouldReturn 42
         }
         "pred is false" in {
-          success.filterWith(_ == 43, "expected 43 but was 42")
-              .getFailure shouldReturn "expected 43 but was 42"
+          success
+            .filterWith(_ == 43, "expected 43 but was 42")
+            .getFailure shouldReturn "expected 43 but was 42"
         }
       }
       "failure" in {
-        failure.filterWith(_ => ???, {???}).getFailure shouldReturn "failure"
+        failure.filterWith(_ => ???, ???).getFailure shouldReturn "failure"
       }
     }
     "filterMap" - {
@@ -114,8 +115,9 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
           success.mFilter(e => Box(e == 42), _ => ???).get shouldReturn 42
         }
         "pred is false" in {
-          success.mFilter(e => Box(e == 41), e => s"expected 41 but was $e")
-              .getFailure shouldReturn "expected 41 but was 42"
+          success
+            .mFilter(e => Box(e == 41), e => s"expected 41 but was $e")
+            .getFailure shouldReturn "expected 41 but was 42"
         }
       }
       "failure" in {
@@ -136,13 +138,13 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
       }
       "failure" - {
         "no match" in {
-          failure.collectError {
-            case "foobar" => ???
+          failure.collectError { case "foobar" =>
+            ???
           }.getFailure shouldReturn "failure"
         }
         "matches" in {
-          failure.collectError {
-            case "failure" => "foobar"
+          failure.collectError { case "failure" =>
+            "foobar"
           }.getFailure shouldReturn "foobar"
         }
       }
@@ -157,6 +159,16 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
         x shouldReturn 17
       }
     }
+    "guard" - {
+      "true returns a unit" in {
+        ToMoreMonadErrorOps.guard[BoxOrMsg, String](b = true, ???) shouldReturn Box(())
+      }
+      "false returns an error" in {
+        ToMoreMonadErrorOps.guard[BoxOrMsg, String](b = false, "Failure") shouldReturn Msg(
+          "Failure",
+        )
+      }
+    }
   }
 
   "toMoreMonadErrorThrowableOps" - {
@@ -169,8 +181,8 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
         }
         "pred is false" in {
           success.filterEquals(43).getFailure.getMessage shouldReturn
-              "Expected: <43>,\n" +
-                  "but was:  <42>"
+            "Expected: <43>,\n" +
+            "but was:  <42>"
         }
       }
       "failure" in {
@@ -185,8 +197,10 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
           success.filterWithMessageF(_ % 42 == 0, _ => ???).get shouldReturn 42
         }
         "pred is false" in {
-          success.filterWithMessage(_ % 42 == 1, "foobar")
-              .getFailure.getMessage shouldReturn "foobar"
+          success
+            .filterWithMessage(_ % 42 == 1, "foobar")
+            .getFailure
+            .getMessage shouldReturn "foobar"
         }
       }
       "failure" in {
@@ -219,9 +233,8 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
           def foo: ContainerOrError[Any] = {
             def bar = {
               def baz = {
-                def qux = {
+                def qux =
                   success.filterWithStacktrace(_ < 0, "Foobar")
-                }
                 qux
               }
               baz
@@ -231,15 +244,28 @@ class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
 
           val ex = foo.getFailure
           ex.getMessage shouldReturn "Foobar"
-          ex.getStackTrace.zip(Vector("qux", "baz", "bar", "foo"))
-              .map(e => e._1.toString contains e._2)
-              .forall(identity) shouldReturn true
+          ex.getStackTrace
+            .zip(Vector("qux", "baz", "bar", "foo"))
+            .map(e => e._1.toString contains e._2)
+            .forall(identity) shouldReturn true
         }
       }
       "failure" in {
         val ex = failure.filterWithStacktraceF(_ => ???, _ => ???).getFailure
         ex.getMessage shouldReturn "failure"
         ex shouldBe a[RuntimeException]
+      }
+    }
+
+    "guard" - {
+      "true returns a unit" in {
+        ToMoreMonadErrorOps.guardMessage[ContainerOrError](b = true, ???) shouldReturn Container(())
+      }
+      "false returns an error" in {
+        ToMoreMonadErrorOps
+          .guardMessage[ContainerOrError](b = false, "Failure")
+          .getFailure
+          .getMessage shouldReturn "Failure"
       }
     }
   }
