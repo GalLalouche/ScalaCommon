@@ -81,5 +81,9 @@ trait ToMoreMonadErrorOps {
 }
 
 object ToMoreMonadErrorOps extends ToMoreMonadErrorOps {
+  def guard[F[_], S](b: Boolean, s: => S)(implicit F: MonadError[F, S]): F[Unit] =
+    if (b) F.pure(()) else F.raiseError(s)
+  def guardMessage[F[_]](b: Boolean, s: => String)(implicit F: MonadError[F, Throwable]): F[Unit] =
+    if (b) F.pure(()) else F.raiseError(new Exception(s))
   class FilteredException(str: String) extends NoSuchElementException(str)
 }
