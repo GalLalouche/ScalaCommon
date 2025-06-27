@@ -2,8 +2,8 @@ package common.rich.func
 
 import org.scalatest.FreeSpec
 
-import scalaz.OptionT
 import common.rich.func.RichOptionT._
+import scalaz.OptionT
 
 import common.test.AuxSpecs
 
@@ -25,8 +25,22 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
         OptionT.some[ContainerOrError, Int](4).get shouldReturn Container(4)
       }
       "When none returns an error" in {
-        OptionT.none[ContainerOrError, Int].get.asInstanceOf[Error]
-            .getFailure shouldBe a[NoSuchElementException]
+        OptionT
+          .none[ContainerOrError, Int]
+          .get
+          .asInstanceOf[Error]
+          .getFailure shouldBe a[NoSuchElementException]
+      }
+    }
+    "getOrThrow" - {
+      "When some returns the value" in {
+        OptionT.some[ContainerOrError, Int](4).getOrThrow(???) shouldReturn Container(4)
+      }
+      "When none returns an error" in {
+        val e =
+          OptionT.none[ContainerOrError, Int].getOrThrow("foobar").asInstanceOf[Error].getFailure
+        e shouldBe a[NoSuchElementException]
+        e.getMessage shouldReturn "foobar"
       }
     }
     "mFilterOpt" - {
@@ -44,13 +58,13 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
     }
     "collect" - {
       "None" in {
-        none.collect {
-          case _ => ???
+        none.collect { case _ =>
+          ???
         }.run shouldReturn boxedNone
       }
       "Some to none" in {
-        some.collect {
-          case 40 => ???
+        some.collect { case 40 =>
+          ???
         }.run shouldReturn boxedNone
       }
       "Some to some" in {
@@ -64,20 +78,20 @@ class RichOptionTTest extends FreeSpec with AuxSpecs {
 
   "conditionals" - {
     "when" - {
-      "true" in {when(true)(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
-      "false" in {when(false)(???) shouldReturn OptionT.none}
+      "true" in { when(true)(BoxOrMsg(4)) shouldReturn OptionT.some(4) }
+      "false" in { when(false)(???) shouldReturn OptionT.none }
     }
     "whenM" - {
-      "true" in {whenM(BoxOrMsg(true))(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
-      "false" in {whenM(BoxOrMsg(false))(???) shouldReturn OptionT.none}
+      "true" in { whenM(BoxOrMsg(true))(BoxOrMsg(4)) shouldReturn OptionT.some(4) }
+      "false" in { whenM(BoxOrMsg(false))(???) shouldReturn OptionT.none }
     }
     "unless" - {
-      "true" in {unless(true)(???) shouldReturn OptionT.none}
-      "false" in {unless(false)(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
+      "true" in { unless(true)(???) shouldReturn OptionT.none }
+      "false" in { unless(false)(BoxOrMsg(4)) shouldReturn OptionT.some(4) }
     }
     "unlessM" - {
-      "true" in {unlessM(BoxOrMsg(true))(???) shouldReturn OptionT.none}
-      "false" in {unlessM(BoxOrMsg(false))(BoxOrMsg(4)) shouldReturn OptionT.some(4)}
+      "true" in { unlessM(BoxOrMsg(true))(???) shouldReturn OptionT.none }
+      "false" in { unlessM(BoxOrMsg(false))(BoxOrMsg(4)) shouldReturn OptionT.some(4) }
     }
   }
 }

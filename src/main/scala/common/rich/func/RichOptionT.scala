@@ -23,6 +23,8 @@ object RichOptionT {
     }
     def get(implicit ev: MonadError[F, Throwable]): F[A] =
       orError[Throwable](new NoSuchElementException)
+    def getOrThrow(msg: => String)(implicit ev: MonadError[F, Throwable]): F[A] =
+      orError[Throwable](new NoSuchElementException(msg))
 
     def mFilterOpt(p: A => F[Boolean])(implicit ev: Monad[F]): OptionT[F, A] = OptionT(for {
       e <- $.run
