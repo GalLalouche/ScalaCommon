@@ -3,11 +3,15 @@ package common.rich.path
 import java.io.File
 import java.nio.file.Path
 
+import better.files.{File => BFile, FileExtensions}
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 class RichPath protected (protected val f: File) {
+  def better: BFile = f.toScala
+
   override def equals(obj: Any): Boolean = obj match {
     // Fix for MacOS (of course).
     case otherF: RichPath => f.getCanonicalPath == otherF.f.getCanonicalPath
