@@ -40,6 +40,7 @@ lazy val scalaCommon = (project in file("."))
         // The below are provided to avoid pulling them in unless explicitly needed in other projects.
         "com.beachape" %% "enumeratum" % "1.5.13",
         "com.github.julien-truffaut" %% "monocle-core" % versionMap("1.5.0", "1.7.3") % "provided",
+        "com.github.pathikrit" %% "better-files" % "3.9.2" % "provided",
         "com.google.inject" % "guice" % GuiceVersion % "provided",
         "com.google.inject.extensions" % "guice-assistedinject" % GuiceVersion % "provided",
         "com.typesafe.slick" %% "slick" % "3.3.3" % "provided",
@@ -51,7 +52,6 @@ lazy val scalaCommon = (project in file("."))
 
         "com.h2database" % "h2" % "1.4.196" % "test",
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
-        "com.github.pathikrit" %% "better-files" % "3.9.2" % "test",
       )
     },
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
