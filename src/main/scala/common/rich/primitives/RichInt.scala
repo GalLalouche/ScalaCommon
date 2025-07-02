@@ -12,6 +12,7 @@ object RichInt {
         case 0 => result
         case _ => go(x - 1, result * x)
       }
+      require(n >= 0)
       go(n)
     }
 
