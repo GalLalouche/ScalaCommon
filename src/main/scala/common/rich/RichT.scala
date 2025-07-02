@@ -107,6 +107,17 @@ object RichT {
 
     def ifNot(p: T => Boolean) = new __Thrower($, p($))
     def ifNot(b: Boolean) = new __Thrower($, b)
+
+    /** Similar to ensuring, but throws an IllegalArgumentException instead. */
+    @inline def requiring(p: T => Boolean): T = {
+      require(p($))
+      $
+    }
+    /** Similar to ensuring, but throws an IllegalArgumentException instead. */
+    @inline def requiring(p: T => Boolean, msg: => String): T = {
+      require(p($), msg)
+      $
+    }
   }
 
   implicit class lazyT[T]($ : => T) {
