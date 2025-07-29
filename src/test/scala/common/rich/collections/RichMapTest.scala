@@ -50,6 +50,9 @@ class RichMapTest extends FreeSpec with AuxSpecs with OneInstancePerTest {
         }
       }
     }
+    "filterValues" - {
+      Map("foo" -> 42, "bazz" -> 54).filterValues(_ < 50) shouldReturn Map("foo" -> 42)
+    }
   }
 
   "richSemigroupMap" - {
