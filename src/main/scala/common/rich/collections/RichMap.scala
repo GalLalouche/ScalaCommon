@@ -31,6 +31,8 @@ object RichMap {
           )
         map + (k2 -> v)
       }
+
+    def filterValues(p: V => Boolean): Map[K, V] = $.filter(p apply _._2)
   }
 
   implicit class richSemigroupMap[K, V: Semigroup]($ : Map[K, V]) {
