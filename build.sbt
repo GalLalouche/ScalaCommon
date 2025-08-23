@@ -60,7 +60,7 @@ lazy val scalaCommon = (project in file("."))
                        else Nil),
   )
   .settings(
-    scalacOptions in (Compile, doc) ++= Vector(
+    Compile / doc / scalacOptions ++= Vector(
       "-no-link-warnings", // Suppresses problems with Scaladoc @throws links
     ),
   )
