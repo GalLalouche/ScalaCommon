@@ -12,7 +12,7 @@ class SlickSingleKeyColumnStorageTemplateTest
     with AsyncAuxSpecs
     with BeforeAndAfterEachAsync {
   private val $ = new TestTable
-  override def beforeEach = $.utils.clearOrCreateTable()
+  override def beforeEach() = $.utils.clearOrCreateTable()
   "storage" - {
     "store" - {
       "stores when new value" in {
