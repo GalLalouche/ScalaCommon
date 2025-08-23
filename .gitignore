@@ -7,3 +7,5 @@ sbt.sh
 update.sh
 *GitIgnore*
 .bsp
+.metals
+.bloop
