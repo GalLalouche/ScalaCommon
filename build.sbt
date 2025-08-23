@@ -1,5 +1,5 @@
 val GuiceVersion = "4.2.3"
-val version212 = "2.12.15"
+val version212 = "2.12.20"
 val version213 = "2.13.16"
 Compile / sourceDirectories += baseDirectory.value / "src/main/scala"
 Compile / sourceDirectories += {
