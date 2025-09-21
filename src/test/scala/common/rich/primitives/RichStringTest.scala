@@ -39,16 +39,18 @@ class RichStringTest extends FreeSpec with AuxSpecs {
 
   "splitWithDelimiters" - {
     "returns the actual string when there are no delimiters" in {
-      "this is a normal string".splitWithDelimiters(",") shouldReturn Vector("this is a normal string")
+      "this is a normal string".splitWithDelimiters(",") shouldReturn Vector(
+        "this is a normal string",
+      )
     }
     "returns the string with delimiters" in {
       "this.is.a.test".splitWithDelimiters("\\.") shouldReturn
-          Vector("this", ".", "is", ".", "a", ".", "test")
+        Vector("this", ".", "is", ".", "a", ".", "test")
       ",a,b,,".splitWithDelimiters(",") shouldReturn ",a,b,,".toVector.map(_.toString)
     }
     "returns delimiters as a single string" in {
       "this.,is.:a.;test".splitWithDelimiters("[.,:;]+") shouldReturn
-          Vector("this", ".,", "is", ".:", "a", ".;", "test")
+        Vector("this", ".,", "is", ".:", "a", ".;", "test")
     }
   }
 
@@ -58,7 +60,9 @@ class RichStringTest extends FreeSpec with AuxSpecs {
     }
     "captures .*" in {
       "\"D:\\Program Files (x86)\\Evince-2.32.0.145\\bin\\evince.exe\" \"%1\""
-          .captureWith(""""([^"]+)".*""".r) shouldReturn "D:\\Program Files (x86)\\Evince-2.32.0.145\\bin\\evince.exe"
+        .captureWith(
+          """"([^"]+)".*""".r,
+        ) shouldReturn "D:\\Program Files (x86)\\Evince-2.32.0.145\\bin\\evince.exe"
     }
   }
 
@@ -68,10 +72,10 @@ class RichStringTest extends FreeSpec with AuxSpecs {
 
   "matches" - {
     "true" in {
-      "foobar" matches Pattern.compile("f.{4}r") shouldReturn true
+      "foobar".matches(Pattern.compile("f.{4}r")) shouldReturn true
     }
     "false" in {
-      "barfoo" matches Pattern.compile("f.{4}r") shouldReturn false
+      "barfoo".matches(Pattern.compile("f.{4}r")) shouldReturn false
     }
   }
   "containsMatch" - {
@@ -105,31 +109,35 @@ class RichStringTest extends FreeSpec with AuxSpecs {
 
   "dropAfterLast" - {
     "no character returns same string" in {
-      "foobar" dropAfterLast 'q' shouldReturn "foobar"
+      "foobar".dropAfterLast('q') shouldReturn "foobar"
     }
     "last character returns same string" in {
-      "foobar" dropAfterLast 'r' shouldReturn "foobar"
+      "foobar".dropAfterLast('r') shouldReturn "foobar"
     }
     "first character" in {
-      "foobar" dropAfterLast 'f' shouldReturn "f"
+      "foobar".dropAfterLast('f') shouldReturn "f"
     }
     "middle" in {
-      "foobar" dropAfterLast 'o' shouldReturn "foo"
+      "foobar".dropAfterLast('o') shouldReturn "foo"
     }
   }
 
   "takeAfterLast" - {
     "no character returns same string" in {
-      "foobar" takeAfterLast 'q' shouldReturn "foobar"
+      "foobar".takeAfterLast('q') shouldReturn "foobar"
     }
     "last character returns empty" in {
-      "foobar" takeAfterLast 'r' shouldReturn ""
+      "foobar".takeAfterLast('r') shouldReturn ""
     }
     "first character" in {
-      "foobar" takeAfterLast 'f' shouldReturn "oobar"
+      "foobar".takeAfterLast('f') shouldReturn "oobar"
     }
     "middle" in {
-      "foobar" takeAfterLast 'o' shouldReturn "bar"
+      "foobar".takeAfterLast('o') shouldReturn "bar"
     }
+  }
+
+  "tokenize" in {
+    "foo bar.bazz!moo".tokenize(".?! ").toVector shouldReturn Vector("foo", "bar", "bazz", "moo")
   }
 }
