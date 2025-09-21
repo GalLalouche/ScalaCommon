@@ -1,6 +1,7 @@
 package common.rich.primitives
 
 import java.io.{ByteArrayInputStream, File, InputStream, PrintStream}
+import java.util.StringTokenizer
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -123,6 +124,17 @@ object RichString {
 
     def longestCommonSuffix(other: String): String =
       $.takeRight($.reverseIterator.zip(other.reverseIterator).takeWhile(_.fold(_ == _)).length)
+
+    /** `tokens` should be in the same format as those passed to [[StringTokenizer]]. */
+    def tokenize(tokens: String): Iterator[String] = {
+      val st = new StringTokenizer($, tokens)
+      // For whatever backassward reason, StringTokenizer implements Enumeration<Object>, not
+      // Enumeration<String> :/
+      new Iterator[String] {
+        override def hasNext = st.hasMoreTokens
+        override def next() = st.nextToken()
+      }
+    }
   }
 
   private val WrappingQuotes = Pattern.compile("""^["']+|["']+$""")
@@ -137,4 +149,5 @@ object RichString {
     finally ps.close()
     new String(baos.toByteArray, StandardCharsets.UTF_8)
   }
+
 }
