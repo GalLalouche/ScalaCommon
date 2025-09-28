@@ -24,16 +24,17 @@ trait Transable[M[_], MT[_[_], _]] {
     unrun(x.map(_.flatMap(f)))
   }
 }
-object Transable extends ListTInstances {
-  implicit object OptionMyMonadTrans extends Transable[Option, OptionT] {
+object Transable extends VersionDependentTransableInstances {
+  implicit object OptionTransable extends Transable[Option, OptionT] {
     override def hoistId[F[_]: Point, A](fa: Option[A]): OptionT[F, A] =
-      OptionT(Point.apply[F].point(fa))
+      OptionT(Point[F].point(fa))
     override def run[F[_], A](fa: OptionT[F, A]): F[Option[A]] = fa.run
     override def unrun[F[_], A](fa: F[Option[A]]): OptionT[F, A] = OptionT(fa)
   }
-  implicit object IdMyMonadTrans extends Transable[Id, IdT] {
+
+  implicit object IdTransable extends Transable[Id, IdT] {
     override def hoistId[F[_]: Point, A](fa: Id[A]): IdT[F, A] =
-      IdT(Point.apply[F].point(fa))
+      IdT(Point[F].point(fa))
     override def run[F[_], A](fa: IdT[F, A]): F[Id[A]] = fa.run
     override def unrun[F[_], A](fa: F[Id[A]]): IdT[F, A] = IdT(fa)
   }
