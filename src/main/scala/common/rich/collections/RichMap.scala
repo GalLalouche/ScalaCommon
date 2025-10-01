@@ -2,13 +2,10 @@ package common.rich.collections
 
 import java.util
 
-import scala.language.higherKinds
+import cats.{Foldable, Semigroup, SemigroupK}
+import cats.implicits.{catsSyntaxSemigroup, toUnorderedFoldableOps}
 
-import common.rich.func.ToMoreFoldableOps._
-import scalaz.{Foldable, Plus, Semigroup}
-import scalaz.std.option.optionInstance
-import scalaz.syntax.foldable.ToFoldableOps
-import scalaz.syntax.semigroup.ToSemigroupOps
+import common.rich.func.kats.ToMoreFoldableOps.toMoreFoldableOps
 
 import common.rich.RichT._
 
@@ -41,18 +38,19 @@ object RichMap {
     def merge(other: Map[K, V]): Map[K, V] = other.foldLeft($)(_ upsert _)
     def upsert[V2 >: V: Semigroup](kv: (K, V2)): Map[K, V2] = upsert(kv._1, kv._2)
     def upsert[V2 >: V: Semigroup](k: K, v: => V2): Map[K, V2] =
-      $.updated(k, $.get(k).asInstanceOf[Option[V2]].mapHeadOrElse(_ ⊹ v, v))
+      $.updated(k, $.get(k).asInstanceOf[Option[V2]].mapHeadOrElse(_ |+| v, v))
   }
-  implicit class richPlusMap[K, V[_]: Plus, A]($ : Map[K, V[A]]) {
-    private val asSemigroup = richSemigroupMap($)(Plus[V].semigroup)
+  implicit class richPlusMap[K, V[_]: SemigroupK, A]($ : Map[K, V[A]]) {
+    private val asSemigroup = richSemigroupMap($)(SemigroupK[V].algebra)
     def merge(other: Map[K, V[A]]): Map[K, V[A]] = asSemigroup.merge(other)
     def mergeIntersecting(other: Map[K, V[A]]): Map[K, V[A]] =
-      richSemigroupMap($)(Plus[V].semigroup).mergeIntersecting(other)
+      richSemigroupMap($)(SemigroupK[V].algebra).mergeIntersecting(other)
   }
   implicit class richFoldableMap[K, V[_]: Foldable, A]($ : Map[K, V[A]]) {
     def flattenValues: Seq[(K, A)] = $.toSeq.flatMap(e => e._2.toVector.map(e._1.->))
+
     /** Complexity: O(totalSize), which is pretty crappy */
-    def totalSizeSlow: Int = $.values.map(_.length).sum
+    def totalSizeSlow: Int = $.values.map(_.size).sum.toInt
   }
   implicit class richTraversableMap[K, A](private val $ : Map[K, Traversable[A]]) extends AnyVal {
     /** Potentially faster for traversables whose size operation is O(1), e.g., Vector or Set. */

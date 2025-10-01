@@ -1,4 +1,5 @@
 target/**
+laws/target/**
 *.iml
 project/**
 *.jar

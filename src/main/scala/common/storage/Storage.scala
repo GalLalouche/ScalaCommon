@@ -1,9 +1,11 @@
 package common.storage
 
+import cats.Invariant
+import cats.data.OptionT
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import common.rich.func.TuplePLenses
-import scalaz.{InvariantFunctor, OptionT}
 
 /** A store of key-value pairs. */
 trait Storage[Key, Value] {
@@ -48,25 +50,23 @@ trait Storage[Key, Value] {
 }
 
 object Storage {
-  implicit def FunctorEv[K](implicit ec: ExecutionContext): InvariantFunctor[Storage[K, *]] =
-    new InvariantFunctor[Storage[K, *]] {
-      import common.rich.func.BetterFutureInstances._
-
-      override def xmap[A, B](ma: Storage[K, A], f: A => B, g: B => A) =
+  implicit def FunctorEv[K](implicit ec: ExecutionContext): Invariant[Storage[K, *]] =
+    new Invariant[Storage[K, *]] {
+      override def imap[A, B](fa: Storage[K, A])(f: A => B)(g: B => A): Storage[K, B] =
         new Storage[K, B] {
-          override def update(k: K, v: B) = ma.update(k, g(v)).map(f)
-          override def replace(k: K, v: B) = ma.replace(k, g(v)).map(f)
-          override def store(k: K, v: B) = ma.store(k, g(v))
+          override def update(k: K, v: B) = fa.update(k, g(v)).map(f)
+          override def replace(k: K, v: B) = fa.replace(k, g(v)).map(f)
+          override def store(k: K, v: B) = fa.store(k, g(v))
           override def storeMultiple(kvs: Seq[(K, B)]) =
-            ma.storeMultiple(kvs.map(TuplePLenses.tuple2Second.modify(g)))
+            fa.storeMultiple(kvs.map(TuplePLenses.tuple2Second.modify(g)))
           override def overwriteMultipleVoid(kvs: Seq[(K, B)]) =
-            ma.overwriteMultipleVoid(kvs.map(TuplePLenses.tuple2Second.modify(g)))
+            fa.overwriteMultipleVoid(kvs.map(TuplePLenses.tuple2Second.modify(g)))
           override def mapStore(mode: StoreMode, k: K, f2: B => B, default: => B) =
-            ma.mapStore(mode, k, a => g(f2(f(a))), g(default)).map(f)
-          override def load(k: K) = ma.load(k).map(f)
-          override def exists(k: K) = ma.exists(k)
-          override def delete(k: K) = ma.delete(k).map(f)
-          override def utils = ma.utils
+            fa.mapStore(mode, k, a => g(f2(f(a))), g(default)).map(f)
+          override def load(k: K) = fa.load(k).map(f)
+          override def exists(k: K) = fa.exists(k)
+          override def delete(k: K) = fa.delete(k).map(f)
+          override def utils = fa.utils
         }
     }
 }

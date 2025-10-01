@@ -1,7 +1,6 @@
 package common.rich.primitives
 
-import scalaz.std.either.eitherInstance
-import scalaz.syntax.bifunctor.ToBifunctorOps
+import cats.implicits.toBifunctorOps
 
 object RichEither {
   implicit class richEither[A, B](private val $ : Either[A, B]) extends AnyVal {

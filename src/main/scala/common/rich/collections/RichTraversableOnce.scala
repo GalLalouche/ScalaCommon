@@ -1,5 +1,6 @@
 package common.rich.collections
 
+import cats.{Functor, Monad, Semigroup}
 import com.google.common.collect.ImmutableBiMap
 
 import scala.collection.TraversableOnce
@@ -7,11 +8,6 @@ import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
 import scala.math.Ordered.orderingToOrdered
 import scala.math.log10
-
-import scalaz.{Functor, Monad, Semigroup}
-import scalaz.std.anyVal._
-import scalaz.std.list._
-import scalaz.std.vector.vectorInstance
 
 import common.rich.RichT._
 import common.rich.RichTuple._
@@ -160,7 +156,7 @@ object RichTraversableOnce {
         if (iterator.hasNext.isFalse)
           implicitly[Monad[G]].pure(None)
         else
-          implicitly[Monad[G]].bind(f(iterator.next)) {
+          implicitly[Monad[G]].flatMap(f(iterator.next)) {
             case None => go()
             case e => implicitly[Monad[G]].pure(e)
           }

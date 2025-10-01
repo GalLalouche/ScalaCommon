@@ -1,7 +1,7 @@
 package common
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 import common.Trither.{TriLeft, TriMid, TriRight}
 

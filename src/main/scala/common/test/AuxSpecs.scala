@@ -3,15 +3,14 @@ package common.test
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
+import cats.kernel.CommutativeMonoid
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Assertion, Matchers, Succeeded, Suite}
 import org.scalatest.exceptions.TestFailedException
 
 import scala.concurrent.duration.Duration
 
-import common.rich.func.ToMoreMonoidOps._
-import scalaz.Monoid
-import scalaz.std.string.stringInstance
+import common.rich.func.kats.ToMoreMonoidOps.monoidFilter
 
 import common.rich.collections.RichTraversableOnce._
 
@@ -29,14 +28,16 @@ trait AuxSpecs extends Matchers { self: Suite =>
   // More information on errors.
   implicit class RichShouldTraversable[T]($ : Traversable[T]) {
     private val ProperExceptionDepth = 2
-    def shouldContain(first: T, rest: T*): Assertion = {
-      val expected = first +: rest
+    def shouldContain(first: T, rest: T*): Assertion = shouldContainAux(first +: rest)
+    def shouldContainAllOf(expected: Traversable[T]): Assertion = shouldContainAux(expected)
+    // For consistent stack depth.
+    private def shouldContainAux(expected: Traversable[T]): Assertion = {
       val missing = expected.filterNot($.contains)
       throwIf(
         missing.nonEmpty,
         // See https://github.com/scalameta/scalafmt/issues/4456
         s"${this.$} does not contain ${missing.mkString("[", ",", "]")}.",
-        ProperExceptionDepth,
+        ProperExceptionDepth + 1,
       )
     }
     def shouldContainExactly(first: T, rest: T*): Assertion = shouldMultiSetEqualAux(first +: rest)
@@ -151,13 +152,15 @@ trait AuxSpecs extends Matchers { self: Suite =>
   def getResourceFile(name: String): File = new File(getClass.getResource(name).getFile)
   implicit def genToArbitrary[A: Gen]: Arbitrary[A] = Arbitrary(implicitly[Gen[A]])
 
-  implicit object AssertionMonoid extends Monoid[Assertion] {
-    override def zero: Assertion = Succeeded
-    override def append(f1: Assertion, f2: => Assertion): Assertion = f1 && f2
+  implicit object AssertionMonoid extends CommutativeMonoid[Assertion] {
+    override def empty: Assertion = Succeeded
+    override def combine(f1: Assertion, f2: Assertion): Assertion = f1 && f2
   }
   def assertAll(assertions: TraversableOnce[Assertion]): Assertion = {
-    import common.rich.func.MoreIteratorInstances._
-    import common.rich.func.ToMoreFoldableOps._
-    assertions.toIterator.foldMonoid
+    import cats.syntax.unorderedFoldable.toUnorderedFoldableOps
+
+    import common.rich.func.kats.IteratorInstances.iteratorInstances
+
+    assertions.toIterator.unorderedFold
   }
 }

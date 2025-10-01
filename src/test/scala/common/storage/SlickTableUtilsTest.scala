@@ -4,15 +4,17 @@ import org.scalatest.AsyncFreeSpec
 
 import scala.concurrent.Future
 
-import scalaz.syntax.bind.ToBindOpsUnapply
-import common.rich.func.BetterFutureInstances._
+import common.rich.func.kats.ToMoreApplyOps.toMoreApplyOps
 
 import common.test.{AsyncAuxSpecs, BeforeAndAfterAllAsync, BeforeAndAfterEachAsync}
 
-class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
-    with BeforeAndAfterAllAsync with BeforeAndAfterEachAsync {
+class SlickTableUtilsTest
+    extends AsyncFreeSpec
+    with AsyncAuxSpecs
+    with BeforeAndAfterAllAsync
+    with BeforeAndAfterEachAsync {
   private val table = new TestTable
-  private val $: TableUtilsTemplate = table.utils
+  private val $ : TableUtilsTemplate = table.utils
 
   override def afterEach(): Future[_] = $.dropTable()
 
@@ -22,13 +24,13 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
         $.doesTableExist shouldEventuallyReturn false
       }
       "yes after creation" in {
-        $.createTable() >> $.doesTableExist shouldEventuallyReturn true
+        $.createTable() *>> $.doesTableExist shouldEventuallyReturn true
       }
       "no after drop" in {
-        $.createTable() >> $.dropTable() >> $.doesTableExist shouldEventuallyReturn false
+        $.createTable() *>> $.dropTable() *>> $.doesTableExist shouldEventuallyReturn false
       }
       "yes after clear" in {
-        $.createTable() >> $.clearTable() >> $.doesTableExist shouldEventuallyReturn true
+        $.createTable() *>> $.clearTable() *>> $.doesTableExist shouldEventuallyReturn true
       }
     }
     "create" - {
@@ -36,22 +38,22 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
         $.createTable().shouldNotFail()
       }
       "should fail when table exists" in {
-        $.createTable() >> $.createTable().shouldFail()
+        $.createTable() *>> $.createTable().shouldFail()
       }
       "succeed after drop" in {
-        $.createTable() >> $.dropTable() >> $.createTable().shouldNotFail()
+        $.createTable() *>> $.dropTable() *>> $.createTable().shouldNotFail()
       }
     }
     "createTableIfNotExists" - {
       "exists" in {
-        ($.createTable() >>
-            $.createTableIfNotExists()).shouldEventuallyReturn(false) >>
-            $.doesTableExist shouldEventuallyReturn true
+        ($.createTable() *>>
+          $.createTableIfNotExists()).shouldEventuallyReturn(false) *>>
+          $.doesTableExist shouldEventuallyReturn true
       }
       "does not exist" in {
-        ($.doesTableExist.shouldEventuallyReturn(false) >>
-            $.createTableIfNotExists()).shouldEventuallyReturn(true) >>
-            $.doesTableExist shouldEventuallyReturn true
+        ($.doesTableExist.shouldEventuallyReturn(false) *>>
+          $.createTableIfNotExists()).shouldEventuallyReturn(true) *>>
+          $.doesTableExist shouldEventuallyReturn true
       }
     }
     "clear" - {
@@ -59,11 +61,11 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
         $.clearTable().shouldFail()
       }
       "when table exists, clears the table" in {
-        $.createTable() >>
-            table.store(2, "foo") >>
-            table.load(2).mapValue(_ shouldReturn "foo") >>
-            $.clearTable() >>
-            table.load(2).shouldEventuallyReturnNone()
+        $.createTable() *>>
+          table.store(2, "foo") *>>
+          table.load(2).mapValue(_ shouldReturn "foo") *>>
+          $.clearTable() *>>
+          table.load(2).shouldEventuallyReturnNone()
       }
     }
     "drop" - {
@@ -71,7 +73,7 @@ class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs
         $.dropTable() shouldEventuallyReturn false
       }
       "should succeed if table exists" in {
-        $.createTable() >> $.dropTable() shouldEventuallyReturn true
+        $.createTable() *>> $.dropTable() shouldEventuallyReturn true
       }
     }
   }

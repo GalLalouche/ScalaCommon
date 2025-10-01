@@ -1,6 +1,8 @@
 val GuiceVersion = "4.2.3"
 val version212 = "2.12.20"
 val version213 = "2.13.16"
+val mainVersion = version213
+val catsVersion = "2.13.0"
 Compile / sourceDirectories += baseDirectory.value / "src/main/scala"
 Compile / sourceDirectories += {
   if (scalaVersion.value.startsWith("2.12"))
@@ -18,13 +20,14 @@ Test / sourceDirectories += {
   else
     throw new RuntimeException("Unsupported Scala version")
 }
+
 lazy val scalaCommon = (project in file("."))
   .settings(
     organization := "org.me",
-    version := "1.0",
+    version := "2.0",
     isSnapshot := true,
     name := "scalacommon",
-    scalaVersion := version213, // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
+    scalaVersion := mainVersion, // Needed for IntelliJ, sbt compile (as opposed to sbt +compile), etc.
     crossScalaVersions := Seq(version212, version213),
     // TODO temporary fix, until I update other projects to newer scalaz.
     libraryDependencies ++= {
@@ -36,8 +39,10 @@ lazy val scalaCommon = (project in file("."))
         else
           throw new RuntimeException("Unsupported Scala version")
       Seq(
-        "org.scalaz" %% "scalaz-core" % versionMap("7.2.15", "7.3.8"),
+        "org.typelevel" %% "cats-core" % catsVersion,
         // The below are provided to avoid pulling them in unless explicitly needed in other projects.
+        "org.scalaz" %% "scalaz-core" % versionMap("7.2.15", "7.3.8") % "provided",
+        "org.typelevel" %% "alleycats-core" % catsVersion % "provided",
         "com.beachape" %% "enumeratum" % "1.5.13",
         "com.github.julien-truffaut" %% "monocle-core" % versionMap("1.5.0", "1.7.3") % "provided",
         "com.github.pathikrit" %% "better-files" % "3.9.2" % "provided",
@@ -52,15 +57,32 @@ lazy val scalaCommon = (project in file("."))
 
         "com.h2database" % "h2" % "1.4.196" % "test",
         "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
+        // Laws dependencies
       )
     },
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.13.3").cross(CrossVersion.full)),
     scalacOptions ++= (if (scalaVersion.value.startsWith("2.12")) Seq("-Ypartial-unification")
                        else Nil),
+    Test / sourceDirectories += baseDirectory.value / "src/laws",
   )
   .settings(
     Compile / doc / scalacOptions ++= Vector(
       "-no-link-warnings", // Suppresses problems with Scaladoc @throws links
     ),
   )
+
+// Since discipline-scalatest depends on a newer version of scalatest, this has to be in its own new
+// subproject, at least until I update scalatest.
+lazy val laws = (project in file("laws"))
+  .settings(
+    scalaVersion := mainVersion,
+    Test / unmanagedSourceDirectories += baseDirectory.value / "src" / "laws" / "scala",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-laws" % "2.13.0" % Test,
+      "org.typelevel" %% "discipline-scalatest" % "2.3.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      "io.reactivex" %% "rxscala" % "0.27.0" % Test,
+    ),
+  )
+  .dependsOn(scalaCommon)

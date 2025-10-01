@@ -6,7 +6,7 @@ import enumeratum.EnumEntry
 import org.scalatest.AsyncFreeSpec
 import slick.jdbc.JdbcType
 
-import common.rich.func.BetterFutureInstances._
+import common.rich.func.scalazz.BetterFutureInstances._
 import scalaz.syntax.bind.ToBindOpsUnapply
 
 import common.rich.RichFuture._

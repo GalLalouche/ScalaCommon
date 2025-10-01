@@ -122,6 +122,7 @@ object RichT {
 
   implicit class lazyT[T]($ : => T) {
     def const[S]: S => T = _ => $
+    def const2[R, S]: (R, S) => T = (_, _) => $
     def partialConst[S]: PartialFunction[S, T] = { case _ => $ }
 
     /** Returns Some($) if the condition is true; if not, returns None. */

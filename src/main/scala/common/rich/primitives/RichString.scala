@@ -7,9 +7,8 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-import scalaz.Scalaz.ToTuple2Ops
-
 import common.rich.RichT._
+import common.rich.RichTuple.richTuple2
 import common.rich.path.RichFile.richFile
 import common.rich.primitives.RichBoolean._
 
@@ -123,7 +122,7 @@ object RichString {
     def split(p: Pattern): Array[String] = p.split($)
 
     def longestCommonSuffix(other: String): String =
-      $.takeRight($.reverseIterator.zip(other.reverseIterator).takeWhile(_.fold(_ == _)).length)
+      $.takeRight($.reverseIterator.zip(other.reverseIterator).takeWhile(_.reduce(_ == _)).length)
 
     /** `tokens` should be in the same format as those passed to [[StringTokenizer]]. */
     def tokenize(tokens: String): Iterator[String] = {

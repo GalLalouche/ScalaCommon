@@ -2,13 +2,11 @@ package common.rich
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import cats.data.OptionT
 import rx.lang.scala.{Observable, Observer, Subscriber}
 import rx.lang.scala.subjects.BehaviorSubject
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.language.higherKinds
-
-import scalaz.OptionT
 
 import common.rich.RichT._
 import common.rich.primitives.RichBoolean.richBoolean
@@ -134,7 +132,7 @@ object RichObservable {
   }
 
   def from[A](fo: OptionT[Future, A])(implicit ec: ExecutionContext): Observable[A] = Observable
-    .from(fo.run)
+    .from(fo.value)
     .flatMap {
       case Some(value) => Observable.just(value)
       case None => Observable.empty

@@ -4,8 +4,7 @@ import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
-import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreFunctorOps._
+import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 
 import common.rich.RichT._
 

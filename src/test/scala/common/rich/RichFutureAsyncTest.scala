@@ -5,7 +5,7 @@ import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
 import scala.concurrent.Future
 
 import scalaz.syntax.functor.ToFunctorOps
-import common.rich.func.BetterFutureInstances._
+import common.rich.func.scalazz.BetterFutureInstances._
 
 import common.rich.RichFuture._
 import common.test.AuxSpecs

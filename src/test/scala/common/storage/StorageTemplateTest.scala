@@ -1,13 +1,14 @@
 package common.storage
 
+import cats.implicits.toInvariantOps
 import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
-import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToTransableOps.toHoistIdOps
-import scalaz.syntax.bind._
+import common.rich.func.kats.ToMoreApplyOps.toMoreApplyOps
+import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
+import common.rich.func.kats.ToTransableOps.toHoistIdOps
 
 import common.test.AsyncAuxSpecs
 
@@ -26,7 +27,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     }
     protected override def internalReplace(k: Int, v: Int) =
       if (existingValues.contains(k))
-        internalDelete(k) >> internalUpdate(k, v)
+        internalDelete(k) *>> internalUpdate(k, v)
       else
         internalUpdate(k, v)
     override def load(k: Int) = existingValues.get(k).hoistId
@@ -134,17 +135,15 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   }
   "exists" - {
     "true" in {
-      $.store(1, 4) >> $.exists(1) shouldEventuallyReturn true
+      $.store(1, 4) *>> $.exists(1) shouldEventuallyReturn true
     }
     "false" in {
-      $.store(1, 4) >> $.exists(2) shouldEventuallyReturn false
+      $.store(1, 4) *>> $.exists(2) shouldEventuallyReturn false
     }
   }
 
   "xmap" - {
-    import scalaz.syntax.invariantFunctor.ToInvariantFunctorOps
-
-    val $2 = $.xmap[String](_.toString, _.toInt)
+    val $2 = $.imap[String](_.toString)(_.toInt)
     "store" - {
       "has existing value throws" in {
         existingValues += 1 -> 2
@@ -215,10 +214,10 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     }
     "exists" - {
       "true" in {
-        $2.store(1, "4") >> $2.exists(1) shouldEventuallyReturn true
+        $2.store(1, "4") *>> $2.exists(1) shouldEventuallyReturn true
       }
       "false" in {
-        $2.store(1, "4") >> $2.exists(2) shouldEventuallyReturn false
+        $2.store(1, "4") *>> $2.exists(2) shouldEventuallyReturn false
       }
     }
   }

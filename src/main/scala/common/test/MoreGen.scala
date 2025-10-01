@@ -1,11 +1,10 @@
 package common.test
 
+import alleycats.std.all.alleycatsStdIterableTraverse
+import cats.implicits.toTraverseOps
 import org.scalacheck.Gen
 
-import common.rich.func.MoreTraverseInstances.traversableTraverse
-import scalaz.Scalaz.ToTraverseOpsUnapply
-
-import common.test.GenInstances.MonadGen
+import common.test.kats.GenInstances.MonadGen
 
 object MoreGen {
   def prefix(s: String, minSize: Int = 0): Gen[String] = Gen.choose(minSize, s.length).map(s.take)

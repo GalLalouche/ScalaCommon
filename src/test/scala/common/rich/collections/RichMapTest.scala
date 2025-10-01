@@ -4,7 +4,7 @@ import java.util
 
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 
-import common.rich.func.BetterSetInstances._
+import common.rich.func.scalazz.BetterSetInstances._
 import scalaz.std.string.stringInstance
 import scalaz.std.vector.vectorInstance
 

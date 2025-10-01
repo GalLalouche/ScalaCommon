@@ -1,6 +1,6 @@
 package common
 
-import scalaz.Semigroup
+import cats.Semigroup
 
 import common.rich.collections.RichMap._
 

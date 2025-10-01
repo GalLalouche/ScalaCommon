@@ -7,7 +7,7 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import scalaz.Scalaz.ToBindOps
 
 import common.rich.primitives.RichBoolean.richBoolean
-import common.test.GenInstances.MonadGen
+import common.test.scalazz.GenInstances.MonadGen
 
 class MoreGenTest extends PropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   property("capitalization is case-insensitive equals") {

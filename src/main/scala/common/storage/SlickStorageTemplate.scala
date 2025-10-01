@@ -1,13 +1,12 @@
 package common.storage
 
+import cats.implicits.toFunctorOps
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import common.rich.func.BetterFutureInstances._
-import common.rich.func.ToMoreFunctorOps._
-import scalaz.syntax.functor.ToFunctorOps
+import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 
 /**
  * Although [[Storage]] is key-valued, it's only an abstraction above a possibly more complex, but

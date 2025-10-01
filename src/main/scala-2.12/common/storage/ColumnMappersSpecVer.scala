@@ -3,7 +3,7 @@ package common.storage
 import slick.jdbc.{JdbcProfile, JdbcType}
 
 import scala.collection.generic.CanBuildFrom
-import scala.language.higherKinds
+
 import scala.reflect.ClassTag
 
 class ColumnMappersSpecVer(implicit d: JdbcProfile) {

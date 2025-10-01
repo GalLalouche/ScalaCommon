@@ -1,10 +1,8 @@
 package common.storage
 
-import scala.concurrent.{ExecutionContext, Future}
+import cats.implicits.{catsSyntaxIfM, toFunctorOps}
 
-import common.rich.func.BetterFutureInstances._
-import scalaz.syntax.bind.ToBindOps
-import scalaz.syntax.functor.ToFunctorOps
+import scala.concurrent.{ExecutionContext, Future}
 
 import common.storage.TableUtils.{Cleared, ClearOrCreateResult, Created}
 
@@ -14,10 +12,10 @@ import common.storage.TableUtils.{Cleared, ClearOrCreateResult, Created}
  */
 abstract class TableUtilsTemplate(implicit ec: ExecutionContext) extends TableUtils {
   override def createTableIfNotExists(): Future[Boolean] =
-    doesTableExist.ifM(Future.successful(false), createTable() >| true)
+    doesTableExist.ifM(Future.successful(false), createTable() as true)
   override def clearOrCreateTable(): Future[ClearOrCreateResult] =
-    doesTableExist.ifM(clearTable() >| Cleared, createTable() >| Created)
+    doesTableExist.ifM(clearTable() as Cleared, createTable() as Created)
   protected def forceDropTable(): Future[_]
   override def dropTable(): Future[Boolean] =
-    doesTableExist.ifM(forceDropTable() >| true, Future.successful(false))
+    doesTableExist.ifM(forceDropTable() as true, Future.successful(false))
 }

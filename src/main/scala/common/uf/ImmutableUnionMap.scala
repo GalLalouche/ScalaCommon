@@ -1,9 +1,10 @@
 package common.uf
 
-import common.rich.func.MoreIteratorInstances._
+import cats.implicits.toFunctorOps
+
+import common.rich.func.kats.IteratorInstances.iteratorInstances
 import monocle.Monocle.toApplyLensOps
 import monocle.syntax.fields._1
-import scalaz.Scalaz.ToFunctorOpsUnapply
 
 import common.rich.collections.RichMap.richMap
 

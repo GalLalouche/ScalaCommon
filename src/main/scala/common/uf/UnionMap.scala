@@ -1,7 +1,5 @@
 package common.uf
 
-import scala.language.higherKinds
-
 trait UnionMap[K, V] extends Iterable[(K, V)] {
   type UM[E] <: UnionMap[K, E]
   def keySet: UnionFind[K]
