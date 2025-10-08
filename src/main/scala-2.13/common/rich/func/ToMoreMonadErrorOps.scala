@@ -38,6 +38,7 @@ trait ToMoreMonadErrorOps {
       e <- $
       result <- f(e).fold(F.raiseError, F.pure(_))
     } yield result
+    def foldEither[B](f: S \/ A => B): F[B] = foldEitherF(f.andThen(F.pure(_)))
     def foldEitherF[B](f: S \/ A => F[B]): F[B] =
       $.flatMap(e => f(\/-(e))).handleError(e => f(-\/(e)))
     def mFilter(p: A => F[Boolean], error: A => S): F[A] = for {
