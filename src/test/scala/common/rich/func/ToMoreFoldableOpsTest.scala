@@ -50,20 +50,6 @@ class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
     "infinite" in { Stream.iterate(1)(_ + 1).headOpt shouldReturn Some(1) }
   }
 
-  "topK" - {
-    "empty" in {
-      Vector[String]().topK(10) shouldReturn Nil
-    }
-    "smaller than requested k should return reverse ordered" in {
-      Vector("foo", "bar", "moo").topK(10) shouldReturn Vector("moo", "foo", "bar")
-    }
-    "actual test" in {
-      Vector("foo", "moo", "bar").topK(2) shouldReturn Vector("moo", "foo")
-    }
-  }
-  "bottomK" in {
-    Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
-  }
   "asum" in {
     Vector(Option("foo"), Option("moo"), Option("bar")).asum.get shouldReturn "foomoobar"
   }

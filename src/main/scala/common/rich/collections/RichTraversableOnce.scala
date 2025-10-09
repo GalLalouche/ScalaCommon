@@ -3,7 +3,9 @@ package common.rich.collections
 import com.google.common.collect.ImmutableBiMap
 
 import scala.collection.TraversableOnce
+import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
+import scala.math.Ordered.orderingToOrdered
 import scala.math.log10
 
 import scalaz.{Functor, Monad, Semigroup}
@@ -186,5 +188,22 @@ object RichTraversableOnce {
         ev.min(next, agg._1) -> ev.max(next, agg._2)
       }
     }
+
+    def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
+      val q = new java.util.PriorityQueue[A](k, ord.compare)
+      $.foreach { next =>
+        if (q.size < k)
+          q.add(next)
+        else if (q.peek < next) {
+          q.poll()
+          q.add(next)
+        }
+      }
+      val mb = new ListBuffer[A]()
+      while (q.isEmpty.isFalse)
+        q.poll() +=: mb
+      mb.toVector
+    }
+    def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
   }
 }

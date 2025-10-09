@@ -1,13 +1,11 @@
 package common.rich.func
 
-import scala.Ordering.Implicits._
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable.ArrayBuffer
 
 import scalaz.{Applicative, Foldable, MonadError, Monoid, PlusEmpty}
 import scalaz.syntax.foldable.ToFoldableOps
 
 import common.rich.RichT._
-import common.rich.primitives.RichBoolean._
 
 trait ToMoreFoldableOps {
   implicit class toMoreFoldableOps[A, F[_]: Foldable]($ : F[A]) {
@@ -28,22 +26,6 @@ trait ToMoreFoldableOps {
     def head: A = headOpt.get
 
     /** O(n * log(k)), where n is the size of the foldable. */
-    def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
-      val q = new java.util.PriorityQueue[A](k, ord.compare)
-      doForEach { next =>
-        if (q.size < k)
-          q.add(next)
-        else if (q.peek < next) {
-          q.poll()
-          q.add(next)
-        }
-      }
-      val mb = new ListBuffer[A]()
-      while (q.isEmpty.isFalse)
-        q.poll() +=: mb
-      mb.toVector
-    }
-    def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
     def asum[M[_], B](implicit
         applicativeEv: A =:= M[B],
         applicative: Applicative[M],

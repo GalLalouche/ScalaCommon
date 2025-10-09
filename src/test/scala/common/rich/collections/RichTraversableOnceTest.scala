@@ -8,8 +8,8 @@ import scala.collection.mutable.ArrayBuffer
 
 import scalaz.{Id, Semigroup}
 
-import common.rich.collections.RichTraversableOnce._
 import common.rich.RichT._
+import common.rich.collections.RichTraversableOnce._
 import common.test.AuxSpecs
 
 class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
@@ -29,7 +29,10 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
   "joinWhere" - {
     "returns an empty traversable if one of the traversables is empty" in {
       Vector(1, 2, 3).join(Vector[String]()).where((_, _) => true).toVector shouldBe empty
-      Vector[Int]().join(Vector[String]("1", "2", "3")).where((_, _) => true).toVector shouldBe empty
+      Vector[Int]()
+        .join(Vector[String]("1", "2", "3"))
+        .where((_, _) => true)
+        .toVector shouldBe empty
     }
 
     "returns a cartesian product if the 'where' function is true" in {
@@ -37,7 +40,11 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
     }
 
     "filters by the where function" in {
-      Vector(1, 2).join(Vector(4, 5)).where((e, f) => e * f % 2 == 0).toSet shouldBe Set((2, 4), (1, 4), (2, 5))
+      Vector(1, 2).join(Vector(4, 5)).where((e, f) => e * f % 2 == 0).toSet shouldBe Set(
+        (2, 4),
+        (1, 4),
+        (2, 5),
+      )
     }
   }
 
@@ -47,15 +54,18 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
 
   "joinBy" - {
     "joins two items whose extractor returns the same value" in {
-      Vector(Person("gal", 1), Person("noam", 2)).join(Vector(Grade(1, 100), Grade(2, 0))).by(_.id, _.id).toVector shouldBe
-          Vector((Person("gal", 1), Grade(1, 100)), (Person("noam", 2), Grade(2, 0)))
+      Vector(Person("gal", 1), Person("noam", 2))
+        .join(Vector(Grade(1, 100), Grade(2, 0)))
+        .by(_.id, _.id)
+        .toVector shouldBe
+        Vector((Person("gal", 1), Grade(1, 100)), (Person("noam", 2), Grade(2, 0)))
     }
 
     "creates a new object if such a builder is provided " in {
       Vector(Person("gal", 1), Person("noam", 2))
-          .join(Vector(Grade(1, 100), Grade(2, 0)))
-          .by(_.id, _.id, (p, g) => PersonWithGrade(p.name, p.id, g.grade))
-          .toSet shouldBe Set(PersonWithGrade("gal", 1, 100), PersonWithGrade("noam", 2, 0))
+        .join(Vector(Grade(1, 100), Grade(2, 0)))
+        .by(_.id, _.id, (p, g) => PersonWithGrade(p.name, p.id, g.grade))
+        .toSet shouldBe Set(PersonWithGrade("gal", 1, 100), PersonWithGrade("noam", 2, 0))
     }
   }
 
@@ -144,8 +154,10 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       Vector(1, 2, 3).mapFirst(_ => None) shouldReturn None
     }
     "Returns first Some" in {
-      Iterator.iterate(1)(_ + 1).mapFirst(e => if (e > 10) Some((e * e).toString) else None)
-          .value shouldReturn "121"
+      Iterator
+        .iterate(1)(_ + 1)
+        .mapFirst(e => if (e > 10) Some((e * e).toString) else None)
+        .value shouldReturn "121"
     }
   }
   "mapFirstF" - {
@@ -156,7 +168,9 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       Vector(1, 2, 3).mapFirstF[Id.Id, Int](_ => None) shouldReturn None
     }
     "Returns first non empty" in {
-      Stream.iterate("a")(_ + "a").mapFirstF[Id.Id, Int](e => e.length.optFilter(_ >= 5)) shouldReturn Some(5)
+      Stream
+        .iterate("a")(_ + "a")
+        .mapFirstF[Id.Id, Int](e => e.length.optFilter(_ >= 5)) shouldReturn Some(5)
     }
   }
 
@@ -171,21 +185,33 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
 
   "toMultimap" - {
     "creates a multimap" in {
-      Vector("one", "two", "three").toMultiMap(_.length) shouldReturn Map(3 -> Vector("one", "two"), 5 -> Vector("three"))
+      Vector("one", "two", "three").toMultiMap(_.length) shouldReturn Map(
+        3 -> Vector("one", "two"),
+        5 -> Vector("three"),
+      )
     }
     "extracts the value when passed" in {
-      Vector("one", "two", "three").toMultiMap(_.length, _.toUpperCase) shouldReturn Map(3 -> Vector("ONE", "TWO"), 5 -> Vector("THREE"))
+      Vector("one", "two", "three").toMultiMap(_.length, _.toUpperCase) shouldReturn Map(
+        3 -> Vector("ONE", "TWO"),
+        5 -> Vector("THREE"),
+      )
     }
   }
 
   "aggregateMap" in {
     implicit val concatStrings: Semigroup[String] = Semigroup.instance(_ + _)
-    Vector("one", "two", "three").aggregateMap(_.length, _.toUpperCase) shouldReturn Map(3 -> "ONETWO", 5 -> "THREE")
+    Vector("one", "two", "three").aggregateMap(_.length, _.toUpperCase) shouldReturn Map(
+      3 -> "ONETWO",
+      5 -> "THREE",
+    )
   }
 
   "reduceByKey" in {
     implicit val concatStrings: Semigroup[String] = Semigroup.instance(_ + _)
-    Vector("one", "two", "three").reduceByKey(_.length) shouldReturn Map(3 -> "onetwo", 5 -> "three")
+    Vector("one", "two", "three").reduceByKey(_.length) shouldReturn Map(
+      3 -> "onetwo",
+      5 -> "three",
+    )
   }
 
   "filterAndSortBy" - {
@@ -193,31 +219,59 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
       Vector(1, 2, 3).filterAndSortBy(identity, Nil) shouldReturn Nil
     }
     "filters and sort by" in {
-      Vector("one", "four", "three").filterAndSortBy(_.length, Vector(5, 3)) shouldReturn Vector("three", "one")
+      Vector("one", "four", "three").filterAndSortBy(_.length, Vector(5, 3)) shouldReturn Vector(
+        "three",
+        "one",
+      )
     }
   }
 
   "product works on iterators" in {
     val $ = Iterator(1, 2, 3) * Iterator(4, 5, 6)
-    $.toVector shouldReturn Vector(1 -> 4, 1 -> 5, 1 -> 6, 2 -> 4, 2 -> 5, 2 -> 6, 3 -> 4, 3 -> 5, 3 -> 6)
+    $.toVector shouldReturn Vector(
+      1 -> 4,
+      1 -> 5,
+      1 -> 6,
+      2 -> 4,
+      2 -> 5,
+      2 -> 6,
+      3 -> 4,
+      3 -> 5,
+      3 -> 6,
+    )
   }
 
   "fornone" - {
-    "true" in {Vector(1, 2, 3).fornone(_ == 4) shouldReturn true}
-    "false" in {Vector(1, 2, 3).fornone(_ == 3) shouldReturn false}
+    "true" in { Vector(1, 2, 3).fornone(_ == 4) shouldReturn true }
+    "false" in { Vector(1, 2, 3).fornone(_ == 3) shouldReturn false }
   }
   "existsNot" - {
-    "true" in {Vector(1, 2, 3).existsNot(_ == 3) shouldReturn true}
-    "false" in {Vector(1, 2, 3).existsNot(_ != 4) shouldReturn false}
+    "true" in { Vector(1, 2, 3).existsNot(_ == 3) shouldReturn true }
+    "false" in { Vector(1, 2, 3).existsNot(_ != 4) shouldReturn false }
   }
 
   "range" in {
-    Iterator(1, 2, 3).range shouldReturn(1, 3)
+    Iterator(1, 2, 3).range shouldReturn (1, 3)
   }
 
   "bimap" in {
     // Needed for type inference
     val result: ImmutableBiMap[Int, Int] = Vector(1 -> 2, 3 -> 4).toBiMap
     result shouldReturn ImmutableBiMap.builder().put(1, 2).put(3, 4).build()
+  }
+
+  "topK" - {
+    "empty" in {
+      Vector[String]().topK(10) shouldReturn Nil
+    }
+    "smaller than requested k should return reverse ordered" in {
+      Vector("foo", "bar", "moo").topK(10) shouldReturn Vector("moo", "foo", "bar")
+    }
+    "actual test" in {
+      Vector("foo", "moo", "bar").topK(2) shouldReturn Vector("moo", "foo")
+    }
+  }
+  "bottomK" in {
+    Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
   }
 }
