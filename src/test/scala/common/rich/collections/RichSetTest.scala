@@ -4,7 +4,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.util.Buildable
 import org.scalactic.anyvals.PosZInt._
-import org.scalatest.PropSpec
+import org.scalatest.{PropSpec, Succeeded}
 import org.scalatest.prop.PropertyChecks
 
 import common.rich.collections.RichSet._
@@ -81,6 +81,36 @@ class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
   property("&~ should be disjoint to ys") {
     forAll { (xs: Set[Int], ys: Set[Int]) =>
       (xs &~ ys).isDisjointTo(ys) shouldReturn true
+    }
+  }
+  property("unapplySeq singleton") {
+    val set = Set(42)
+    set match {
+      case RichSet(43) => fail("Expected a Set containing 42")
+      case RichSet(42) => Succeeded
+      case _ => fail("Expected a Set containing 42")
+    }
+  }
+  property("unapplySeq singleton negative test") {
+    val set = Set(42)
+    set match {
+      case RichSet(43) => fail("Expected a Set not containing 43")
+      case _ => Succeeded
+    }
+  }
+  property("unapplySeq multiple values") {
+    val set = Set(41, 42, 43)
+    set match {
+      case RichSet(41, 42, 44) => fail("Expected a Set containing 41-43")
+      case RichSet(41, 42, 43) => Succeeded
+      case _ => fail("Expected a Set containing 41-43")
+    }
+  }
+  property("unapplySeq multiple values negative test") {
+    val set = Set(41, 42, 43)
+    set match {
+      case RichSet(41, 42, 44) => fail("Expected a Set containing 42")
+      case _ => Succeeded
     }
   }
 }

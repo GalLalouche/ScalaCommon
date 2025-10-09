@@ -18,6 +18,8 @@ object RichSet {
     def intersects(other: Set[T]): Boolean = $.exists(other.contains)
   }
 
+  def unapplySeq[A: Ordering](s: Set[A]): Option[Seq[A]] = Some(s.toSeq.sorted)
+
   def concurrentSet[A]: mutable.Set[A] =
     Collections.newSetFromMap(new ConcurrentHashMap[A, java.lang.Boolean]).asScala
 }
