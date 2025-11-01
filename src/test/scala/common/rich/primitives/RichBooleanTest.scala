@@ -41,6 +41,10 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
         (true, true, true),
       )
     }
+    "fold" - {
+      true.fold(42, ???) shouldReturn 42
+      false.fold(???, 42) shouldReturn 42
+    }
   }
 
   "or" in {
@@ -55,7 +59,11 @@ class RichBooleanTest extends FreeSpec with AuxSpecs {
       bbs: (Boolean, Boolean, Boolean)*,
   ): Unit = bbs.foreach(Function.tupled(truthTable(_, _, f, _)))
   private def truthTable(
-      b1: Boolean, b2: Boolean, f: (Boolean, Boolean) => Boolean, expectedOutput: Boolean): Unit = {
+      b1: Boolean,
+      b2: Boolean,
+      f: (Boolean, Boolean) => Boolean,
+      expectedOutput: Boolean,
+  ): Unit = {
     def toString(b: Boolean) = if (b) "T" else "F"
     s"${toString(b1)}${toString(b2)}" in {
       f(b1, b2) shouldBe expectedOutput

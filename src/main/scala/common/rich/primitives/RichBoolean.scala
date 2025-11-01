@@ -10,6 +10,7 @@ object RichBoolean {
     @inline def implies(other: Boolean): Boolean = !b || other
     @inline def ==>(other: Boolean): Boolean = implies(other)
     @inline def neither(other: Boolean): Boolean = !b && !other
+    @inline def fold[A](ifTrue: => A, ifFalse: => A): A = if (b) ifTrue else ifFalse
   }
 
   def or[A](p1: A => Boolean, p2: A => Boolean, rest: (A => Boolean)*): A => Boolean =
