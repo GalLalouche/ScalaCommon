@@ -101,9 +101,6 @@ object RichSeq {
       },
     ).reverse
 
-    def pairSliding: Iterator[(T, T)] =
-      if ($.hasAtMostSizeOf(1)) Iterator.empty else $.sliding(2).map(e => e(0) -> e(1))
-
     /** Throws [[NoSuchElementException]] if no element satisfies the predicate. */
     def takeUntilIncluding(predicate: T => Boolean): Seq[T] =
       $.toStream.span(RichBoolean.negate(predicate)).reduce(_ :+ _.head).toVector

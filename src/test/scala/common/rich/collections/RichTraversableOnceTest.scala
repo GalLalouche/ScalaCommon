@@ -1,5 +1,6 @@
 package common.rich.collections
 
+import cats.implicits.toFunctorOps
 import com.google.common.collect.ImmutableBiMap
 import org.scalatest.FreeSpec
 import org.scalatest.OptionValues._
@@ -273,5 +274,14 @@ class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
   }
   "bottomK" in {
     Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
+  }
+
+  "pairSliding" - {
+    "empty" in { Iterator.empty.pairSliding shouldBe empty }
+    "singleton" in { Iterator(1).pairSliding shouldBe empty }
+    "two elements" in { Iterator(1, 2).pairSliding.toVector shouldBe Vector((1, 2)) }
+    "multiple elements" in {
+      Iterator.range(0, 10).pairSliding.toVector shouldBe Vector.range(0, 9).fproduct(_ + 1)
+    }
   }
 }

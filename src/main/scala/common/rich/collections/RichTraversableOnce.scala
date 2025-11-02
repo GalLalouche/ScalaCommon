@@ -201,5 +201,8 @@ object RichTraversableOnce {
       mb.toVector
     }
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
+    /** Returns empty if the iterator contains 1 or fewer elements. */
+    def pairSliding: Iterator[(A, A)] =
+      $.toIterator.sliding(2).withPartial(false).map(e => e(0) -> e(1))
   }
 }

@@ -62,7 +62,7 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
 
   "last" - {
     "throws on empty" in {
-      a[NoSuchElementException] shouldBe thrownBy {Iterator.empty.last()}
+      a[NoSuchElementException] shouldBe thrownBy(Iterator.empty.last())
     }
     "returns last" in {
       Iterator(1, 2, 3).last() shouldReturn 3
@@ -71,10 +71,10 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
 
   "apply" - {
     "throws IndexOutOfBoundsException when index is negative" in {
-      an[IndexOutOfBoundsException] shouldBe thrownBy {Iterator.empty.apply(-1)}
+      an[IndexOutOfBoundsException] shouldBe thrownBy(Iterator.empty.apply(-1))
     }
     "throws IndexOutOfBoundsException when index is too large" in {
-      an[IndexOutOfBoundsException] shouldBe thrownBy {Iterator.empty.apply(1)}
+      an[IndexOutOfBoundsException] shouldBe thrownBy(Iterator.empty.apply(1))
     }
     "returns element at index 0" in {
       Iterator(1, 2, 3).apply(0) shouldReturn 1
@@ -110,7 +110,10 @@ class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
         compareIterators(iterateOptionally(1)(_ => None), Iterator(1))
       }
       "Multiple elements" in {
-        compareIterators(iterateOptionally(1)(i => if (i < 5) Some(i + 1) else None), 1.to(5).iterator)
+        compareIterators(
+          iterateOptionally(1)(i => if (i < 5) Some(i + 1) else None),
+          1.to(5).iterator,
+        )
       }
       "Infinite + take" in {
         compareIterators(iterateOptionally(1)(Some apply _ + 1).take(10), 1.to(10).iterator)

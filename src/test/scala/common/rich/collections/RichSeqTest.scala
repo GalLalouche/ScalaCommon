@@ -147,24 +147,6 @@ class RichSeqTest extends FreeSpec with AuxSpecs {
     }
   }
 
-  "pairSliding" - {
-    "empty returns an empty seq" in {
-      Vector().pairSliding shouldBe empty
-    }
-    "size 1 returns an empty seq" in {
-      Vector(1).pairSliding shouldBe empty
-    }
-    "size 2 returns a seq with a single element" in {
-      Vector(1, 2).pairSliding.toVector should ===(Vector(1 -> 2))
-    }
-    "size n returns the correct seq" in {
-      Vector(1, 2, 3, 4).pairSliding.toVector should ===(Vector(1 -> 2, 2 -> 3, 3 -> 4))
-    }
-    "isLazy" in {
-      LazyList.from(1).pairSliding.take(3).toVector should ===(Vector(1 -> 2, 2 -> 3, 3 -> 4))
-    }
-  }
-
   "takeUntilIncluding" - {
     "throw on an empty seq" in {
       a[NoSuchElementException] shouldBe thrownBy(Vector[Int]().takeUntilIncluding(_ => ???))
