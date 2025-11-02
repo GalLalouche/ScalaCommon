@@ -102,7 +102,7 @@ object RichSeq {
     ).reverse
 
     def pairSliding: Iterator[(T, T)] =
-      if ($.size <= 1) Iterator.empty else $.sliding(2).map(e => e(0) -> e(1))
+      if ($.hasAtMostSizeOf(1)) Iterator.empty else $.sliding(2).map(e => e(0) -> e(1))
 
     /** Throws [[NoSuchElementException]] if no element satisfies the predicate. */
     def takeUntilIncluding(predicate: T => Boolean): Seq[T] =
