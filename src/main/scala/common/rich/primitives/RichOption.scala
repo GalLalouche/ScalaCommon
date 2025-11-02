@@ -16,5 +16,7 @@ object RichOption {
     /** Unlike `orEmpty` in cats [[cats.syntax.OptionOps]], requires only [[Empty]] */
     def getOrEmpty(implicit E: Empty[A]): A = $.getOrElse(E.empty)
     def toTry(t: => Throwable): Try[A] = $.mapHeadOrElse(Success.apply, Failure(t))
+    // Since for some stupid reason $.toIterable is deprecated.
+    def asIterable: Iterable[A] = $
   }
 }
