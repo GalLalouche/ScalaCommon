@@ -16,6 +16,8 @@ trait ToMoreFunctorOps {
      */
     def listen(f: A => Any): F[A] = $.map(_ <| f)
     def asByName[B](b: => B): F[B] = $.map(_ => b)
+    def tupleRightByName[B](b: => B): F[(A, B)] = $.map(_ -> b)
+    def tupleLeftByName[B](b: => B): F[(B, A)] = $.map(b -> _)
     /** Alias to [[asByName]]. */
     def >|[B](b: => B): F[B] = $.asByName(b)
     def toOptionTF[B](f: A => Option[B]): OptionT[F, B] = OptionT($.map(f))
