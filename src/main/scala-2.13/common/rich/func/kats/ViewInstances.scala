@@ -14,6 +14,9 @@ trait ViewInstances {
     override def flatMap[A, B](fa: View[A])(f: A => View[B]): View[B] = fa.flatMap(f)
     override def tailRecM[A, B](a: A)(f: A => View[Either[A, B]]): View[B] =
       MoreIterableInstances.iterableInstances.tailRecM(a)(f(_)).view
+
+    // Optimized overloads
+    override def map[A, B](fa: View[A])(f: A => B): View[B] = fa.map(f)
   }
 }
 object ViewInstances extends ViewInstances
