@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import common.rich.func.TuplePLenses
+import common.rich.func.TuplePLenses.__1
 import scalaz.{~>, Applicative, Functor, Hoist, Monad, OptionT, StreamT}
 import scalaz.Id.Id
 import scalaz.syntax.bind.ToBindOps
@@ -20,7 +20,7 @@ object RichStreamT {
         $.uncons.flatMap {
           case None => ev.point(Nil -> $)
           case Some(value) =>
-            value._2.unconsBatch(n - 1).map(TuplePLenses.tuple2First.modify(value._1 :: _.toList))
+            value._2.unconsBatch(n - 1).map(__1.modify(value._1 :: _.toList))
         }
     /** Don't use iteratively! */
     // This was deleted in newer versions for reason.

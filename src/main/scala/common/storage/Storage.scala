@@ -5,7 +5,7 @@ import cats.data.OptionT
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import common.rich.func.TuplePLenses
+import common.rich.func.TuplePLenses.__2
 
 /** A store of key-value pairs. */
 trait Storage[Key, Value] {
@@ -58,9 +58,9 @@ object Storage {
           override def replace(k: K, v: B) = fa.replace(k, g(v)).map(f)
           override def store(k: K, v: B) = fa.store(k, g(v))
           override def storeMultiple(kvs: Seq[(K, B)]) =
-            fa.storeMultiple(kvs.map(TuplePLenses.tuple2Second.modify(g)))
+            fa.storeMultiple(kvs.map(__2.modify(g)))
           override def overwriteMultipleVoid(kvs: Seq[(K, B)]) =
-            fa.overwriteMultipleVoid(kvs.map(TuplePLenses.tuple2Second.modify(g)))
+            fa.overwriteMultipleVoid(kvs.map(__2.modify(g)))
           override def mapStore(mode: StoreMode, k: K, f2: B => B, default: => B) =
             fa.mapStore(mode, k, a => g(f2(f(a))), g(default)).map(f)
           override def load(k: K) = fa.load(k).map(f)
