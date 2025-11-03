@@ -1,6 +1,6 @@
 package common.test
 
-import java.util.concurrent.Executors
+import java.util.concurrent.{Executors, Semaphore}
 
 import org.scalatest.{Args, Assertion, AsyncFreeSpec, FreeSpec, Suite}
 
@@ -55,6 +55,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var tearDown = false
       var beforeCalled = 0
       var afterCalled = 0
+      val afterAllSemaphore = new Semaphore(0)
 
       protected override def beforeAll(): Future[_] = Future.successful {
         beforeCalled += 1
@@ -65,6 +66,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
         afterCalled += 1
         tearDown = true
         setup = false
+        afterAllSemaphore.release()
       }
 
       private def validate() = {
@@ -77,6 +79,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       "test me2 async" in Future(validate())
     }
     val $ = run(new MySuite())
+    $.afterAllSemaphore.acquire()
     $.setup shouldReturn false
     $.tearDown shouldReturn true
     $.beforeCalled shouldReturn 1
@@ -97,6 +100,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var afterEachCalled = 0
       var beforeAllCalled = 0
       var afterAllCalled = 0
+      val afterAllSemaphore = new Semaphore(0)
 
       protected override def beforeEach(): Future[_] = Future.successful {
         assert(setupAll)
@@ -119,6 +123,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
         afterAllCalled += 1
         tearDownAll = true
         setupAll = false
+        afterAllSemaphore.release()
       }
       private def validate() = {
         setup shouldReturn true
@@ -130,6 +135,7 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       "test me2" in validate()
     }
     val $ = run(new MySuite())
+    $.afterAllSemaphore.acquire()
     $.setup shouldReturn false
     $.tearDown shouldReturn true
     $.setupAll shouldReturn false
