@@ -2,10 +2,10 @@ package common.rich.collections
 
 import org.scalatest.FreeSpec
 
-import common.rich.collections.RichList._
+import common.rich.collections.RichLinearSeq.richLinearSeq
 import common.test.AuxSpecs
 
-class RichListTest extends FreeSpec with AuxSpecs {
+class RichLinearSeqTest extends FreeSpec with AuxSpecs {
   "headTailOpt" - {
     "Nil returns None" in {
       Nil.headTailOption shouldReturn None
