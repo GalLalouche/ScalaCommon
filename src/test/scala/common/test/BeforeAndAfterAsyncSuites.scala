@@ -16,17 +16,19 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
 
   "before and after each should be called before every test" in {
     class MySuite extends AsyncFreeSpec with BeforeAndAfterEachAsync with AuxSpecs {
+      implicit override def executionContext: ExecutionContext =
+        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
       var setup = false
       var tearDown = false
       var beforeCalled = 0
       var afterCalled = 0
 
-      protected override def beforeEach(): Future[_] = Future.successful {
+      protected override def beforeEach(): Future[_] = Future {
         beforeCalled += 1
         setup = true
         tearDown = false
       }
-      protected override def afterEach(): Future[_] = Future.successful {
+      protected override def afterEach(): Future[_] = Future {
         afterCalled += 1
         tearDown = true
         setup = false
@@ -57,12 +59,12 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var afterCalled = 0
       val afterAllSemaphore = new Semaphore(0)
 
-      protected override def beforeAll(): Future[_] = Future.successful {
+      protected override def beforeAll(): Future[_] = Future {
         beforeCalled += 1
         setup = true
         tearDown = false
       }
-      protected override def afterAll(): Future[_] = Future.successful {
+      protected override def afterAll(): Future[_] = Future {
         afterCalled += 1
         tearDown = true
         setup = false
@@ -92,6 +94,8 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
         with BeforeAndAfterAllAsync
         with BeforeAndAfterEachAsync
         with AuxSpecs {
+      implicit override def executionContext: ExecutionContext =
+        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
       var setup = false
       var tearDown = false
       var setupAll = false
@@ -102,19 +106,19 @@ class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
       var afterAllCalled = 0
       val afterAllSemaphore = new Semaphore(0)
 
-      protected override def beforeEach(): Future[_] = Future.successful {
+      protected override def beforeEach(): Future[_] = Future {
         assert(setupAll)
         beforeEachCalled += 1
         setup = true
         tearDown = false
       }
-      protected override def afterEach(): Future[_] = Future.successful {
+      protected override def afterEach(): Future[_] = Future {
         assert(tearDownAll.isFalse)
         afterEachCalled += 1
         tearDown = true
         setup = false
       }
-      protected override def beforeAll(): Future[_] = Future.successful {
+      protected override def beforeAll(): Future[_] = Future {
         beforeAllCalled += 1
         setupAll = true
         tearDownAll = false
