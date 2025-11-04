@@ -1,13 +1,13 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scalaz.{Foldable, Monoid}
 import scalaz.std.vector.vectorInstance
 
 import common.test.AuxSpecs
 
-class NumericMonoidsTest extends FreeSpec with AuxSpecs {
+class NumericMonoidsTest extends AnyFreeSpec with AuxSpecs {
   private def fold[A: Monoid](v: Vector[A]): A = Foldable[Vector].fold(v)
   "sum" - {
     import NumericMonoids.SumNumeric

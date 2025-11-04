@@ -2,14 +2,14 @@ package common.rich.func.scalazz
 
 import java.net.ConnectException
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.ToMoreMonadErrorOps._
 
 import common.rich.RichT._
 import common.test.AuxSpecs
 
-class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreMonadErrorOpsTest extends AnyFreeSpec with AuxSpecs {
   private lazy val unusedError: String = ???
   private def is(expected: Int)(actual: Int) =
     if (actual == expected) None else Some(s"Is not $expected")

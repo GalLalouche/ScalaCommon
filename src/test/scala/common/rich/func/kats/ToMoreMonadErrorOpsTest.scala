@@ -3,14 +3,14 @@ package common.rich.func.kats
 import java.net.ConnectException
 
 import cats.implicits.catsSyntaxApplicativeError
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreMonadErrorOps._
 
 import common.rich.RichT.lazyT
 import common.test.AuxSpecs
 
-class ToMoreMonadErrorOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreMonadErrorOpsTest extends AnyFreeSpec with AuxSpecs {
   private lazy val unusedError: String = ???
   private def is(expected: Int)(actual: Int) =
     if (actual == expected) None else Some(s"Is not $expected")

@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.ToTransableOps._
 import scalaz.{\/, \/-, EitherT, ListT}
@@ -8,7 +8,7 @@ import scalaz.std.option.optionInstance
 
 import common.test.AuxSpecs
 
-class VersionDependentTransableInstancesTest extends FreeSpec with AuxSpecs {
+class VersionDependentTransableInstancesTest extends AnyFreeSpec with AuxSpecs {
   "List" in {
     List(1, 2, 3).hoistId shouldReturn ListT(Some(List(1, 2, 3)))
   }

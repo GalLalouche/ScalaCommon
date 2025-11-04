@@ -2,14 +2,19 @@ package common.rich.path
 
 import java.io.File
 
-import org.scalatest.{BeforeAndAfter, FreeSpec, OneInstancePerTest}
+import org.scalatest.{BeforeAndAfter, OneInstancePerTest}
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.language.postfixOps
 
 import common.rich.path.RichPath._
 import common.test.DirectorySpecs
 
-class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest with BeforeAndAfter {
+class DirectoryTest
+    extends AnyFreeSpec
+    with DirectorySpecs
+    with OneInstancePerTest
+    with BeforeAndAfter {
   // yeah yeah, it uses DirectorySpecs which uses Directory
 
   "Ctor should" - {
@@ -61,7 +66,8 @@ class DirectoryTest extends FreeSpec with DirectorySpecs with OneInstancePerTest
       "list all dirs" in {
         $.addSubDir("foobar")
         $.addSubDir("barfoo")
-        $.dirs.toSet === Set(new File(tempDir, "foobar"), new File(tempDir, "barfoo")).map(Directory(_))
+        $.dirs.toSet === Set(new File(tempDir, "foobar"), new File(tempDir, "barfoo"))
+          .map(Directory(_))
       }
       "not list deep dirs" in {
         $.addSubDir("foo").addSubDir("bar")

@@ -1,12 +1,12 @@
 package common.rich.func.kats
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreApplyOps.toMoreApplyOps
 
 import common.test.AuxSpecs
 
-class ToMoreApplyOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreApplyOpsTest extends AnyFreeSpec with AuxSpecs {
   private val noneInt: Option[Int] = None
   private val someInt: Option[Int] = Some(42)
   private val noneString: Option[String] = None

@@ -1,11 +1,11 @@
 package common.rich.primitives
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.primitives.RichBoolean._
 import common.test.AuxSpecs
 
-class RichBooleanTest extends FreeSpec with AuxSpecs {
+class RichBooleanTest extends AnyFreeSpec with AuxSpecs {
   "richBoolean" - {
     "ifTrue" - {
       "when true should return Some of object" in {

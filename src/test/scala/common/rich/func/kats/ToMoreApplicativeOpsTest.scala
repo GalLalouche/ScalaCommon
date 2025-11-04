@@ -2,13 +2,13 @@ package common.rich.func.kats
 
 import cats.data.Writer
 import cats.data.Writer.tell
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreApplicativeOps._
 
 import common.test.AuxSpecs
 
-class ToMoreApplicativeOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreApplicativeOpsTest extends AnyFreeSpec with AuxSpecs {
   "withFilter" - {
     def go(b: Boolean): Writer[String, Unit] = for {
       _ <- tell("foo")

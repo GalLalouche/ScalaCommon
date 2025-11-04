@@ -1,12 +1,12 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
 import org.scalatest.OptionValues.convertOptionToValuable
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.collections.RichSeqView.richSeqView
 import common.test.AuxSpecs
 
-class RichSeqViewTest extends FreeSpec with AuxSpecs {
+class RichSeqViewTest extends AnyFreeSpec with AuxSpecs {
   "lift" - {
     "Negative index" in {
       Vector(1, 2, 3).view.lift(-1) shouldReturn None

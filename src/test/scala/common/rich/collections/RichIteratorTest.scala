@@ -1,7 +1,7 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
 import org.scalatest.concurrent.TimeLimitedTests
+import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.time.SpanSugar._
 
 import scala.language.postfixOps
@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import common.rich.collections.RichIterator._
 import common.test.AuxSpecs
 
-class RichIteratorTest extends FreeSpec with AuxSpecs with TimeLimitedTests {
+class RichIteratorTest extends AnyFreeSpec with AuxSpecs with TimeLimitedTests {
   override val timeLimit = 2 seconds
   private def compareIterators[T](actual: Iterator[T], expected: TraversableOnce[T]): Unit =
     actual.toVector shouldReturn expected.toVector

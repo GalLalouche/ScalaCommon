@@ -2,13 +2,14 @@ package common.test
 
 import java.util.concurrent.{Executors, Semaphore}
 
-import org.scalatest.{Args, Assertion, AsyncFreeSpec, FreeSpec, Suite}
+import org.scalatest.{Args, Assertion, Suite}
+import org.scalatest.freespec.{AnyFreeSpec, AsyncFreeSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 import common.rich.primitives.RichBoolean._
 
-class BeforeAndAfterAsyncSuites extends FreeSpec with AuxSpecs {
+class BeforeAndAfterAsyncSuites extends AnyFreeSpec with AuxSpecs {
   private def run[A <: Suite](ms: A): ms.type = {
     ms.run(None, Args(StubReporter)).succeeds() shouldReturn true
     ms

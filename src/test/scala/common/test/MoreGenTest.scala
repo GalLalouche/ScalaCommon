@@ -1,7 +1,7 @@
 package common.test
 
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.PropSpec
+import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import scalaz.Scalaz.ToBindOps
@@ -9,7 +9,7 @@ import scalaz.Scalaz.ToBindOps
 import common.rich.primitives.RichBoolean.richBoolean
 import common.test.scalazz.GenInstances.MonadGen
 
-class MoreGenTest extends PropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
+class MoreGenTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   property("capitalization is case-insensitive equals") {
     forAll(Gen.alphaNumStr.mproduct(MoreGen.capitalization)) { case (s, cap) =>
       s.equals(cap).isFalse ==> s.equalsIgnoreCase(cap)

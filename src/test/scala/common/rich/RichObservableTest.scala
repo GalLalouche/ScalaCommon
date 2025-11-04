@@ -1,6 +1,6 @@
 package common.rich
 
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.PublishSubject
 

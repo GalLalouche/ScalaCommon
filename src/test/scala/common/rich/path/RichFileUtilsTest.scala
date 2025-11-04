@@ -3,20 +3,21 @@ package common.rich.path
 import java.nio.file.FileAlreadyExistsException
 
 import better.files.{File, FileExtensions}
-import org.scalatest.{FreeSpec, OneInstancePerTest}
+import org.scalatest.OneInstancePerTest
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichT.richT
 import common.rich.path.RichFile._
 import common.rich.path.RichPath.poorPath
 import common.test.DirectorySpecs
 
-class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePerTest {
+class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstancePerTest {
   private lazy val dir2 = TempDirectory()
   "move file" - {
-    tempFile write "foobar"
+    tempFile.write("foobar")
     val tempFileName = tempFile.name
-    val otherFile = tempDir addFile "other_file"
-    otherFile write "bazz"
+    val otherFile = tempDir.addFile("other_file")
+    otherFile.write("bazz")
     def verifyFile(f: RichFile, name: String = tempFileName): Unit = {
       f.exists shouldReturn true
       f.readAll shouldReturn "foobar"
@@ -41,7 +42,11 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
     }
     "Existing file with same name throws" in {
       dir2.addFile("new_name.txt")
-      a[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(tempFile, dir2, "new_name.txt")
+      a[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(
+        tempFile,
+        dir2,
+        "new_name.txt",
+      )
       verifyNoChange()
     }
     "within same directory" - {
@@ -55,7 +60,10 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
         verifyNoChange()
       }
       "file with name already exists" in {
-        a[FileAlreadyExistsException] should be thrownBy RichFileUtils.rename(tempFile, otherFile.name)
+        a[FileAlreadyExistsException] should be thrownBy RichFileUtils.rename(
+          tempFile,
+          otherFile.name,
+        )
         verifyNoChange()
       }
     }
@@ -81,7 +89,7 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
         assertSameContents(originalCopy, movedDir)
       }
       "Existing directory with same name throws" in {
-        targetDir addSubDir filledDir.name
+        targetDir.addSubDir(filledDir.name)
         an[FileAlreadyExistsException] should be thrownBy RichFileUtils.move(filledDir, targetDir)
         assertSameContents(filledDir, originalCopy)
       }
@@ -102,7 +110,10 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
       }
       "a file already exists with name" in {
         val sameFile = targetDir.addFile(filledDir.files.head.name)
-        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.moveContents(filledDir, targetDir)
+        an[FileAlreadyExistsException] should be thrownBy RichFileUtils.moveContents(
+          filledDir,
+          targetDir,
+        )
         assertSameContents(originalCopy, filledDir)
         assert(sameFile.delete())
         assertEmptyDir(targetDir)
@@ -115,7 +126,7 @@ class RichFileUtilsTest extends FreeSpec with DirectorySpecs with OneInstancePer
         assertSameContents(movedDir, originalCopy)
       }
       "dir with same name already exists" in {
-        filledDir.parent addSubDir "foobar"
+        filledDir.parent.addSubDir("foobar")
         an[FileAlreadyExistsException] should be thrownBy RichFileUtils.rename(filledDir, "foobar")
         assertSameContents(filledDir, originalCopy)
       }

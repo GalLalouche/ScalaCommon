@@ -1,13 +1,13 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
 import org.scalatest.OptionValues.convertOptionToValuable
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichT.richT
 import common.rich.collections.RichSeq.richSeq
 import common.test.AuxSpecs
 
-class RichSeqTest extends FreeSpec with AuxSpecs {
+class RichSeqTest extends AnyFreeSpec with AuxSpecs {
   "shift" - {
     "does nothing for n = 0" in {
       Vector(1, 2, 3).shift(0) shouldReturn Vector(1, 2, 3)

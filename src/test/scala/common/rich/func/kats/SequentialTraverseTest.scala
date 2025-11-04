@@ -4,7 +4,7 @@ import java.util.concurrent.Executors
 
 import cats.{Eval, Functor}
 import cats.implicits.toFunctorOps
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 

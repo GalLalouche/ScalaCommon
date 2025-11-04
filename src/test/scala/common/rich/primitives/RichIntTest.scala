@@ -1,11 +1,11 @@
 package common.rich.primitives
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.primitives.RichInt._
 import common.test.AuxSpecs
 
-class RichIntTest extends FreeSpec with AuxSpecs {
+class RichIntTest extends AnyFreeSpec with AuxSpecs {
   "factorial works with small numbers" in {
     0.factorial shouldReturn 1
     1.factorial shouldReturn 1
@@ -17,38 +17,38 @@ class RichIntTest extends FreeSpec with AuxSpecs {
 
   "choose" - {
     "works with small numbers" in {
-      5 choose 2 shouldReturn 10
-      6 choose 3 shouldReturn 20
-      10 choose 5 shouldReturn 252
+      5.choose(2) shouldReturn 10
+      6.choose(3) shouldReturn 20
+      10.choose(5) shouldReturn 252
     }
   }
 
   "power" - {
     "throws an exception for 0 ^ 0" in {
       an[IllegalArgumentException] should be thrownBy {
-        0 exp 0
+        0.exp(0)
       }
     }
     "raises to the power" in {
-      2 exp 4 shouldReturn 16
+      2.exp(4) shouldReturn 16
     }
     "works for negative numbers in base" in {
-      -1 exp 0 shouldReturn 1
-      -1 exp 1 shouldReturn -1
-      -2 exp 2 shouldReturn 4
-      -2 exp 3 shouldReturn -8
+      -1.exp(0) shouldReturn 1
+      -1.exp(1) shouldReturn -1
+      -2.exp(2) shouldReturn 4
+      -2.exp(3) shouldReturn -8
     }
   }
 
   "permutation works with small numbers" in {
-    4 perm 2 shouldReturn 12
-    10 perm 3 shouldReturn 720
-    5 perm 5 shouldReturn 120
+    4.perm(2) shouldReturn 12
+    10.perm(3) shouldReturn 720
+    5.perm(5) shouldReturn 120
   }
 
   "padLeftZeros" - {
     "throws if actual size is larger than minSize" in {
-      an[IllegalArgumentException] shouldBe thrownBy {123.padLeftZeros(2)}
+      an[IllegalArgumentException] shouldBe thrownBy(123.padLeftZeros(2))
     }
     "does nothing if length is already minSize" in {
       123.padLeftZeros(3) shouldReturn "123"

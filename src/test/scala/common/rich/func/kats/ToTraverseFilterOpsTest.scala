@@ -1,12 +1,12 @@
 package common.rich.func.kats
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreTraverseFilterOps.toMoreTraverseFilterOps
 
 import common.test.AuxSpecs
 
-class ToTraverseFilterOpsTest extends FreeSpec with AuxSpecs {
+class ToTraverseFilterOpsTest extends AnyFreeSpec with AuxSpecs {
   "uniqueBy" - {
     "Small input" in {
       Vector("foo", "bar", "bazz", "quux").uniqueBy(_.length) shouldReturn Vector("foo", "bazz")

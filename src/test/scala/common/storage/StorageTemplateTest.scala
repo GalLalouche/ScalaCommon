@@ -1,7 +1,8 @@
 package common.storage
 
 import cats.implicits.toInvariantOps
-import org.scalatest.{AsyncFreeSpec, OneInstancePerTest}
+import org.scalatest.OneInstancePerTest
+import org.scalatest.freespec.AsyncFreeSpec
 
 import scala.collection.mutable
 import scala.concurrent.Future

@@ -2,12 +2,12 @@ package common.rich.primitives
 
 import java.io.IOException
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.primitives.RichEither._
 import common.test.AuxSpecs
 
-class RichEitherTest extends FreeSpec with AuxSpecs {
+class RichEitherTest extends AnyFreeSpec with AuxSpecs {
   "getOrThrow" - {
     "String" - {
       "Left" in {

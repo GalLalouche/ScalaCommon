@@ -5,8 +5,9 @@ import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
 import cats.kernel.CommutativeMonoid
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.{Assertion, Matchers, Succeeded, Suite}
+import org.scalatest.{Assertion, Succeeded, Suite}
 import org.scalatest.exceptions.TestFailedException
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration.Duration
 

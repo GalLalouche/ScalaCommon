@@ -1,12 +1,12 @@
 package common.rich
 
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichT._
 import common.rich.RichTTest.MyException
 import common.test.AuxSpecs
 
-class RichTTest extends FreeSpec with AuxSpecs with Matchers {
+class RichTTest extends AnyFreeSpec with AuxSpecs {
   "RichT" - {
     "tryOrKeep" - {
       "succeeds" in {
@@ -27,12 +27,12 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
 
     "mapIf" - {
       "predicate" - {
-        "true" in {5.mapIf(_ > 5).to(6) shouldReturn 5}
-        "false" in {5.mapIf(_ < 10).to(_ * 5) shouldReturn 25}
+        "true" in { 5.mapIf(_ > 5).to(6) shouldReturn 5 }
+        "false" in { 5.mapIf(_ < 10).to(_ * 5) shouldReturn 25 }
       }
       "boolean" - {
-        "true" in {5.mapIf(false).to(_ * 5) shouldReturn 5}
-        "false" in {5.mapIf(true).to(10) shouldReturn 10}
+        "true" in { 5.mapIf(false).to(_ * 5) shouldReturn 5 }
+        "false" in { 5.mapIf(true).to(10) shouldReturn 10 }
       }
     }
 
@@ -83,7 +83,7 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
     "safe cast" - {
       "primitives" - {
         "Any" in {
-          val $: Any = 3
+          val $ : Any = 3
           $.safeCast[Any] shouldReturn Some(3)
         }
         "Int" in {
@@ -146,19 +146,19 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
       def fe(i: Int) = MyException(i.toString)
       "const boolean, const exception" in {
         3.ifNot(true).thenThrow(e) shouldReturn 3
-        intercept[MyException] {3 ifNot (false) thenThrow e} shouldReturn e
+        intercept[MyException](3.ifNot(false).thenThrow(e)) shouldReturn e
       }
       "dependent boolean, const exception" in {
         3.ifNot(_ > 2).thenThrow(e) shouldReturn 3
-        intercept[MyException] {3 ifNot (_ > 4) thenThrow e} shouldReturn e
+        intercept[MyException](3.ifNot(_ > 4).thenThrow(e)) shouldReturn e
       }
       "const boolean, dependent exception" in {
         3.ifNot(true).thenThrow(fe _) shouldReturn 3
-        intercept[MyException] {3 ifNot (false) thenThrow fe _} shouldReturn MyException("3")
+        intercept[MyException](3.ifNot(false).thenThrow(fe _)) shouldReturn MyException("3")
       }
       "dependent boolean, dependent exception" in {
         3.ifNot(_ > 2).thenThrow(e) shouldReturn 3
-        intercept[MyException] {3 ifNot (_ > 4) thenThrow fe _} shouldReturn MyException("3")
+        intercept[MyException](3.ifNot(_ > 4).thenThrow(fe _)) shouldReturn MyException("3")
       }
     }
   }
@@ -187,15 +187,15 @@ class RichTTest extends FreeSpec with AuxSpecs with Matchers {
   "anyRefT" - {
     "neq" - {
       "true" in {
-        "foo" neq "bar" shouldReturn true
+        "foo".neq("bar") shouldReturn true
       }
       "false" in {
-        "foo" neq "foo" shouldReturn false
+        "foo".neq("foo") shouldReturn false
       }
       "super type" in {
         val x: AnyRef = Nil
         val y = "bar"
-        x neq y shouldReturn true
+        x.neq(y) shouldReturn true
       }
       "doesn't compile invalid types" in {
         """Nil.neq("foo")""" shouldNot typeCheck

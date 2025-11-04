@@ -1,11 +1,11 @@
 package common
 
 import cats.Semigroup
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.test.AuxSpecs
 
-class IndexedSetTest extends FreeSpec with AuxSpecs {
+class IndexedSetTest extends AnyFreeSpec with AuxSpecs {
   "just work" in {
     case class Person(name: String, money: Int)
     implicit object PersonSemigroup extends Semigroup[Person] {

@@ -1,6 +1,6 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 import common.rich.collections.RichStream._
 import common.test.AuxSpecs
 
-class RichStreamTest extends FreeSpec with AuxSpecs {
+class RichStreamTest extends AnyFreeSpec with AuxSpecs {
   "tailOpt" - {
     "Single element returns None" in {
       Stream(1).tailOption shouldReturn None

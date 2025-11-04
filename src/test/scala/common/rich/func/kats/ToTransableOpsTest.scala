@@ -3,13 +3,13 @@ package common.rich.func.kats
 import cats.Id
 import cats.data.{EitherT, IdT, OptionT}
 import cats.instances.option.catsStdInstancesForOption
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToTransableOps.toHoistIdOps
 
 import common.test.AuxSpecs
 
-class ToTransableOpsTest extends FreeSpec with AuxSpecs {
+class ToTransableOpsTest extends AnyFreeSpec with AuxSpecs {
   "Option" in {
     Option(1).hoistId shouldReturn OptionT(Some(Option(1)))
   }

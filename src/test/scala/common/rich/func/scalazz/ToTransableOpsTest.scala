@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.ToTransableOps.toHoistIdOps
 import scalaz.{IdT, OptionT}
@@ -9,7 +9,7 @@ import scalaz.std.option.optionInstance
 
 import common.test.AuxSpecs
 
-class ToTransableOpsTest extends FreeSpec with AuxSpecs {
+class ToTransableOpsTest extends AnyFreeSpec with AuxSpecs {
   "Option" in {
     Option(1).hoistId shouldReturn OptionT(Some(Option(1)))
   }

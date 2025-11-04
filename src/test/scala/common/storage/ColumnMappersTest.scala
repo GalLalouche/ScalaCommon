@@ -3,7 +3,7 @@ package common.storage
 import java.time.{LocalDate, LocalDateTime}
 
 import enumeratum.EnumEntry
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 import slick.jdbc.JdbcType
 
 import common.rich.func.scalazz.BetterFutureInstances._

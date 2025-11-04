@@ -4,10 +4,11 @@ import java.io.{File, PrintStream}
 import java.util.Scanner
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.test.{AuxSpecs, DirectorySpecs}
 
-class RichFileTest extends FreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
+class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
   private val f = tempFile
   def managed[T <: AutoCloseable](t: T)(f: T => Unit): Unit =
     try f(t)

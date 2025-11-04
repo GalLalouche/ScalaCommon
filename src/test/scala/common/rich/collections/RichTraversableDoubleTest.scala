@@ -1,6 +1,6 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.util.Random
 
@@ -8,7 +8,7 @@ import common.rich.collections.RichSeq.richSeq
 import common.rich.collections.RichTraversableDouble._
 import common.test.AuxSpecs
 
-class RichTraversableDoubleTest extends FreeSpec with AuxSpecs {
+class RichTraversableDoubleTest extends AnyFreeSpec with AuxSpecs {
   "mean returns the mean" in {
     Vector(1, 1, 1, 1, 1).mean shouldReturn 1
     Vector(1, 2, 3, 4, 5).mean shouldReturn 3
@@ -16,7 +16,8 @@ class RichTraversableDoubleTest extends FreeSpec with AuxSpecs {
   }
 
   "normalizeByMean normalizes the vector" in {
-    Vector(2, 4, 4, 4, 5, 5, 7, 9).normalizedByMean shouldReturn Vector(-1.5, -0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 2.0)
+    Vector(2, 4, 4, 4, 5, 5, 7, 9).normalizedByMean shouldReturn Vector(-1.5, -0.5, -0.5, -0.5, 0.0,
+      0.0, 1.0, 2.0)
   }
 
   "standard deviation passes the example in wikipedia" in {
@@ -76,7 +77,14 @@ class RichTraversableDoubleTest extends FreeSpec with AuxSpecs {
 
     "handles repeats by averaging rank" in {
       Vector(1, 2, 2, 3).normalizedByRankings shouldReturn Vector(0.25, 5.0 / 8, 5.0 / 8, 1)
-      Vector(1, 2, 2, 3, 3, 4).normalizedByRankings shouldReturn Vector(1 / 6.0, 5.0 / 12.0, 5.0 / 12, 0.75, 0.75, 1)
+      Vector(1, 2, 2, 3, 3, 4).normalizedByRankings shouldReturn Vector(
+        1 / 6.0,
+        5.0 / 12.0,
+        5.0 / 12,
+        0.75,
+        0.75,
+        1,
+      )
     }
 
     "doesn't return 0 when there are repeats in the beginning" in {

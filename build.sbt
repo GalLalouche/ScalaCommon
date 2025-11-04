@@ -53,10 +53,11 @@ lazy val scalaCommon = (project in file("."))
         "net.codingwell" %% "scala-guice" % "4.2.11" % "provided",
         "org.scalafx" %% "scalafx" % "17.0.1-R26" % "provided",
         "org.scalacheck" %% "scalacheck" % "1.14.3" % "provided", // Not in test scope due to AuxSpecs
-        "org.scalatest" %% "scalatest" % "3.0.9" % "provided", // Not in test scope due to AuxSpecs
+        "org.scalatest" %% "scalatest" % "3.2.19" % "provided", // Not in test scope due to AuxSpecs
 
-        "com.h2database" % "h2" % "1.4.196" % "test",
-        "org.slf4j" % "slf4j-nop" % "1.6.4" % "test",
+        "com.h2database" % "h2" % "1.4.196" % Test,
+        "org.slf4j" % "slf4j-nop" % "1.6.4" % Test,
+        "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
         // Laws dependencies
       )
     },

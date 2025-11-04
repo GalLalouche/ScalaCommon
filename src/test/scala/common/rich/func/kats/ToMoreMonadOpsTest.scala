@@ -4,13 +4,13 @@ import cats.Monad
 import cats.data.Writer
 import cats.data.Writer.tell
 import cats.instances.string.catsKernelStdMonoidForString
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreMonadOps.toMonadBooleanOps
 
 import common.test.AuxSpecs
 
-class ToMoreMonadOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreMonadOpsTest extends AnyFreeSpec with AuxSpecs {
   "conditionals" - {
     type StringWriter[A] = Writer[String, A]
     val writer: Writer[String, Unit] = tell("foo")

@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.ToTraverseMonadPlusOps._
 import scalaz.std.option.optionInstance
@@ -8,7 +8,7 @@ import scalaz.std.vector.vectorInstance
 
 import common.test.AuxSpecs
 
-class ToTraverseMonadPlusOpsTest extends FreeSpec with AuxSpecs {
+class ToTraverseMonadPlusOpsTest extends AnyFreeSpec with AuxSpecs {
   "filterM" - {
     "Small input" in {
       import common.rich.func.scalazz.BetterSetInstances._

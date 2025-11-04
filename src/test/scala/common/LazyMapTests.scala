@@ -1,10 +1,11 @@
 package common
 
-import org.scalatest.{FreeSpec, OneInstancePerTest}
+import org.scalatest.OneInstancePerTest
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.test.AuxSpecs
 
-class LazyMapTests extends FreeSpec with AuxSpecs with OneInstancePerTest {
+class LazyMapTests extends AnyFreeSpec with AuxSpecs with OneInstancePerTest {
   "applications" - {
     val f = new Function[Int, Int] {
       var count = 0
@@ -16,9 +17,13 @@ class LazyMapTests extends FreeSpec with AuxSpecs with OneInstancePerTest {
     val $ = LazyMap(f).update(12)._2
     "existing values" - {
       "update" - {
-        "should return the value if it already exists" in {$.update(12)._1 shouldReturn 24}
-        "f should not be called for a value that already exists" in {$.update(12); f.count shouldReturn 1}
-        "update should return this if the value already exists" in {$.update(12)._2 shouldReturn $}
+        "should return the value if it already exists" in { $.update(12)._1 shouldReturn 24 }
+        "f should not be called for a value that already exists" in {
+          $.update(12); f.count shouldReturn 1
+        }
+        "update should return this if the value already exists" in {
+          $.update(12)._2 shouldReturn $
+        }
       }
       "force" in {
         $.force(12)._2 should not be $

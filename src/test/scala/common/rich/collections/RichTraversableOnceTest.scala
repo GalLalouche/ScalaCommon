@@ -2,8 +2,8 @@ package common.rich.collections
 
 import cats.implicits.toFunctorOps
 import com.google.common.collect.ImmutableBiMap
-import org.scalatest.FreeSpec
 import org.scalatest.OptionValues._
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -13,7 +13,7 @@ import common.rich.RichT._
 import common.rich.collections.RichTraversableOnce._
 import common.test.AuxSpecs
 
-class RichTraversableOnceTest extends FreeSpec with AuxSpecs {
+class RichTraversableOnceTest extends AnyFreeSpec with AuxSpecs {
   "filterNot" in {
     1.to(5).filterNot(_ % 2 == 0).toVector shouldReturn Vector(1, 3, 5)
   }

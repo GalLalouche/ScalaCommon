@@ -3,7 +3,7 @@ package common.rich.func.scalazz
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -14,7 +14,7 @@ import scalaz.std.string.stringInstance
 import common.rich.RichFuture.richFuture
 import common.test.AuxSpecs
 
-class ToMoreApplicativeOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreApplicativeOpsTest extends AnyFreeSpec with AuxSpecs {
   "withFilter" - {
     def go(b: Boolean) = for {
       _ <- tell("foo")

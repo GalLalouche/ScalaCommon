@@ -1,6 +1,6 @@
 package common.storage
 
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 
 import scala.concurrent.Future
 

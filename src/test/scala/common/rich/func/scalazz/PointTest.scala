@@ -1,8 +1,9 @@
 package common.rich.func.scalazz
 
-import org.scalatest.{FreeSpec, Matchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers._
 
-class PointTest extends FreeSpec with Matchers {
+class PointTest extends AnyFreeSpec {
   "Future is a Point without an implicit ExecutionContext" in {
     """
       |import scala.concurrent.Future

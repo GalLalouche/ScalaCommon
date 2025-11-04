@@ -1,15 +1,15 @@
 package common
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import scala.util.Random
 
 import common.test.AuxSpecs
 
-class PercentageTest extends FreeSpec with AuxSpecs {
+class PercentageTest extends AnyFreeSpec with AuxSpecs {
   "constructor throws on values out of bounds" in {
-    an[IllegalArgumentException] shouldBe thrownBy {Percentage(-1e-5)}
-    an[IllegalArgumentException] shouldBe thrownBy {Percentage(1 + 1e-5)}
+    an[IllegalArgumentException] shouldBe thrownBy(Percentage(-1e-5))
+    an[IllegalArgumentException] shouldBe thrownBy(Percentage(1 + 1e-5))
   }
   "conform" in {
     Percentage.conform(-1e-5).p shouldReturn 0

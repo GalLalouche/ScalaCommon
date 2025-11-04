@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.BetterSetInstances.betterSetInstances
 import common.rich.func.scalazz.ToMoreFoldableOps.{toMoreFoldableOps, EitherFoldableOps}
@@ -13,7 +13,7 @@ import scalaz.std.vector.vectorInstance
 
 import common.test.AuxSpecs
 
-class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreFoldableOpsTest extends AnyFreeSpec with AuxSpecs {
   implicit val seqInstance: Traverse[Seq] =
     common.rich.func.scalazz.MoreTraverseInstances.traversableTraverse
   implicit val iterableInstance: Traverse[Iterable] =

@@ -2,13 +2,13 @@ package common.rich
 
 import java.io.ByteArrayOutputStream
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichInputStream._
 import common.rich.primitives.RichString._
 import common.test.AuxSpecs
 
-class RichInputStreamTest extends FreeSpec with AuxSpecs {
+class RichInputStreamTest extends AnyFreeSpec with AuxSpecs {
   "asString" in "foobar".toInputStream.asString.shouldReturn("foobar")
   "toBytes" in "foobar".toInputStream.toBytes.shouldReturn("foobar".getBytes)
   "write to OutputStream" in {

@@ -2,12 +2,12 @@ package common.rich.primitives
 
 import java.util.regex.Pattern
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.primitives.RichString._
 import common.test.AuxSpecs
 
-class RichStringTest extends FreeSpec with AuxSpecs {
+class RichStringTest extends AnyFreeSpec with AuxSpecs {
   "unquote" - {
     "does nothing when no quotes" in {
       "foobar".unquote shouldReturn "foobar"

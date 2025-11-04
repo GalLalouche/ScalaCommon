@@ -1,6 +1,6 @@
 package common.rich.func.scalazz
 
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 import rx.lang.scala.Observable
 
 import common.rich.func.scalazz.BetterFutureInstances._

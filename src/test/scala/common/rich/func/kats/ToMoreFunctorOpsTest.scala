@@ -1,7 +1,7 @@
 package common.rich.func.kats
 
 import cats.implicits.{catsSyntaxIfF, catsSyntaxOptionId, none}
-import org.scalatest.AsyncFreeSpec
+import org.scalatest.freespec.AsyncFreeSpec
 import rx.lang.scala.Observable
 
 import common.rich.func.kats.ObservableInstances.observableInstances

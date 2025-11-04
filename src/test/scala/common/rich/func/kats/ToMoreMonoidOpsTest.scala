@@ -1,13 +1,13 @@
 package common.rich.func.kats
 
 import cats.instances.string.catsKernelStdMonoidForString
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.ToMoreMonoidOps._
 
 import common.test.AuxSpecs
 
-class ToMoreMonoidOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreMonoidOpsTest extends AnyFreeSpec with AuxSpecs {
   "monoidFilter" - {
     "monoidFilterConstant" - {
       "false" in {

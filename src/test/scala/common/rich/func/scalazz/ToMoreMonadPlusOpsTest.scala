@@ -1,14 +1,14 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
-import scalaz.std.vector.vectorInstance
-import scalaz.OptionT
 import common.rich.func.scalazz.ToMoreMonadPlusOps._
+import scalaz.OptionT
+import scalaz.std.vector.vectorInstance
 
 import common.test.AuxSpecs
 
-class ToMoreMonadPlusOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreMonadPlusOpsTest extends AnyFreeSpec with AuxSpecs {
   "select" - {
     "Primitives" - {
       val list = Vector(3, "Foo", true, 4, 5.0)

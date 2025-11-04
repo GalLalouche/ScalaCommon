@@ -1,6 +1,7 @@
 package common.rich.func.scalazz
 
-import org.scalatest.{Assertion, AsyncFreeSpec}
+import org.scalatest.Assertion
+import org.scalatest.freespec.AsyncFreeSpec
 
 import scala.concurrent.Future
 

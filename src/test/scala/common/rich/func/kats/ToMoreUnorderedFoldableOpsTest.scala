@@ -2,14 +2,14 @@ package common.rich.func.kats
 
 import alleycats.std.all.alleycatsStdIterableTraverse
 import cats.UnorderedFoldable
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.PlainSeqInstances.plainSeqInstances
 import common.rich.func.kats.ToMoreUnorderedFoldableOps.toMoreUnorderedFoldableOps
 
 import common.test.AuxSpecs
 
-class ToMoreUnorderedFoldableOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreUnorderedFoldableOpsTest extends AnyFreeSpec with AuxSpecs {
   "printPerLine should not overflow" - {
     def test[F[_]: UnorderedFoldable](f: Int => F[Int]): Unit =
       Console.withOut(_ => ())(f(10000).printPerLine())

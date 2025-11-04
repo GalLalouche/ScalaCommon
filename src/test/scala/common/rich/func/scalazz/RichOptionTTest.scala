@@ -1,13 +1,13 @@
 package common.rich.func.scalazz
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.scalazz.RichOptionT._
 import scalaz.OptionT
 
 import common.test.AuxSpecs
 
-class RichOptionTTest extends FreeSpec with AuxSpecs {
+class RichOptionTTest extends AnyFreeSpec with AuxSpecs {
   "richOptionT" - {
     val none: OptionT[BoxOrMsg, Int] = OptionT.none
     val boxedNone = Box(None)

@@ -3,14 +3,14 @@ package common.rich.collections
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.util.Buildable
-import org.scalactic.anyvals.PosZInt._
-import org.scalatest.{PropSpec, Succeeded}
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.Succeeded
+import org.scalatest.propspec.AnyPropSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import common.rich.collections.RichSet._
 import common.test.AuxSpecs
 
-class RichSetTest extends PropSpec with AuxSpecs with PropertyChecks {
+class RichSetTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSize = 10, sizeRange = 1000)
 

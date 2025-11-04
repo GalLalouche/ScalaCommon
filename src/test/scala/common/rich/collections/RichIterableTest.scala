@@ -1,11 +1,11 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.collections.RichIterable._
 import common.test.AuxSpecs
 
-class RichIterableTest extends FreeSpec with AuxSpecs {
+class RichIterableTest extends AnyFreeSpec with AuxSpecs {
   "length comparisons" - {
     val $ = Vector(1, 2, 3)
     val inf = Stream.continually(5)

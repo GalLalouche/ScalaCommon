@@ -3,15 +3,15 @@ package common.rich.collections
 import java.lang.Math.abs
 
 import org.scalacheck.Gen
-import org.scalatest.PropSpec
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.propspec.AnyPropSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import scala.util.Random
 
 import common.rich.collections.RichVector._
 import common.test.AuxSpecs
 
-class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
+class RichVectorTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   private def randomNumber = (Random.nextDouble * 1000) - 1000
 
   private def vectors = Gen.choose(2, 100).map(Vector.fill(_)(randomNumber))
@@ -22,13 +22,13 @@ class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
   property("self dot should equal magnitude squared") {
     forAll(vectors) { v =>
       val mag = v.magnitude
-      v dot v shouldBeApproximately mag * mag
+      v.dot(v) shouldBeApproximately mag * mag
     }
   }
 
   property("A vector should have a cosine similarity of 1.0 to itself") {
     forAll(vectors) { v =>
-      v cosineSimilarityTo v shouldBeApproximately 1.0
+      v.cosineSimilarityTo(v) shouldBeApproximately 1.0
     }
   }
 
@@ -40,7 +40,7 @@ class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
 
   property("a unit vector's cosine similarity to its original vector should be 1") {
     forAll(vectors) { v =>
-      v.toUnit cosineSimilarityTo v shouldBeApproximately 1.0
+      v.toUnit.cosineSimilarityTo(v) shouldBeApproximately 1.0
     }
   }
 
@@ -64,23 +64,20 @@ class RichVectorTest extends PropSpec with PropertyChecks with AuxSpecs {
   }
 
   property("the projection of a vector should have a Cosine similarity of 1 with vector") {
-    forAll(vectorPairs) {
-      case (u, v) =>
-        v projectionOn u cosineSimilarityTo u shouldBeApproximately 1.0
+    forAll(vectorPairs) { case (u, v) =>
+      v.projectionOn(u).cosineSimilarityTo(u) shouldBeApproximately 1.0
     }
   }
 
   property("The anti vector should be perpendicular to the vector") {
-    forAll(vectorPairs) {
-      case (u, v) =>
-        v antiVector u cosineSimilarityTo u shouldBeApproximately 0.0
+    forAll(vectorPairs) { case (u, v) =>
+      v.antiVector(u).cosineSimilarityTo(u) shouldBeApproximately 0.0
     }
   }
 
   property("Cosine similarity should be non-negative") {
-    forAll(vectorPairs) {
-      case (u, v) =>
-        v cosineSimilarityTo u should be >= 0.0
+    forAll(vectorPairs) { case (u, v) =>
+      v.cosineSimilarityTo(u) should be >= 0.0
     }
   }
 

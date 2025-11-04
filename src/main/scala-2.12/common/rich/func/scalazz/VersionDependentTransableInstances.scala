@@ -1,7 +1,5 @@
 package common.rich.func.scalazz
 
-
-
 import scalaz.{\/, EitherT, ListT}
 
 trait VersionDependentTransableInstances {

@@ -1,11 +1,11 @@
 package common.rich.collections
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.collections.RichLinearSeq.richLinearSeq
 import common.test.AuxSpecs
 
-class RichLinearSeqTest extends FreeSpec with AuxSpecs {
+class RichLinearSeqTest extends AnyFreeSpec with AuxSpecs {
   "headTailOpt" - {
     "Nil returns None" in {
       Nil.headTailOption shouldReturn None

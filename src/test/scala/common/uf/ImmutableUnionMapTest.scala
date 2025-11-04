@@ -1,11 +1,11 @@
 package common.uf
 
-import org.scalatest.FreeSpec
 import org.scalatest.OptionValues.convertOptionToValuable
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.test.AuxSpecs
 
-class ImmutableUnionMapTest extends FreeSpec with AuxSpecs {
+class ImmutableUnionMapTest extends AnyFreeSpec with AuxSpecs {
   private val map = ImmutableUnionMap(Map(1 -> 2, 2 -> 3, 3 -> 4)).union(1, 2, 5)
   "Basic test" in {
     val map = ImmutableUnionMap(Map(1 -> 2, 2 -> 3, 3 -> 4)).union(1, 2, 5)
@@ -15,28 +15,29 @@ class ImmutableUnionMapTest extends FreeSpec with AuxSpecs {
     map.get(4) shouldBe 'empty
   }
   "iterator" in {
-    map shouldContainExactly(1 -> 5, 2 -> 5, 3 -> 4)
+    map shouldContainExactly (1 -> 5, 2 -> 5, 3 -> 4)
   }
   "update" - {
     "new key throws" in {
-      an[IllegalArgumentException] shouldBe thrownBy {map.update(4 -> 6)}
+      an[IllegalArgumentException] shouldBe thrownBy(map.update(4 -> 6))
     }
     "existing key (un-unioned)" in {
-      map.update(3 -> 6) shouldContainExactly(1 -> 5, 2 -> 5, 3 -> 6)
+      map.update(3 -> 6) shouldContainExactly (1 -> 5, 2 -> 5, 3 -> 6)
     }
     "existing key (unioned)" in {
       // checks for both representatives
-      map.update(1 -> 6) shouldContainExactly(1 -> 6, 2 -> 6, 3 -> 4)
-      map.update(2 -> 6) shouldContainExactly(1 -> 6, 2 -> 6, 3 -> 4)
+      map.update(1 -> 6) shouldContainExactly (1 -> 6, 2 -> 6, 3 -> 4)
+      map.update(2 -> 6) shouldContainExactly (1 -> 6, 2 -> 6, 3 -> 4)
     }
   }
   "unionUnsafe" - {
     "throws if keys have different values" in {
-      an[IllegalArgumentException] shouldBe thrownBy {map.unionUnsafe(1, 3)}
+      an[IllegalArgumentException] shouldBe thrownBy(map.unionUnsafe(1, 3))
     }
     "works if keys have same value" in {
-      val map = ImmutableUnionMap(Map(1 -> 2, 2 -> 3, 3 -> 4, 4 -> 4)).unionUnsafe(3, 4).update(4 -> 5)
-      map shouldContainExactly(1 -> 2, 2 -> 3, 3 -> 5, 4 -> 5)
+      val map =
+        ImmutableUnionMap(Map(1 -> 2, 2 -> 3, 3 -> 4, 4 -> 4)).unionUnsafe(3, 4).update(4 -> 5)
+      map shouldContainExactly (1 -> 2, 2 -> 3, 3 -> 5, 4 -> 5)
     }
   }
   "get" - {

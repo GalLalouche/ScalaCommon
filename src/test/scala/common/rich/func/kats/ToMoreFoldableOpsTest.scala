@@ -1,14 +1,14 @@
 package common.rich.func.kats
 
-import org.scalatest.FreeSpec
 import org.scalatest.OptionValues.convertOptionToValuable
+import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.PlainSeqInstances.plainSeqInstances
 import common.rich.func.kats.ToMoreFoldableOps._
 
 import common.test.AuxSpecs
 
-class ToMoreFoldableOpsTest extends FreeSpec with AuxSpecs {
+class ToMoreFoldableOpsTest extends AnyFreeSpec with AuxSpecs {
   "mapHeadOrElse" - {
     "when Some" in {
       Vector(1).mapHeadOrElse(_ + 1, ???) shouldReturn 2

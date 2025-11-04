@@ -1,25 +1,25 @@
 package common.rich.primitives
 
-import org.scalatest.PropSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.propspec.AnyPropSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import common.rich.primitives.RichBoolean.richBoolean
-import common.rich.primitives.RichString._
+import common.rich.primitives.RichString.richString
 import common.test.AuxSpecs
 import common.test.ScalaCheckTypes.binaryString
 
-class RichStringPropTest extends PropSpec with GeneratorDrivenPropertyChecks with AuxSpecs {
+class RichStringPropTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with AuxSpecs {
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 100)
   property("longestCommonSuffix is a common suffix") {
-    forAll(binaryString, binaryString) {(s1, s2) =>
+    forAll(binaryString, binaryString) { (s1, s2) =>
       val result = s1.longestCommonSuffix(s2)
       s1 should endWith(result)
       s2 should endWith(result)
     }
   }
   property("longestCommonSuffix is the longest common suffix") {
-    forAll(binaryString, binaryString) {(s1, s2) =>
+    forAll(binaryString, binaryString) { (s1, s2) =>
       val result = s1.longestCommonSuffix(s2)
       if (s1.length > result.length) {
         val alternative = s1.takeRight(result.length + 1)
