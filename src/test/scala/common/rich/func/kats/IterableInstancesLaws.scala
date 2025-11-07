@@ -6,12 +6,14 @@ import cats.laws.discipline.MonadTests
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.Configuration
+import org.scalatest.tags.Slow
 import org.typelevel.discipline.scalatest.FunSuiteDiscipline
 
 import common.rich.func.kats.MoreIterableInstances.iterableInstances
 
 import common.rich.primitives.RichBoolean.richBoolean
 
+@Slow
 class IterableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with Configuration {
   implicit def arbIterable[A: Arbitrary]: Arbitrary[Iterable[A]] =
     Arbitrary(implicitly[Arbitrary[List[A]]].arbitrary)
