@@ -19,7 +19,7 @@ class ObservableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with C
   implicit def arbObservable[A: Arbitrary]: Arbitrary[Observable[A]] =
     Arbitrary(implicitly[Arbitrary[List[A]]].arbitrary.map(Observable.from(_)))
 
-  implicit def iteratorEqv[A: Eq]: Eq[Observable[A]] = (xI, yI) => {
+  implicit def observableEq[A: Eq]: Eq[Observable[A]] = (xI, yI) => {
     implicit val ec: ExecutionContextExecutor = ExecutionContext.global
     xI.to[List].firstFuture.get === yI.to[List].firstFuture.get
   }

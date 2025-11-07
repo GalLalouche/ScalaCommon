@@ -3,7 +3,7 @@ package common.rich.func.kats
 import cats.Eq
 import cats.implicits.catsSyntaxEq
 import cats.laws.discipline.MonadTests
-import org.scalacheck.{Arbitrary, Cogen}
+import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.Configuration
 import org.typelevel.discipline.scalatest.FunSuiteDiscipline
@@ -16,10 +16,7 @@ class IterableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with Con
   implicit def arbIterable[A: Arbitrary]: Arbitrary[Iterable[A]] =
     Arbitrary(implicitly[Arbitrary[List[A]]].arbitrary)
 
-  implicit def cogenIterable[A: Cogen]: Cogen[Iterable[A]] =
-    Cogen[List[A]].contramap(_.toList)
-
-  implicit def iteratorEqv[A: Eq]: Eq[Iterable[A]] = new Eq[Iterable[A]] {
+  implicit def iterableEqv[A: Eq]: Eq[Iterable[A]] = new Eq[Iterable[A]] {
     override def eqv(xI: Iterable[A], yI: Iterable[A]): Boolean = {
       val x = xI.iterator
       val y = yI.iterator
