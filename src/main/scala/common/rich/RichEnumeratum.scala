@@ -11,7 +11,7 @@ import common.rich.primitives.RichOption._
 import common.test.MoreGen
 
 object RichEnumeratum {
-  implicit class richEnumeratum[A <: EnumEntry](e: Enum[A]) {
+  implicit class richEnumeratum[A <: EnumEntry](private val e: Enum[A]) extends AnyVal {
     def withPrefixCaseInsensitive(s: String): Seq[A] = {
       val lowerCase = s.toLowerCase
       e.values.filter(_.entryName.toLowerCase.startsWith(lowerCase))

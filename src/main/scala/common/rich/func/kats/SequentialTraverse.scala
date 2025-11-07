@@ -17,6 +17,7 @@ trait SequentialTraverse[F[_]] {
   def mapM[G[_]: Monad, A, B](fa: F[A])(f: A => G[B]): G[F[B]]
 }
 object SequentialTraverse {
+  def apply[F[_]: SequentialTraverse]: SequentialTraverse[F] = implicitly[SequentialTraverse[F]]
   implicit object ListSequentialTraverse extends SequentialTraverse[List] {
     override def mapM[G[_]: Monad, A, B](fa: List[A])(f: A => G[B]): G[List[B]] =
       Monad[G].tailRecM[(List[A], List[B]), List[B]]((fa, Nil: List[B])) { case (current, result) =>
