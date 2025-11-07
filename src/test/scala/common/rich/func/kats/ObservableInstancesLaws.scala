@@ -5,6 +5,7 @@ import cats.laws.discipline.MonadTests
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.Configuration
+import org.scalatest.tags.Slow
 import org.typelevel.discipline.scalatest.FunSuiteDiscipline
 import rx.lang.scala.Observable
 
@@ -15,6 +16,7 @@ import common.rich.func.kats.ObservableInstances.observableInstances
 import common.rich.RichFuture.richFuture
 import common.rich.RichObservable.richObservable
 
+@Slow
 class ObservableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with Configuration {
   implicit def arbObservable[A: Arbitrary]: Arbitrary[Observable[A]] =
     Arbitrary(implicitly[Arbitrary[List[A]]].arbitrary.map(Observable.from(_)))
