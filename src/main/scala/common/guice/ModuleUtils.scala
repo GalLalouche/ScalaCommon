@@ -1,10 +1,15 @@
 package common.guice
 
-import com.google.inject.{Binder, Provider, TypeLiteral}
+import java.util.SplittableRandom
+
+import com.google.inject.{Binder, Provider, Provides, TypeLiteral}
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.google.inject.spi.{InjectionListener, TypeEncounter, TypeListener}
-import net.codingwell.scalaguice.{typeLiteral, InternalModule}
+import net.codingwell.scalaguice.{typeLiteral, InternalModule, ScalaModule}
 
+import scala.util.Random
+
+import common.guice.ModuleUtils.RandomProvider
 import common.rich.primitives.RichClass._
 
 //noinspection UnitMethodIsParameterless
@@ -25,6 +30,9 @@ trait ModuleUtils { self: InternalModule[_ <: Binder] =>
 
   protected def provider[A: Manifest]: Provider[A] = binder.getProvider(manifest.unerasedClass)
 
+  def provideStandaloneRandom(initialSeed: Long = Random.nextLong()): Unit =
+    binder.install(new RandomProvider(new SplittableRandom(initialSeed)))
+
   def typeListener[A: Manifest](f: A => Any): TypeListener with InjectionListener[A] =
     new TypeListener with InjectionListener[A] {
       import common.rich.primitives.RichClass._
@@ -34,4 +42,11 @@ trait ModuleUtils { self: InternalModule[_ <: Binder] =>
           encounter.register(this.asInstanceOf[InjectionListener[I]])
       override def afterInjection(injectee: A) = f(injectee)
     }
+}
+
+private object ModuleUtils {
+  private class RandomProvider(splittable: SplittableRandom) extends ScalaModule {
+    private val splits = splittable.splits().iterator()
+    @Provides private def provideRandom(): Random = new Random(splits.next().nextLong())
+  }
 }
