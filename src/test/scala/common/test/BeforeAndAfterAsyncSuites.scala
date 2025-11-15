@@ -2,7 +2,7 @@ package common.test
 
 import java.util.concurrent.{Executors, Semaphore}
 
-import org.scalatest.{Args, Assertion, Suite}
+import org.scalatest.{Args, Assertion, Succeeded, Suite}
 import org.scalatest.freespec.{AnyFreeSpec, AsyncFreeSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -15,7 +15,40 @@ class BeforeAndAfterAsyncSuites extends AnyFreeSpec with AuxSpecs {
     ms
   }
 
-  "before and after each should be called before every test" in {
+  "before and after each should be called before every test (default EC)" in {
+    class MySuite extends AsyncFreeSpec with BeforeAndAfterEachAsync with AuxSpecs {
+      var setup = false
+      var tearDown = false
+      var beforeCalled = 0
+      var afterCalled = 0
+
+      protected override def beforeEach(): Future[_] = Future {
+        beforeCalled += 1
+        setup = true
+        tearDown = false
+      }
+      protected override def afterEach(): Future[_] = Future {
+        afterCalled += 1
+        tearDown = true
+        setup = false
+      }
+
+      private def validate(): Assertion = {
+        setup shouldReturn true
+        tearDown shouldReturn false
+      }
+
+      "test me1" in validate()
+      "test me2" in validate()
+    }
+    val $ = run(new MySuite())
+    $.setup shouldReturn false
+    $.tearDown shouldReturn true
+    $.beforeCalled shouldReturn 2
+    $.afterCalled shouldReturn 2
+  }
+
+  "before and after each should be called before every test (async)" in {
     class MySuite extends AsyncFreeSpec with BeforeAndAfterEachAsync with AuxSpecs {
       implicit override def executionContext: ExecutionContext =
         ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
@@ -50,7 +83,19 @@ class BeforeAndAfterAsyncSuites extends AnyFreeSpec with AuxSpecs {
     $.afterCalled shouldReturn 2
   }
 
-  "before and after all should be called just once, and only after all tests completed" in {
+  "before and after all throws on default ExecutionContext" in {
+    class MySuite extends AsyncFreeSpec with BeforeAndAfterAllAsync with AuxSpecs {
+      protected override def beforeAll(): Future[_] = Future {}
+      protected override def afterAll(): Future[_] = Future {}
+      "test me1" in Succeeded
+    }
+    val ex = the[Exception] thrownBy run(new MySuite())
+    ex.getMessage should startWith(
+      "The default ExecutionContext provided by scalatest is not supported when using BeforeAndAfterAllAsync",
+    )
+  }
+
+  "before and after all should be called just once, and only after all tests completed (async)" in {
     class MySuite extends AsyncFreeSpec with BeforeAndAfterAllAsync with AuxSpecs {
       implicit override def executionContext: ExecutionContext =
         ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))

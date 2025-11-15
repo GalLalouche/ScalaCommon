@@ -6,13 +6,9 @@ import scala.concurrent.Future
 
 import common.rich.func.kats.ToMoreApplyOps.toMoreApplyOps
 
-import common.test.{AsyncAuxSpecs, BeforeAndAfterAllAsync, BeforeAndAfterEachAsync}
+import common.test.{AsyncAuxSpecs, BeforeAndAfterEachAsync}
 
-class SlickTableUtilsTest
-    extends AsyncFreeSpec
-    with AsyncAuxSpecs
-    with BeforeAndAfterAllAsync
-    with BeforeAndAfterEachAsync {
+class SlickTableUtilsTest extends AsyncFreeSpec with AsyncAuxSpecs with BeforeAndAfterEachAsync {
   private val table = new TestTable
   private val $ : TableUtilsTemplate = table.utils
 
