@@ -1,9 +1,11 @@
 package common.rich.func.kats
 
 import alleycats.std.all.alleycatsStdIterableTraverse
-import cats.UnorderedFoldable
+import cats.{Order, UnorderedFoldable}
+import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.freespec.AnyFreeSpec
 
+import common.rich.func.kats.IteratorInstances.iteratorInstances
 import common.rich.func.kats.PlainSeqInstances.plainSeqInstances
 import common.rich.func.kats.ToMoreUnorderedFoldableOps.toMoreUnorderedFoldableOps
 
@@ -34,5 +36,42 @@ class ToMoreUnorderedFoldableOpsTest extends AnyFreeSpec with AuxSpecs {
 
   "bottomK" in {
     Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
+  }
+
+  private val emptyIterator: Iterator[Int] = Iterator.empty
+  "minimumOption" - {
+    "empty" in { emptyIterator.minimumOption shouldBe empty }
+    "non-empty" in { Iterator(3, 1, 2).minimumOption.value shouldReturn 1 }
+  }
+
+  "maximumOption" - {
+    "empty" in { emptyIterator.maximumOption shouldBe empty }
+    "non-empty" in { Iterator(3, 1, 2).maximumOption.value shouldReturn 3 }
+  }
+
+  "minimumByOption" - {
+    "empty" in { emptyIterator.minimumByOption(Math.abs) shouldBe empty }
+    "non-empty" in { Iterator(-3, 1, 2).minimumByOption(Math.abs).value shouldReturn 1 }
+  }
+
+  "maximumByOption" - {
+    "empty" in { emptyIterator.maximumOption shouldBe empty }
+    "non-empty" in { Iterator(-3, 1, 2).maximumByOption(Math.abs).value shouldReturn -3 }
+  }
+
+  "minimumList" - {
+    "empty" in { emptyIterator.minimumList shouldBe empty }
+    "non-empty" in { Iterator(-3, 1, -3, 2, 3, 5).minimumList shouldReturn List(-3, -3) }
+    "non-trivial-monoid" in {
+      Iterator(-3, 1, -3, 2, -1, 3, 5).minimumList(Order.by(_.abs)) shouldReturn List(1, -1)
+    }
+  }
+
+  "maximumList" - {
+    "empty" in { emptyIterator.maximumList shouldBe empty }
+    "non-empty" in { Iterator(-3, 1, -3, 2, 5, 3).maximumList shouldReturn List(5) }
+    "non-trivial-monoid" in {
+      Iterator(-3, 1, -3, 2, -1, 3).maximumList(Order.by(_.abs)) shouldReturn List(-3, -3, 3)
+    }
   }
 }
