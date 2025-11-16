@@ -54,9 +54,11 @@ lazy val scalaCommon = (project in file("."))
         "org.scalafx" %% "scalafx" % "17.0.1-R26" % Provided,
         "org.scalacheck" %% "scalacheck" % "1.14.3" % Provided, // Not in test scope due to AuxSpecs
         "org.scalatest" %% "scalatest" % "3.2.19" % Provided, // Not in test scope due to AuxSpecs
+        "org.mockito" % "mockito-core" % "5.15.2" % Provided, // Not in test scope due to AuxSpecs
 
         "com.h2database" % "h2" % "1.4.196" % Test,
         "org.slf4j" % "slf4j-nop" % "1.6.4" % Test,
+        "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
         "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
         // Laws dependencies
         "org.typelevel" %% "cats-laws" % "2.13.0" % Test,
