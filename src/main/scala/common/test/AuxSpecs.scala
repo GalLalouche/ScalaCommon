@@ -144,6 +144,13 @@ trait AuxSpecs extends Matchers { self: Suite =>
     }
   }
 
+  implicit class richUnit($ : => Unit) {
+    def toAssertion: Assertion = {
+      $
+      Succeeded
+    }
+  }
+
   def time(f: => Any): Long = {
     val start = System.currentTimeMillis
     f
