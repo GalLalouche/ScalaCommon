@@ -204,5 +204,8 @@ object RichTraversableOnce {
     /** Returns empty if the iterator contains 1 or fewer elements. */
     def pairSliding: Iterator[(A, A)] =
       $.toIterator.sliding(2).withPartial(false).map(e => e(0) -> e(1))
+
+    /** Helps with type inference. */
+    def toVectorSeq: Seq[A] = $.toVector
   }
 }
