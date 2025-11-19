@@ -89,5 +89,10 @@ class SlickSingleKeyColumnStorageTemplateTest
         )
       }
     }
+    "loadAll" in {
+      $.store(1, "foo") >> $.store(2, "bar") >> $.loadAll.value
+        .map(_.toMap)
+        .shouldEventuallyReturn(Map(1 -> "foo", 2 -> "bar"))
+    }
   }
 }

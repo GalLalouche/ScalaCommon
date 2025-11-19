@@ -6,6 +6,7 @@ import slick.jdbc.meta.MTable
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import common.rich.func.kats.Nesteds.SeqT
 import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 
 /**
@@ -52,6 +53,7 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext)
     ).void
 
   override def load(k: Key) = db.run(toFilter(k).result).toOptionTF(_.headOption.map(extractValue))
+  def loadAll: SeqT[Future, Entity] = SeqT(db.run(tableQuery.result))
 
   override def utils = new TableUtilsTemplate() {
     override def createTable() = db.run(tableQuery.schema.create)
