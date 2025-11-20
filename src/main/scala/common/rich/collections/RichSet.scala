@@ -16,6 +16,7 @@ object RichSet {
     def >(other: Set[T]): Boolean = new richSet(other) < $
     def isDisjointTo(other: Set[T]): Boolean = intersects(other).isFalse
     def intersects(other: Set[T]): Boolean = $.exists(other.contains)
+    def doesNotContain(t: T): Boolean = $.contains(t).isFalse
   }
 
   def unapplySeq[A: Ordering](s: Set[A]): Option[Seq[A]] = Some(s.toSeq.sorted)
