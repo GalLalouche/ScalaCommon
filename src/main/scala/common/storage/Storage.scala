@@ -24,6 +24,8 @@ trait Storage[Key, Value] {
   def replace(k: Key, v: Value): OptionT[Future, Value]
   /** Does not overwrite; fails on existing value. */
   def store(k: Key, v: Value): Future[Unit]
+  /** Utility for tables whose value is [[Unit]]. */
+  final def store(k: Key)(implicit ev: Unit =:= Value): Future[Unit] = store(k, ev(()))
   /** Does not overwrite; fails if *any* key already existed in the database. */
   def storeMultiple(kvs: Seq[(Key, Value)]): Future[Unit]
   /**
