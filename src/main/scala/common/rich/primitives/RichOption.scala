@@ -18,5 +18,6 @@ object RichOption {
     def toTry(t: => Throwable): Try[A] = $.mapHeadOrElse(Success.apply, Failure(t))
     // Since for some stupid reason $.toIterable is deprecated.
     def asIterable: Iterable[A] = $
+    def ifNone(f: => Unit): Unit = if ($.isEmpty) f
   }
 }

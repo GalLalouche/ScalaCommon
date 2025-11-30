@@ -29,4 +29,15 @@ class RichOptionTest extends AnyFreeSpec with AuxSpecs {
       }
     }
   }
+
+  "ifNone" - {
+    "when Some" in {
+      noException shouldBe thrownBy(Option(1).ifNone(???))
+    }
+    "when None" in {
+      var called = false
+      None.ifNone { called = true }
+      called shouldReturn true
+    }
+  }
 }
