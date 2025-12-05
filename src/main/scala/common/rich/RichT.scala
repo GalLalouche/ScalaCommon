@@ -130,10 +130,6 @@ object RichT {
     def onlyIfNot(b: Boolean): Option[T] = onlyIf(b.isFalse)
   }
 
-  implicit class anyRefT[T <: AnyRef](private val $ : T) extends AnyVal {
-    @inline def neq(other: T): Boolean = ! $.eq(other)
-  }
-
   trait IsATrait[A]
   object IsATrait {
     import scala.language.experimental.macros
