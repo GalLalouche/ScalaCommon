@@ -1,12 +1,17 @@
 package common.rich.func.kats
 
 import java.net.ConnectException
+import java.util.concurrent.{Executors, Semaphore}
 
 import cats.implicits.catsSyntaxApplicativeError
+import org.scalatest.EitherValues._
 import org.scalatest.freespec.AnyFreeSpec
+
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 import common.rich.func.kats.ToMoreMonadErrorOps._
 
+import common.rich.RichFuture.richFuture
 import common.rich.RichT.lazyT
 import common.test.AuxSpecs
 
@@ -130,6 +135,46 @@ class ToMoreMonadErrorOpsTest extends AnyFreeSpec with AuxSpecs {
         ToMoreMonadErrorOps.guard[BoxOrMsg, String](b = false, "Failure") shouldReturn Msg(
           "Failure",
         )
+      }
+    }
+    "listenEither" - {
+      "success" in {
+        val sb = new StringBuilder
+        success.listenEither(sb append _.value).get shouldReturn 42
+        sb.toString shouldReturn "42"
+      }
+      "failure" in {
+        val sb = new StringBuilder
+        failure.listenEither(sb append _.left.value).getFailure shouldReturn "failure"
+        sb.toString shouldReturn "failure"
+      }
+    }
+    "listenAny" - {
+      implicit val ec: ExecutionContextExecutor =
+        ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
+      val semaphore = new Semaphore(0)
+      // Checks for by-name
+      "success" in {
+        val sb = new StringBuilder
+        val future = Future {
+          semaphore.acquire();
+          42
+        }.listenAny(sb.append("test"))
+        sb.toString shouldBe empty
+        semaphore.release()
+        future.get
+        sb.toString shouldReturn "test"
+      }
+      "failure" in {
+        val sb = new StringBuilder
+        val future = Future {
+          semaphore.acquire();
+          throw new Exception("Whoops")
+        }.listenAny(sb.append("test"))
+        sb.toString shouldBe empty
+        semaphore.release()
+        future.getFailure.getMessage shouldReturn "Whoops"
+        sb.toString shouldReturn "test"
       }
     }
   }

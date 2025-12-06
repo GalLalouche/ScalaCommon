@@ -41,6 +41,9 @@ trait ToMoreMonadErrorOps {
       predValue <- p(e)
       result <- if (predValue) F.pure(e) else F.raiseError(error(e))
     } yield result
+    def listenEither(f: Either[S, A] => Any): F[A] =
+      $.attempt.map { e => f(e); e }.flatMap(_.fold(F.raiseError, F.pure))
+    def listenAny(f: => Any): F[A] = listenEither(f.const)
   }
 
   implicit class toMoreMonadErrorThrowableOps[F[_], A]($ : F[A])(implicit
