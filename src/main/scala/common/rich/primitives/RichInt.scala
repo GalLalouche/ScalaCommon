@@ -57,15 +57,9 @@ object RichInt {
     def eulersTotient: Int =
       (n * primesFactorization.keys.map(_.toDouble).map(1 - 1.0 / _).product).round.toInt
 
-    // TODO logarithmic time
-    def exp(other: Int): BigInt = {
+    final def exp(other: Int): BigInt = {
       require(n != 0 || other != 0)
-      if (n == 0)
-        return 0
-      require(other >= 0)
-      var $ = BigInt(1)
-      other.times($ *= n)
-      $
+      BigInt(n).pow(other)
     }
 
     /** Throws if actual string length > minSize */

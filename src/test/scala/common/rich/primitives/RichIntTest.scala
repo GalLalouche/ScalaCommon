@@ -31,6 +31,7 @@ class RichIntTest extends AnyFreeSpec with AuxSpecs {
     }
     "raises to the power" in {
       2.exp(4) shouldReturn 16
+      2.exp(5) shouldReturn 32
     }
     "works for negative numbers in base" in {
       -1.exp(0) shouldReturn 1
