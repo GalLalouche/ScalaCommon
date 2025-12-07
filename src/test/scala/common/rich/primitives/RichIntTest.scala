@@ -58,6 +58,11 @@ class RichIntTest extends AnyFreeSpec with AuxSpecs {
     }
   }
 
+  "times" - {
+    "negative numbers" in { noException shouldBe thrownBy(-2.times(???)) }
+    "zero" in { noException shouldBe thrownBy(0.times(???)) }
+  }
+
   "primes returns a stream of primes" in {
     RichInt.primes.take(10).toVector shouldReturn Vector(2, 3, 5, 7, 11, 13, 17, 19, 23, 29)
   }

@@ -114,4 +114,14 @@ class RichIntPropTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks wi
     "n ceilDivision k times k is exactly n when n % k == 0",
     (n, k) => (n.ceilDiv(k) * k == n) shouldReturn (n % k == 0),
   )
+  nProp(
+    "times n runs the functions n times",
+    n =>
+      whenever(n > 0) {
+        val k = n % 1000
+        var x = 0
+        k.times(x += 1)
+        x shouldReturn k
+      },
+  )
 }

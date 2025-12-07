@@ -57,10 +57,14 @@ object RichInt {
     def eulersTotient: Int =
       (n * primesFactorization.keys.map(_.toDouble).map(1 - 1.0 / _).product).round.toInt
 
+    // TODO logarithmic time
     def exp(other: Int): BigInt = {
       require(n != 0 || other != 0)
+      if (n == 0)
+        return 0
+      require(other >= 0)
       var $ = BigInt(1)
-      (1 to other).foreach(_ => $ *= n)
+      other.times($ *= n)
       $
     }
 
@@ -74,6 +78,15 @@ object RichInt {
     }
 
     def ceilDiv(k: Int): Int = Math.ceil(n.toDouble / k).toInt
+
+    /** Unlikes [[org.scalactic.TimesOnInt]], does not throw an exception if n is negative. */
+    def times(f: => Unit): Unit = {
+      var counter = 0
+      while (counter < this.n) {
+        f
+        counter += 1
+      }
+    }
   }
   @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
   lazy val primes: Stream[Int] = Stream.from(2).filter(_.isPrime)
