@@ -54,10 +54,8 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     "Overwrites existing values, add new values" in {
       existingValues += 1 -> 2
       $.overwriteMultipleVoid(Vector(1 -> 4, 3 -> 5)) >| assertAll(
-        Vector(
-          existingValues(1) shouldReturn 4,
-          existingValues(3) shouldReturn 5,
-        ),
+        existingValues(1) shouldReturn 4,
+        existingValues(3) shouldReturn 5,
       )
     }
     "no existing value should insert the value and return true" in {

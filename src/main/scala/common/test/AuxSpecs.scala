@@ -171,4 +171,6 @@ trait AuxSpecs extends Matchers { self: Suite =>
 
     assertions.toIterator.unorderedFold
   }
+  def assertAll(a1: Assertion, a2: Assertion, as: Assertion*): Assertion =
+    assertAll(Vector(a1, a2) ++ as)
 }
