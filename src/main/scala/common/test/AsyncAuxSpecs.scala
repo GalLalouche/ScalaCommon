@@ -1,7 +1,7 @@
 package common.test
 
 import cats.data.OptionT
-import cats.implicits.{catsSyntaxFlatMapOps, toFunctorOps}
+import cats.implicits.{catsSyntaxApplyOps, catsSyntaxFlatMapOps, toFunctorOps}
 import org.scalatest.{Assertion, AsyncTestSuite, Succeeded}
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.TryValues._
@@ -42,7 +42,7 @@ trait AsyncAuxSpecs extends AuxSpecs { self: AsyncTestSuite =>
     def valueShouldEventuallyReturn(a: => A): Future[Assertion] =
       $.value.map(_.value shouldReturn a)
   }
-  // TODO why doesn't this varargs plus traverse?
+  // All these manual overloads are necessary since scala can't do varargs of by-name params.
   def checkAll(f1: => Future[Assertion], f2: => Future[Assertion]): Future[Assertion] = f1 >> f2
   def checkAll(
       f1: => Future[Assertion],
@@ -62,4 +62,27 @@ trait AsyncAuxSpecs extends AuxSpecs { self: AsyncTestSuite =>
       f4: => Future[Assertion],
       f5: => Future[Assertion],
   ): Future[Assertion] = f1 >> f2 >> f3 >> f4 >> f5
+
+  def checkAllParallel(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+  ): Future[Assertion] = f1 *> f2
+  def checkAllParallel(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+      f3: => Future[Assertion],
+  ): Future[Assertion] = f1 *> f2 *> f3
+  def checkAllParallel(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+      f3: => Future[Assertion],
+      f4: => Future[Assertion],
+  ): Future[Assertion] = f1 *> f2 *> f3 *> f4
+  def checkAllParallel(
+      f1: => Future[Assertion],
+      f2: => Future[Assertion],
+      f3: => Future[Assertion],
+      f4: => Future[Assertion],
+      f5: => Future[Assertion],
+  ): Future[Assertion] = f1 *> f2 *> f3 *> f4 *> f5
 }
