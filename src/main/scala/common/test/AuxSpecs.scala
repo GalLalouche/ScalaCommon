@@ -3,16 +3,19 @@ package common.test
 import java.io.File
 import java.util.concurrent.{Executors, TimeoutException, TimeUnit}
 
+import cats.implicits.toFoldableOps
 import cats.kernel.CommutativeMonoid
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{Assertion, Succeeded, Suite}
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
 import common.rich.func.kats.ToMoreMonoidOps.monoidFilter
 
+import common.rich.RichT.lazyT
 import common.rich.collections.RichTraversableOnce._
 
 /** Several helping methods and fixtures for testing. */
@@ -173,4 +176,9 @@ trait AuxSpecs extends Matchers { self: Suite =>
   }
   def assertAll(a1: Assertion, a2: Assertion, as: Assertion*): Assertion =
     assertAll(Vector(a1, a2) ++ as)
+
+  implicit class IntParTimes(private val n: Int) {
+    def parTimes(f: => Future[Assertion])(implicit ec: ExecutionContext): Future[Assertion] =
+      0.until(n).toVector.foldMapM(f.const)
+  }
 }
