@@ -15,6 +15,7 @@ object RichOption {
     def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = toTry(t).get
     /** Unlike `orEmpty` in cats [[cats.syntax.OptionOps]], requires only [[Empty]] */
     def getOrEmpty(implicit E: Empty[A]): A = $.getOrElse(E.empty)
+    def toEither[B](ifNone: => B): Either[B, A] = $.mapHeadOrElse(Right.apply, Left(ifNone))
     def toTry(t: => Throwable): Try[A] = $.mapHeadOrElse(Success.apply, Failure(t))
     // Since for some stupid reason $.toIterable is deprecated.
     def asIterable: Iterable[A] = $
