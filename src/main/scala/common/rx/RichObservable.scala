@@ -1,4 +1,4 @@
-package common.rich
+package common.rx
 
 import java.util.concurrent.atomic.AtomicInteger
 

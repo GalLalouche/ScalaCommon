@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import common.rich.func.kats.ObservableInstances.observableInstances
 
 import common.rich.RichFuture.richFuture
-import common.rich.RichObservable.richObservable
+import common.rx.RichObservable.richObservable
 
 @Slow
 class ObservableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with Configuration {

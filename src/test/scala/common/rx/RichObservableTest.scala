@@ -1,4 +1,4 @@
-package common.rich
+package common.rx
 
 import org.scalatest.freespec.AsyncFreeSpec
 import rx.lang.scala.Observable
@@ -6,8 +6,8 @@ import rx.lang.scala.subjects.PublishSubject
 
 import scala.language.postfixOps
 
-import common.rich.RichObservable._
-import common.rich.RichObservableSpecVer.richObservableSpecVer
+import common.rx.RichObservable.richObservable
+import common.rx.RichObservableSpecVer.richObservableSpecVer
 import common.test.AsyncAuxSpecs
 
 class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {

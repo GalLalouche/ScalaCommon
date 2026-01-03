@@ -1,4 +1,4 @@
-package common.rich
+package common.rx
 
 import rx.lang.scala.Observable
 

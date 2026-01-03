@@ -9,7 +9,7 @@ import common.rich.func.scalazz.ToMoreFunctorOps._
 import scalaz.std.vector.vectorInstance
 import scalaz.syntax.bind.ToBindOpsUnapply
 
-import common.rich.RichObservableSpecVer.richObservableSpecVer
+import common.rx.RichObservableSpecVer.richObservableSpecVer
 import common.test.AsyncAuxSpecs
 
 class ToMoreFunctorOpsTest extends AsyncFreeSpec with AsyncAuxSpecs {
