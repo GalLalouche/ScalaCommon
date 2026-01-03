@@ -2,6 +2,7 @@ package common.rich.func.kats
 
 import alleycats.Empty
 import cats.data.State
+import cats.implicits.catsSyntaxApplyOps
 
 object RichState {
   implicit class richState[S, A](private val $ : State[S, A]) extends AnyVal {
@@ -12,4 +13,9 @@ object RichState {
     implicit def eval(initial: S): A = $.run(initial).map(_._2).value
     implicit def evalEmpty(implicit M: Empty[S]): A = eval(M.empty)
   }
+
+  /** Returns the new value. */
+  def updateAndGet[S](f: S => S): State[S, S] = State.modify(f) *> State.get
+  /* Returns the old value. */
+  def getAndUpdate[S](f: S => S): State[S, S] = State.get <* State.modify(f)
 }

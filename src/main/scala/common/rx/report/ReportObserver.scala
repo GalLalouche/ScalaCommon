@@ -28,4 +28,15 @@ object ReportObserver {
     override def onComplete(r: R): Unit = f(r)
     override def onError(t: Throwable): Unit = ()
   }
+  def asReturnValue[Agg, Result <: AnyRef](
+      f: ReportObserver[Agg, Result] => Unit,
+  )(obs: Observer[Agg]): Result = {
+    var result: Result = null.asInstanceOf[Result]
+    f(new ReportObserver[Agg, Result] {
+      override def onStep(a: Agg): Unit = obs.onNext(a)
+      override def onComplete(r: Result): Unit = result = r
+      override def onError(t: Throwable): Unit = obs.onError(t)
+    })
+    result.ensuring(_ != null)
+  }
 }
