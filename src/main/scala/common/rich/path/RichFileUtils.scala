@@ -5,6 +5,8 @@ import java.nio.file.{FileAlreadyExistsException, Files}
 
 import common.rich.path.RichPath.richPath
 import common.rich.primitives.RichBoolean._
+import common.rx.RichObserver
+import common.rx.report.ReportObserver
 
 /**
  * Utility functions for moving files and directories. These aren't implemented as methods in
@@ -58,15 +60,15 @@ object RichFileUtils {
    *   if a file (directory or actual) in the destination dir already exists with the same name as
    *   requested new name for the directory.
    */
-  def move(src: Directory, parentDirectory: Directory, newName: String): Directory = {
-    if ((parentDirectory \ newName).exists)
-      throw new FileAlreadyExistsException(parentDirectory.path + "/" + newName)
-    val targetDir = parentDirectory.addSubDir(newName)
-    moveContents(src, targetDir)
-    assert(src.listFiles.isEmpty)
-    src.deleteAll()
-    targetDir
-  }
+  def move(src: Directory, parentDirectory: Directory, newName: String): Directory =
+    ReportObserver.asReturnValue[Any, Directory](
+      ObservableRichFileUtils.move(
+        src,
+        parentDirectory,
+        newName,
+        _,
+      ),
+    )(RichObserver.noop)
 
   /**
    * Renames a directory, keeping it in its parent directory, returning the renamed directory.
@@ -83,18 +85,6 @@ object RichFileUtils {
    *   if a file (directory or actual) in the destination dir already exists with the same name as
    *   *any* file (directory or actual) in the source dir.
    */
-  def moveContents(src: Directory, dst: Directory): Unit = {
-    val dstFileNamesToFullPaths: Map[String, String] =
-      dst.listFiles.map(e => e.name -> e.path).toMap
-
-    for (srcPath <- src.listFiles)
-      for (dstPathWithSameName <- dstFileNamesToFullPaths.get(srcPath.name))
-        throw new FileAlreadyExistsException(
-          srcPath.path,
-          dstPathWithSameName,
-          "File with same name already exists",
-        )
-
-    src.listFiles.foreach(f => if (f.isDirectory) move(Directory(f), dst) else move(f, dst))
-  }
+  def moveContents(src: Directory, dst: Directory): Unit =
+    ObservableRichFileUtils.moveContents(src, dst, RichObserver.noop)
 }
