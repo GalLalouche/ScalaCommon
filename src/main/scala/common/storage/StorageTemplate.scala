@@ -7,9 +7,11 @@ import cats.syntax.functor.toFunctorOps
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import common.rich.func.kats.IteratorInstances.iteratorInstances
 import common.rich.func.kats.PlainSeqInstances.plainSeqInstances
 import common.rich.func.kats.RichOptionT.{richFunctorToOptionT, richOptionT}
 import common.rich.func.kats.ToMoreApplyOps.toMoreApplyOps
+import common.rich.func.kats.ToMoreUnorderedFoldableOps.toMoreUnorderedFoldableOps
 
 /**
  * Provides overrides since the TableUtils trait can't have implicit parameters. Like the super
@@ -33,10 +35,8 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext)
     OptionT(load(k).value.<<*(internalReplace(k, v)))
 
   override def store(k: Key, v: Value) = storeMultiple(Vector(k -> v))
-  override def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit] =
-    toTraverseOps(kvs)
-      .traverse(Function.tupled(internalReplace))
-      .void
+  override def overwriteMultipleVoid(kvs: Iterable[(Key, Value)]): Future[Unit] =
+    kvs.iterator.unorderedTraverse_(Function.tupled(internalReplace))
   override def mapStore(mode: StoreMode, k: Key, f: Value => Value, default: => Value) = for {
     value <- load(k).map(f).|(default).liftSome
     storer = mode match {

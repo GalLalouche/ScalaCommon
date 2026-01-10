@@ -38,9 +38,9 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext)
   protected def toFilter(k: Key) = tableQuery.filter(keyFilter(k))
   protected override def internalDelete(k: Key) = db.run(toFilter(k).delete)
 
-  override def storeMultiple(kvs: Seq[(Key, Value)]) =
+  override def storeMultiple(kvs: Iterable[(Key, Value)]) =
     db.run(tableQuery ++= kvs.map(Function.tupled(toEntity))).void
-  override def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit] =
+  override def overwriteMultipleVoid(kvs: Iterable[(Key, Value)]): Future[Unit] =
     // Adapted from https://stackoverflow.com/a/35006433/73650
     db.run(
       DBIO

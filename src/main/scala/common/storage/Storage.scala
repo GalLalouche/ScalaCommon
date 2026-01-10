@@ -27,12 +27,12 @@ trait Storage[Key, Value] {
   /** Utility for tables whose value is [[Unit]]. */
   final def store(k: Key)(implicit ev: Unit =:= Value): Future[Unit] = store(k, ev(()))
   /** Does not overwrite; fails if *any* key already existed in the database. */
-  def storeMultiple(kvs: Seq[(Key, Value)]): Future[Unit]
+  def storeMultiple(kvs: Iterable[(Key, Value)]): Future[Unit]
   /**
    * Overwrites any existing values with the input keys. Named void right now because future
    * versions of Storage might provide a method returning overwritten values.
    */
-  def overwriteMultipleVoid(kvs: Seq[(Key, Value)]): Future[Unit]
+  def overwriteMultipleVoid(kvs: Iterable[(Key, Value)]): Future[Unit]
   /**
    * If there is already a value for the supplied key, update or replace it using the supplied
    * function. Otherwise just place the supplied value. Returns the previous value.
@@ -61,9 +61,9 @@ object Storage {
           override def update(k: K, v: B) = fa.update(k, g(v)).map(f)
           override def replace(k: K, v: B) = fa.replace(k, g(v)).map(f)
           override def store(k: K, v: B) = fa.store(k, g(v))
-          override def storeMultiple(kvs: Seq[(K, B)]) =
+          override def storeMultiple(kvs: Iterable[(K, B)]) =
             fa.storeMultiple(kvs.map(__2.modify(g)))
-          override def overwriteMultipleVoid(kvs: Seq[(K, B)]) =
+          override def overwriteMultipleVoid(kvs: Iterable[(K, B)]) =
             fa.overwriteMultipleVoid(kvs.map(__2.modify(g)))
           override def mapStore(mode: StoreMode, k: K, f2: B => B, default: => B) =
             fa.mapStore(mode, k, a => g(f2(f(a))), g(default)).map(f)

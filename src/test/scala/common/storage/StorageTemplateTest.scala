@@ -32,12 +32,12 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
       else
         internalUpdate(k, v)
     override def load(k: Int) = existingValues.get(k).hoistId
-    override def storeMultiple(kvs: Seq[(Int, Int)]): Future[Unit] =
+    override def storeMultiple(kvs: Iterable[(Int, Int)]): Future[Unit] =
       if ((existingValues.keySet & kvs.map(_._1).toSet).nonEmpty)
         Future.failed(new IllegalArgumentException)
       else
         overwriteMultipleVoid(kvs)
-    override def overwriteMultipleVoid(kvs: Seq[(Int, Int)]): Future[Unit] =
+    override def overwriteMultipleVoid(kvs: Iterable[(Int, Int)]): Future[Unit] =
       Future.successful(existingValues.++=(kvs))
     override def utils = ???
   }
