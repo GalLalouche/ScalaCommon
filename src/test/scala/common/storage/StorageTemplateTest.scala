@@ -65,8 +65,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
   "update" - {
     "has existing value returns old value but does not delete" in {
       existingValues += 1 -> 2
-      $.update(1, 4)
-        .valueShouldEventuallyReturn(2)
+      ($.update(1, 4) valueShouldEventuallyReturn 2)
         .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldBe(empty))
     }
     "has no existing value returns None" in {
@@ -121,7 +120,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     "existing value" in {
       existingValues += 1 -> 2
       checkAll(
-        $.delete(1).valueShouldEventuallyReturn(2),
+        $.delete(1) valueShouldEventuallyReturn 2,
         $.load(1).shouldEventuallyReturnNone(),
       )
     }
@@ -138,6 +137,35 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
     }
     "false" in {
       $.store(1, 4) *>> $.exists(2) shouldEventuallyReturn false
+    }
+  }
+  "deleteAll" - {
+    "deletes multiple existing keys and returns correct count" in {
+      existingValues ++= Map(1 -> 2, 3 -> 4, 5 -> 6)
+      ($.deleteAll(Vector(1, 3)) shouldEventuallyReturn 2) >| assertAll(
+        existingValues.get(1) shouldBe empty,
+        existingValues.get(3) shouldBe empty,
+        existingValues(5) shouldReturn 6,
+      )
+    }
+    "returns 0 when deleting non-existing keys" in {
+      existingValues += 1 -> 2
+      checkAll(
+        $.deleteAll(Vector(3, 4)) shouldEventuallyReturn 0,
+        existingValues(1) shouldReturn 2,
+      )
+    }
+    "deletes mix of existing and non-existing keys" in {
+      existingValues ++= Map(1 -> 2, 3 -> 4)
+
+      ($.deleteAll(Vector(1, 5, 3, 6)) shouldEventuallyReturn 2) >| assertAll(
+        existingValues.get(1) shouldBe empty,
+        existingValues.get(3) shouldBe empty,
+      )
+    }
+    "returns 0 when deleting empty collection" in {
+      existingValues += 1 -> 2
+      ($.deleteAll(Vector.empty) shouldEventuallyReturn 0) >| (existingValues(1) shouldReturn 2)
     }
   }
 
@@ -200,7 +228,7 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
       "existing value" in {
         existingValues += 1 -> 2
         checkAll(
-          $2.delete(1).valueShouldEventuallyReturn("2"),
+          $2.delete(1) valueShouldEventuallyReturn "2",
           $2.load(1).shouldEventuallyReturnNone(),
         )
       }

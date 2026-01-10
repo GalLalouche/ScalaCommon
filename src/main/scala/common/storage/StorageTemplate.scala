@@ -1,5 +1,6 @@
 package common.storage
 
+import alleycats.std.all.alleycatsStdIterableTraverse
 import cats.data.OptionT
 import cats.implicits.toTraverseOps
 import cats.syntax.functor.toFunctorOps
@@ -46,5 +47,8 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext)
   } yield result
 
   override def delete(k: Key): OptionT[Future, Value] = load(k).<<*(internalDelete(k).liftSome)
+  // The default implementation is embarrassingly inefficient. Override if possible.
+  override def deleteAll(ks: Iterable[Key]): Future[Int] =
+    ks.traverse(delete(_).value).map(_.flatten.size)
   override def exists(k: Key): Future[Boolean] = load(k).isDefined
 }

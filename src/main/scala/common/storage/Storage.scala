@@ -48,6 +48,8 @@ trait Storage[Key, Value] {
   def exists(k: Key): Future[Boolean]
   /** Returns the value that was associated with the key. */
   def delete(k: Key): OptionT[Future, Value]
+  /** Returns how many keys were deleted. */
+  def deleteAll(keys: Iterable[Key]): Future[Int]
   def utils: TableUtils
 }
 
@@ -68,6 +70,7 @@ object Storage {
           override def load(k: K) = fa.load(k).map(f)
           override def exists(k: K) = fa.exists(k)
           override def delete(k: K) = fa.delete(k).map(f)
+          override def deleteAll(keys: Iterable[K]) = fa.deleteAll(keys)
           override def utils = fa.utils
         }
     }
