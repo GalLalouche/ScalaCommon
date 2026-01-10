@@ -1,13 +1,13 @@
 package common.rich.func.kats
 
-import cats.{Order, UnorderedFoldable}
-import cats.implicits.{catsKernelStdCommutativeMonoidForOption, catsSyntaxPartialOrder, toUnorderedFoldableOps}
+import cats.{Applicative, Order, UnorderedFoldable}
+import cats.implicits.{catsKernelStdCommutativeMonoidForOption, catsSyntaxPartialOrder, toFunctorOps, toUnorderedFoldableOps}
 import cats.kernel.CommutativeMonoid
 
 import scala.Ordering.Implicits._
 import scala.collection.mutable.ListBuffer
 
-import common.rich.func.kats.Monoids.{Max, Min}
+import common.rich.func.kats.Monoids.{GUnitCommutativeMonoid, Max, Min}
 
 import common.rich.primitives.RichBoolean._
 
@@ -46,6 +46,9 @@ trait ToMoreUnorderedFoldableOps {
       $.unorderedFoldMap(List(_))(ToMoreUnorderedFoldableOps.MinListCO)
     def maximumList(implicit A: Order[A]): List[A] =
       $.unorderedFoldMap(List(_))(ToMoreUnorderedFoldableOps.MinListCO(Order.reverse(Order[A])))
+
+    def unorderedTraverse_[G[_]: Applicative, B](f: A => G[B]): G[Unit] =
+      $.unorderedFoldMap(a => f(a).void)
   }
 }
 

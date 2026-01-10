@@ -2,11 +2,13 @@ package common.rich.func.kats
 
 import alleycats.std.all.alleycatsStdIterableTraverse
 import cats.{Order, UnorderedFoldable}
+import cats.data.State
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.func.kats.IteratorInstances.iteratorInstances
 import common.rich.func.kats.PlainSeqInstances.plainSeqInstances
+import common.rich.func.kats.RichState.richState
 import common.rich.func.kats.ToMoreUnorderedFoldableOps.toMoreUnorderedFoldableOps
 
 import common.test.AuxSpecs
@@ -73,5 +75,9 @@ class ToMoreUnorderedFoldableOpsTest extends AnyFreeSpec with AuxSpecs {
     "non-trivial-monoid" in {
       Iterator(-3, 1, -3, 2, -1, 3).maximumList(Order.by(_.abs)) shouldReturn List(-3, -3, 3)
     }
+  }
+
+  "unorderedTraverse_" in {
+    Iterator(1, 2, 3).unorderedTraverse_(i => State.modify[Int](_ + i)).exec(0) shouldReturn 6
   }
 }
