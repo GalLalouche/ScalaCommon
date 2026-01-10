@@ -10,11 +10,10 @@ import common.rich.func.kats.Nesteds.SeqT
 import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 
 /**
- * Although [[Storage]] is key-valued, it's only an abstraction above a possibly more complex, but
- * still relational (hence Slick), DAL.
+ * An implementation of [[Storage]] using Slick and a JDBC database.
  *
  * To ensure uniqueness of keys, the key column should be defined using
- * [[slick.ast.ColumnOption.PrimaryKey]]. *This is not enforced by this class*!
+ * [[slick.ast.ColumnOption.PrimaryKey]]. '''This is not enforced by this class!'''
  */
 abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext)
     extends StorageTemplate[Key, Value] {
@@ -35,8 +34,8 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext)
     db.run(tableQuery.insertOrUpdate(toEntity(k, v)))
 
   protected def keyFilter(k: Key)(e: EntityTable): Rep[Boolean]
-  protected def toFilter(k: Key) = tableQuery.filter(keyFilter(k))
   protected override def internalDelete(k: Key) = db.run(toFilter(k).delete)
+  private def toFilter(k: Key) = tableQuery.filter(keyFilter(k))
 
   override def storeMultiple(kvs: Iterable[(Key, Value)]) =
     db.run(tableQuery ++= kvs.map(Function.tupled(toEntity))).void
@@ -55,12 +54,11 @@ abstract class SlickStorageTemplate[Key, Value](implicit ec: ExecutionContext)
   override def load(k: Key) = db.run(toFilter(k).result).toOptionTF(_.headOption.map(extractValue))
   def loadAll: SeqT[Future, Entity] = SeqT(db.run(tableQuery.result))
 
-  override def utils = new TableUtilsTemplate() {
+  override def utils: TableUtilsTemplate = new TableUtilsTemplate {
     override def createTable() = db.run(tableQuery.schema.create)
     protected override def forceDropTable() = db.run(tableQuery.schema.drop)
     override def clearTable() = db.run(tableQuery.delete)
     override def doesTableExist =
-      db.run(MTable.getTables)
-        .map(tables => tables.exists(_.name.name == tableQuery.baseTableRow.tableName))
+      db.run(MTable.getTables).map(_.exists(_.name.name == tableQuery.baseTableRow.tableName))
   }
 }

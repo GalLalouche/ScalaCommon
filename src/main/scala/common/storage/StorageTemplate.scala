@@ -21,9 +21,9 @@ import common.rich.func.kats.ToMoreUnorderedFoldableOps.toMoreUnorderedFoldableO
  */
 abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext)
     extends Storage[Key, Value] {
-  /** If a previous value exists, override it. */
   protected def internalDelete(k: Key): Future[_]
   protected def internalUpdate(k: Key, v: Value): Future[_]
+  /** If a previous value exists, override it. */
   protected def internalReplace(k: Key, v: Value): Future[_]
 
   override def update(k: Key, v: Value) =
@@ -35,6 +35,7 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext)
     OptionT(load(k).value.<<*(internalReplace(k, v)))
 
   override def store(k: Key, v: Value) = storeMultiple(Vector(k -> v))
+  // This default implementation is embarrassingly inefficient. Override if possible.
   override def overwriteMultipleVoid(kvs: Iterable[(Key, Value)]): Future[Unit] =
     kvs.iterator.unorderedTraverse_(Function.tupled(internalReplace))
   override def mapStore(mode: StoreMode, k: Key, f: Value => Value, default: => Value) = for {
@@ -47,7 +48,7 @@ abstract class StorageTemplate[Key, Value](implicit ec: ExecutionContext)
   } yield result
 
   override def delete(k: Key): OptionT[Future, Value] = load(k).<<*(internalDelete(k).liftSome)
-  // The default implementation is embarrassingly inefficient. Override if possible.
+  // This default implementation is embarrassingly inefficient. Override if possible.
   override def deleteAll(ks: Iterable[Key]): Future[Int] =
     ks.traverse(delete(_).value).map(_.flatten.size)
   override def exists(k: Key): Future[Boolean] = load(k).isDefined

@@ -10,11 +10,11 @@ trait TableUtils {
   def createTable(): Future[_]
   /** Fails if the table doesn't exist. */
   def clearTable(): Future[_]
-  /** Returns true if the table was created. */
+  /** Returns `true` if the table was created. */
   def createTableIfNotExists(): Future[Boolean]
   /** If the table doesn't exit, create it; otherwise, clear it. */
   def clearOrCreateTable(): Future[ClearOrCreateResult]
-  /** Returns true if the table existed before and was actually dropped. */
+  /** Returns `true` if the table existed before and was actually dropped. */
   def dropTable(): Future[Boolean]
   def doesTableExist: Future[Boolean]
 }

@@ -79,7 +79,6 @@ class StorageTemplateTest extends AsyncFreeSpec with OneInstancePerTest with Asy
       existingValues += 1 -> 2
       $.replace(1, 4)
         .valueShouldEventuallyReturn(2)
-        .>|(existingValues(1) shouldReturn 4)
         .>|(existingValues(1).shouldReturn(4) && deletedRows.shouldContainExactly(1 -> 2))
     }
     "has no existing value returns None" in {
