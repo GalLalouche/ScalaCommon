@@ -1,7 +1,7 @@
 package common.rich.collections
 
 import scala.annotation.tailrec
-import scala.collection.AbstractIterator
+import scala.collection.{mutable, AbstractIterator}
 
 import common.rich.RichT._
 import common.rich.primitives.RichBoolean._
@@ -119,6 +119,14 @@ object RichIterator {
         else
           agg
       go(b)
+    }
+
+    def groupBy[Key](f: A => Key): collection.Map[Key, Iterable[A]] = {
+      val result = scala.collection.mutable.Map[Key, mutable.Buffer[A]]()
+      $.foreach { e =>
+        result.getOrElseUpdate(f(e), scala.collection.mutable.ArrayBuffer[A]()) += e
+      }
+      result
     }
   }
 

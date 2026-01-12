@@ -104,6 +104,21 @@ class RichIteratorTest extends AnyFreeSpec with AuxSpecs with TimeLimitedTests {
     }
   }
 
+  "groupBy" - {
+    "groups elements correctly" in {
+      Iterator("Apple", "apricot", "banana", "Blueberry", "cherry").groupBy(
+        _.head.toLower,
+      ) shouldReturn Map(
+        'a' -> Vector("Apple", "apricot"),
+        'b' -> Vector("banana", "Blueberry"),
+        'c' -> Vector("cherry"),
+      )
+    }
+    "handles empty iterator" in {
+      Iterator.empty[String].groupBy(_.head) shouldReturn Map.empty
+    }
+  }
+
   "object method" - {
     "iterateOptionally" - {
       "Single element" in {
