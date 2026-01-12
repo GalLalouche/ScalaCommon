@@ -46,7 +46,10 @@ class ObservableRichFileUtilsTest
 
       srcDir.listFiles shouldBe empty
       dstDir.files.size shouldReturn 3
-      dstDir.files.map(_.getName).shouldContainExactly("file1.txt", "file2.txt", "file3.txt")
+      dstDir.files
+        .map(_.getName)
+        .toVector
+        .shouldContainExactly("file1.txt", "file2.txt", "file3.txt")
       RichFile(dstDir \ "file1.txt").readAll shouldReturn "content1"
       RichFile(dstDir \ "file2.txt").readAll shouldReturn "content2"
       RichFile(dstDir \ "file3.txt").readAll shouldReturn "content3"
@@ -75,21 +78,24 @@ class ObservableRichFileUtilsTest
 
       srcDir.files shouldBe empty
       srcDir.dirs shouldBe empty
-      dstDir.files.map(_.getName).shouldContainExactly("rootFile.txt")
+      dstDir.files.map(_.getName).toVector.shouldContainExactly("rootFile.txt")
       RichFile(dstDir \ "rootFile.txt").readAll shouldReturn "rootContent"
-      dstDir.dirs.map(_.name).shouldContainExactly("dir1", "dir2")
+      dstDir.dirs.map(_.name).toVector.shouldContainExactly("dir1", "dir2")
       val movedDir1 = Directory(dstDir \ "dir1")
       movedDir1.files shouldBe empty
-      movedDir1.dirs.map(_.name).shouldContainExactly("subdir1", "subdir2")
+      movedDir1.dirs.map(_.name).toVector.shouldContainExactly("subdir1", "subdir2")
       val movedSubdir1 = Directory(movedDir1 \ "subdir1")
-      movedSubdir1.files.map(_.getName).shouldContainExactly("file1.txt")
+      movedSubdir1.files.map(_.getName).toVector.shouldContainExactly("file1.txt")
       RichFile(movedSubdir1 \ "file1.txt").readAll shouldReturn "content1"
       val movedSubdir2 = Directory(movedDir1 \ "subdir2")
-      movedSubdir2.files.map(_.getName).shouldContainExactly("file2.txt", "file3.txt")
+      movedSubdir2.files.map(_.getName).toVector.shouldContainExactly("file2.txt", "file3.txt")
       RichFile(movedSubdir2 \ "file2.txt").readAll shouldReturn "content2"
       RichFile(movedSubdir2 \ "file3.txt").readAll shouldReturn "content3"
       val movedDir2 = Directory(dstDir \ "dir2")
-      movedDir2.files.map(_.getName).shouldContainExactly("file4.txt", "file5.txt", "file6.txt")
+      movedDir2.files
+        .map(_.getName)
+        .toVector
+        .shouldContainExactly("file4.txt", "file5.txt", "file6.txt")
       RichFile(movedDir2 \ "file4.txt").readAll shouldReturn "content4"
       RichFile(movedDir2 \ "file5.txt").readAll shouldReturn "content5"
       RichFile(movedDir2 \ "file6.txt").readAll shouldReturn "content6"

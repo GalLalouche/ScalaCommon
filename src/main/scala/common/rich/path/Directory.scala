@@ -2,6 +2,7 @@ package common.rich.path
 
 import java.io.File
 
+import common.rich.RichT.richT
 import common.rich.primitives.RichBoolean._
 
 /** Helper class for Directory methods. */
@@ -22,23 +23,18 @@ class Directory private[path] (val dir: File) extends RichPath(dir) {
   }
 
   /** Returns all direct sub-directory of this directory. */
-  def dirs: Seq[Directory] =
-    dir.listFiles.iterator.filter(_.isDirectory).map(new Directory(_)).toVector
+  def dirs: Iterator[Directory] = dir.listFiles.iterator.filter(_.isDirectory).map(new Directory(_))
 
   /** All direct files of this directory, that are *not* directories */
-  def files: Seq[File] = listFiles.toVector.filterNot(_.isDirectory)
+  def files: Iterator[File] = listFiles.iterator.filterNot(_.isDirectory)
 
   /** Deletes all files and directories in this dir recursively including itself. */
   def deleteAll() {
-    System.gc()
     def deleteAll(d: Directory) {
-      System.gc()
       d.dirs.foreach(deleteAll)
       d.files.foreach(x => if (x.exists && x.delete.isFalse) println("could not delete: " + x))
-      if (d.dir.exists && d.dir.delete.isFalse) {
-        System.gc()
+      if (d.dir.exists && d.dir.delete.isFalse)
         println("could not delete: " + d.dir)
-      }
     }
     deleteAll(this)
   }
@@ -51,26 +47,16 @@ class Directory private[path] (val dir: File) extends RichPath(dir) {
   /**
    * Returns all files that are not directories nested inside this directory (in any given depth).
    */
-  def deepFiles: Stream[File] = {
-    val (files, dirs) = filesAndDirs
-    files ++ dirs.flatMap(_.deepFiles)
-  }
-
-  private def filesAndDirs: (Stream[File], Stream[Directory]) = {
-    val (files, dirs) = listFiles.toStream.partition(_.isFile)
-    (files, dirs.map(new Directory(_)))
-  }
-
+  def deepFiles: Iterator[File] = deepPaths.filter(_.isFile)
   /** Returns all directories nested inside this directory (in any given depth). */
-  def deepDirs: Stream[Directory] = {
-    val d = dirs.toStream
-    d ++ d.flatMap(_.deepDirs)
-  }
+  def deepDirs: Iterator[Directory] =
+    deepPaths.flatMap(new Directory(_).optFilter(_.isDirectory))
+
   /** Returns all files and directories nested inside this directory (in any given depth). */
-  def deepPaths: Stream[File] = {
-    val (files, dirs) = filesAndDirs
-    files ++ dirs.flatMap(_.deepPaths)
-  }
+  def deepPaths: Iterator[File] =
+    dir.listFiles.iterator.flatMap { f =>
+      Iterator(f).mapIf(f.isDirectory).to(_ ++ new Directory(f).deepPaths)
+    }
 
   override def toString = s"Directory($dir)"
 }

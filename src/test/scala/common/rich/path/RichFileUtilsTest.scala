@@ -109,7 +109,7 @@ class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstance
         assertSameContents(originalCopy, targetDir)
       }
       "a file already exists with name" in {
-        val sameFile = targetDir.addFile(filledDir.files.head.name)
+        val sameFile = targetDir.addFile(filledDir.files.next.name)
         an[FileAlreadyExistsException] should be thrownBy RichFileUtils.moveContents(
           filledDir,
           targetDir,
