@@ -2,7 +2,9 @@ package common.rich.collections
 
 import scala.annotation.tailrec
 import scala.collection.{mutable, AbstractIterator}
+import scala.util.Sorting
 
+import common.UtilsVersionSpecific
 import common.rich.RichT._
 import common.rich.primitives.RichBoolean._
 
@@ -128,6 +130,17 @@ object RichIterator {
       }
       result
     }
+    /** Returns an [[Array]] backed [[Seq]], i.e., not persistent, but is immutable. */
+    def sortBy[B](f: A => B)(implicit ord: Ordering[B]): Seq[A] =
+      // There's a lot of terrible "unsafe" casting here for the sake of performance/convenience.
+      // 1. We're using arrays directly here for performance, rather than going through a Vector first.
+      //    Since this array never escapes this scope, so we can wrap with WrappedArray.
+      // 2. We want to avoid passing in an implicit ClassTag[A] just for array creation, since we're
+      //    already passing an implicit Ord (which would passing an explicit Ord annoying). Arrays
+      //    are covariant, so we can create an Array[Any] and cast it to Array[A] when sorting.
+      UtilsVersionSpecific.unsafeArray(
+        $.toArray[Any].asInstanceOf[Array[A]].<|(Sorting.quickSort(_)(ord.on(f))),
+      )
   }
 
   def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =

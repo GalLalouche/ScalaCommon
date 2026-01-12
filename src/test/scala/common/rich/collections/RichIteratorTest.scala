@@ -115,7 +115,23 @@ class RichIteratorTest extends AnyFreeSpec with AuxSpecs with TimeLimitedTests {
       )
     }
     "handles empty iterator" in {
-      Iterator.empty[String].groupBy(_.head) shouldReturn Map.empty
+      (Iterator.empty: Iterator[String]).groupBy[Int](_ => ???) shouldReturn Map.empty
+    }
+  }
+  "sortBy" - {
+    "handles empty" in {
+      val sorted = (Iterator.empty: Iterator[String]).sortBy[Int](_ => ???)
+      sorted shouldReturn Vector.empty
+    }
+    "sortsBy" in {
+      val sorted = Iterator("Apple", "apricot", "banana", "Blueberry", "cherry").sortBy(_.length)
+      sorted shouldReturn Vector("Apple", "banana", "cherry", "apricot", "Blueberry")
+    }
+    "with explicit ordering (mostly verifying compilation doesn't require an implicit class tag)" in {
+      val sorted = Iterator("Apple", "apricot", "banana", "Blueberry", "cherry").sortBy(_.length)(
+        Ordering.Int.reverse,
+      )
+      sorted shouldReturn Vector("Blueberry", "apricot", "banana", "cherry", "Apple")
     }
   }
 
