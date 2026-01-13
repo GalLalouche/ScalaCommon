@@ -4,11 +4,10 @@ import cats.{Functor, Monad, Semigroup}
 import com.google.common.collect.ImmutableBiMap
 
 import scala.collection.TraversableOnce
-import scala.collection.mutable.ListBuffer
 import scala.language.higherKinds
-import scala.math.Ordered.orderingToOrdered
 import scala.math.log10
 
+import common.TopKBuilder
 import common.rich.RichT._
 import common.rich.RichTuple._
 import common.rich.collections.RichIterator._
@@ -186,19 +185,9 @@ object RichTraversableOnce {
     }
 
     def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
-      val q = new java.util.PriorityQueue[A](k, ord.compare)
-      $.foreach { next =>
-        if (q.size < k)
-          q.add(next)
-        else if (q.peek < next) {
-          q.poll()
-          q.add(next)
-        }
-      }
-      val mb = new ListBuffer[A]()
-      while (q.isEmpty.isFalse)
-        q.poll() +=: mb
-      mb.toVector
+      val q = TopKBuilder[A](k)
+      $.foreach(q.+=)
+      q.result()
     }
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
     /** Returns empty if the iterator contains 1 or fewer elements. */

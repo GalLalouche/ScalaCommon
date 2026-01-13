@@ -4,31 +4,18 @@ import cats.{Applicative, Order, UnorderedFoldable}
 import cats.implicits.{catsKernelStdCommutativeMonoidForOption, catsSyntaxPartialOrder, toFunctorOps, toUnorderedFoldableOps}
 import cats.kernel.CommutativeMonoid
 
-import scala.Ordering.Implicits._
-import scala.collection.mutable.ListBuffer
-
 import common.rich.func.kats.Monoids.{GUnitCommutativeMonoid, Max, Min}
 
-import common.rich.primitives.RichBoolean._
+import common.TopKBuilder
 
 trait ToMoreUnorderedFoldableOps {
   implicit class toMoreUnorderedFoldableOps[A, F[_]: UnorderedFoldable]($ : F[A]) {
     def printPerLine(): Unit = $.unorderedFoldMap(println)
 
     def topK(k: Int)(implicit ord: Ordering[A]): Seq[A] = {
-      val q = new java.util.PriorityQueue[A](k, ord.compare)
-      $.unorderedFoldMap[Unit] { next =>
-        if (q.size < k)
-          q.add(next)
-        else if (q.peek < next) {
-          q.poll()
-          q.add(next)
-        }
-      }
-      val mb = new ListBuffer[A]()
-      while (q.isEmpty.isFalse)
-        q.poll() +=: mb
-      mb.toVector
+      val heap = TopKBuilder[A](k)
+      $.unorderedFoldMap[Unit](heap.addOne)
+      heap.result()
     }
 
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
