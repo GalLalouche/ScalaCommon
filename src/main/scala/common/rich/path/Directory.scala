@@ -66,7 +66,10 @@ object Directory {
     require(f.exists && f.isDirectory, s"${f.getAbsolutePath} is not a directory")
     new Directory(f)
   }
-  def apply(s: String): Directory = Directory(new File(s))
+  def apply(s: String): Directory = apply(new File(s))
+  /** Does not check for existence or that the file is a directory. */
+  @inline def unsafe(s: String): Directory = unsafe(new File(s))
+  @inline def unsafe(f: File): Directory = new Directory(f)
   /** Creates all directories along the path as needed */
   def makeDir(f: File): Directory = {
     if (f.isDirectory.isFalse)
