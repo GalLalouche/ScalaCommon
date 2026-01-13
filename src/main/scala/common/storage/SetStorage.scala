@@ -2,6 +2,7 @@ package common.storage
 
 import scala.concurrent.Future
 
+/** A simplified [[Storage]] that only tracks values, rather than key-value associations. */
 trait SetStorage[A] {
   /** Does not overwrite; fails on existing value. */
   def add(a: A): Future[Unit]
