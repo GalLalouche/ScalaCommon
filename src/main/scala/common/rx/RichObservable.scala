@@ -4,8 +4,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import cats.data.OptionT
 import rx.lang.scala.{Observable, Observer, Subscriber}
+import rx.lang.scala.schedulers.ImmediateScheduler
 import rx.lang.scala.subjects.BehaviorSubject
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 import common.rich.RichT._
@@ -19,6 +21,26 @@ object RichObservable {
     def isSubscribed: Boolean = $.isUnsubscribed.isFalse
   }
   implicit class richObservable[A](private val $ : Observable[A]) extends AnyVal {
+    /** Blocks the current thread until the observable is finished. */
+    def toVectorBlocking: Vector[A] = buildBlocking(Vector.newBuilder[A])
+    /** Blocks the current thread until the observable is finished. */
+    def buildBlocking[CC](builder: mutable.Builder[A, CC]): CC = {
+      foreachBlocking(builder += _)
+      builder.result()
+    }
+    /** Blocks the current thread until the observable is finished. */
+    def foreachBlocking(f: A => Unit): Unit = {
+      var error: Throwable = null
+      $.subscribeOn(ImmediateScheduler())
+        .observeOn(ImmediateScheduler())
+        .subscribe(new Observer[A] {
+          override def onNext(value: A): Unit = f(value)
+          override def onError(e: Throwable): Unit = error = e
+          override def onCompleted(): Unit = ()
+        })
+      if (error != null)
+        throw error
+    }
     /**
      * Returns a Future of the first element emitted by this observable, or a failed Future that
      * fails with a NoSuchElementException if the observable is empty.

@@ -13,6 +13,16 @@ import common.test.AsyncAuxSpecs
 class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
   private def createSubject = PublishSubject[Int]()
   "richObservable" - {
+    "toSeqBlocking" - {
+      "success" in {
+        Observable.just(1, 2, 3).toVectorBlocking shouldReturn Vector(1, 2, 3)
+      }
+      "failure" in {
+        val error = new IllegalStateException("foobar")
+        val e = the[IllegalStateException] thrownBy (Observable.error(error).toVectorBlocking)
+        e shouldBe theSameInstanceAs(error)
+      }
+    }
     "toFuture" - {
       "success" in {
         val sub = createSubject
