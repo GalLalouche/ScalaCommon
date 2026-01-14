@@ -1,6 +1,10 @@
 package common.rich.path
 
-import java.io.File
+import java.io.{File, IOException}
+import java.nio.file.{Files, FileVisitResult, Path, SimpleFileVisitor}
+import java.nio.file.attribute.BasicFileAttributes
+
+import rx.lang.scala.{Observable, Subscriber}
 
 import common.rich.RichT.richT
 import common.rich.primitives.RichBoolean._
@@ -44,21 +48,73 @@ class Directory private[path] (val dir: File) extends RichPath(dir) {
     dirs.foreach(_.deleteAll())
     this
   }
-  /**
-   * Returns all files that are not directories nested inside this directory (in any given depth).
-   */
+  /** Significantly faster than the above iterator (at least on Windows). */
   def deepFiles: Iterator[File] = deepPaths.filter(_.isFile)
+  /** Faster than the above iterator (at least on Windows). */
+  def deepFilesObservable: Observable[(File, BasicFileAttributes)] = observable { sub =>
+    new EvenSimplerVisitor[Path](sub) {
+      protected override def onFile(file: Path, attrs: BasicFileAttributes): Unit =
+        sub.onNext((file.toFile, attrs))
+    }
+  }
   /** Returns all directories nested inside this directory (in any given depth). */
   def deepDirs: Iterator[Directory] =
     deepPaths.flatMap(new Directory(_).optFilter(_.isDirectory))
+  /** Significantly faster than the above iterator (at least on Windows). */
+  def deepDirsObservable: Observable[(Directory, BasicFileAttributes)] = observable { sub =>
+    new EvenSimplerVisitor[Directory](sub) {
+      protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
+        sub.onNext((Directory.unsafe(dir.toFile), attrs))
+    }
+  }
 
   /** Returns all files and directories nested inside this directory (in any given depth). */
-  def deepPaths: Iterator[File] =
-    dir.listFiles.iterator.flatMap { f =>
-      Iterator(f).mapIf(f.isDirectory).to(_ ++ new Directory(f).deepPaths)
+  def deepPaths: Iterator[File] = dir.listFiles.iterator.flatMap { f =>
+    Iterator(f).mapIf(f.isDirectory).to(_ ++ new Directory(f).deepPaths)
+  }
+  /** Significantly faster than the above iterator (at least on Windows). */
+  def deepPathsObservable: Observable[(File, BasicFileAttributes)] = observable(sub =>
+    new EvenSimplerVisitor[Path](sub) {
+      protected override def onFile(file: Path, attrs: BasicFileAttributes): Unit =
+        sub.onNext((file.toFile, attrs))
+      protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
+        sub.onNext((dir.toFile, attrs))
+    },
+  )
+
+  private def observable[A](
+      fromSub: Subscriber[(A, BasicFileAttributes)] => SimpleFileVisitor[Path],
+  ): Observable[(A, BasicFileAttributes)] = Observable { sub =>
+    try {
+      Files.walkFileTree(dir.toPath, fromSub(sub))
+      sub.onCompleted()
+    } catch {
+      case e: Throwable => sub.onError(e)
     }
+  }
 
   override def toString = s"Directory($dir)"
+
+  private abstract class EvenSimplerVisitor[A](sub: Subscriber[_]) extends SimpleFileVisitor[Path] {
+    protected def onFile(file: Path, attrs: BasicFileAttributes): Unit = {}
+    protected def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit = {}
+    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      if (file ne dir.toPath)
+        onFile(file, attrs)
+      result
+    }
+    override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      if (dir ne Directory.this.dir.toPath)
+        onDirectory(dir, attrs)
+      result
+    }
+    override def visitFileFailed(file: Path, exc: IOException) = {
+      sub.onError(exc)
+      super.visitFileFailed(file, exc)
+    }
+    private def result: FileVisitResult =
+      if (sub.isUnsubscribed) FileVisitResult.TERMINATE else FileVisitResult.CONTINUE
+  }
 }
 
 object Directory {

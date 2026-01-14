@@ -8,6 +8,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import scala.language.postfixOps
 
 import common.rich.path.RichPath._
+import common.rx.RichObservable.richObservable
 import common.test.DirectorySpecs
 
 class DirectoryTest
@@ -15,6 +16,49 @@ class DirectoryTest
     with DirectorySpecs
     with OneInstancePerTest
     with BeforeAndAfter {
+  private def setupDir(dir: Directory): Unit = {
+    dir.addFile("file1.txt")
+    dir.addFile("file2.txt")
+
+    val dir1 = dir.addSubDir("dir1")
+    val dir2 = dir.addSubDir("dir2")
+
+    dir1.addFile("file3.txt")
+
+    dir2.addSubDir("subdir").addFile("file4.txt")
+  }
+
+  private def testDeepFiles(dir: Directory, f: Directory => Seq[File]): Unit = {
+    setupDir(dir)
+    f(dir).toSet shouldReturn Set(
+      new File(tempDir, "file1.txt"),
+      new File(tempDir, "file2.txt"),
+      new File(tempDir / "dir1" /, "file3.txt"),
+      new File(tempDir / "dir2" / "subdir" /, "file4.txt"),
+    )
+  }
+
+  private def testDeepDirs(dir: Directory, f: Directory => Seq[Directory]): Unit = {
+    setupDir(dir)
+    f(dir).toSet shouldReturn Set(
+      Directory(new File(tempDir, "dir1")),
+      Directory(new File(tempDir, "dir2")),
+      Directory(new File((tempDir / "dir2" / "subdir" /).path)),
+    )
+  }
+
+  private def testDeepPaths(dir: Directory, f: Directory => Seq[File]): Unit = {
+    setupDir(dir)
+    f(dir).toSet shouldReturn Set(
+      new File(tempDir, "file1.txt"),
+      new File(tempDir, "file2.txt"),
+      new File(tempDir, "dir1"),
+      new File((tempDir / "dir1" /).path, "file3.txt"),
+      new File(tempDir, "dir2"),
+      new File((tempDir / "dir2" / "subdir" /).path),
+      new File((tempDir / "dir2" / "subdir" /).path, "file4.txt"),
+    )
+  }
   // yeah yeah, it uses DirectorySpecs which uses Directory
 
   "Ctor should" - {
@@ -74,27 +118,28 @@ class DirectoryTest
         $.dirs === Vector(Directory(new File(tempDir, "foo")))
       }
     }
-    "list deep files both deep and shallow" in {
-      $.addFile("foo.bar")
-      $.addSubDir("foobar").addFile("bar.foo")
-      $.deepFiles.toSet === Set(
-        new File(tempDir, "foo.bar"),
-        new File(tempDir / "foobar" /, "bar.foo"),
-      )
-    }
-    "list deep dirs both deep and shallow" in {
-      $.addSubDir("foobar").addSubDir("barfoo")
-      $.deepDirs.map(_.dir).toSet === Set(
-        new File(tempDir, "foobar"),
-        new File((tempDir / "foobar" / "barfoo" /).path),
-      )
-    }
-    "list deep paths both deep and shallow" in {
-      $.addSubDir("foobar").addFile("bar.foo")
-      $.deepPaths.toSet === Set(
-        new File(tempDir, "foobar"),
-        new File((tempDir / "foobar" / "bar.foo").path),
-      )
+    "deep" - {
+      "deepFiles" in {
+        testDeepFiles($, _.deepFiles.toSeq)
+      }
+      "deepFilesObservable" in {
+        testDeepFiles($, _.deepFilesObservable.map(_._1).toVectorBlocking)
+      }
+      "deepDirs" in {
+        testDeepDirs($, _.deepDirs.toSeq)
+      }
+      "deepDirsObservable" in {
+        testDeepDirs(
+          $,
+          _.deepDirsObservable.map(_._1).toVectorBlocking,
+        )
+      }
+      "deepPaths" in {
+        testDeepPaths($, _.deepPaths.toSeq)
+      }
+      "deepPathsObservable" in {
+        testDeepPaths($, _.deepPathsObservable.map(_._1).toVectorBlocking)
+      }
     }
     "clear" - {
       "not delete self" in {
