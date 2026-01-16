@@ -12,10 +12,12 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 import common.rich.func.kats.ToMoreMonoidOps.monoidFilter
 
-import common.rich.RichT.lazyT
+import common.rich.RichFuture.richFuture
+import common.rich.RichT.{lazyT, richT}
 import common.rich.collections.RichTraversableOnce._
 
 /** Several helping methods and fixtures for testing. */
@@ -177,8 +179,18 @@ trait AuxSpecs extends Matchers { self: Suite =>
   def assertAll(a1: Assertion, a2: Assertion, as: Assertion*): Assertion =
     assertAll(Vector(a1, a2) ++ as)
 
-  implicit class IntParTimes(private val n: Int) {
-    def parTimes(f: => Future[Assertion])(implicit ec: ExecutionContext): Future[Assertion] =
+  implicit class IntParTimes(n: Int)(implicit ec: ExecutionContext) {
+    def assertParTimes(f: => Future[Assertion]): Future[Assertion] =
       0.until(n).toVector.foldMapM(f.const)
+    def parTimes(f: => Any): Future[Assertion] =
+      Vector
+        .fill(n)(Future(f).toTry)
+        .|>(Future.find(_)(_.isFailure))
+        .map {
+          case None => Succeeded
+          // TODO 3? Made up number.
+          case Some(Failure(e)) => throw new TestFailedException(Some("par failure"), Some(e), 3)
+          case Some(Success(_)) => throw new AssertionError("Unreachable code")
+        }
   }
 }

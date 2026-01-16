@@ -1,12 +1,7 @@
 package common.rich.primitives
 
-import java.util.concurrent.Executors
-
 import scala.annotation.tailrec
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration.Duration.Inf
 
-import common.rich.RichT.richT
 import common.rich.primitives.RichBoolean._
 
 object RichInt {
@@ -85,13 +80,6 @@ object RichInt {
         f
         counter += 1
       }
-    }
-
-    def parTimes(f: => Unit): Unit = parTimes(Runtime.getRuntime.availableProcessors, f)
-    def parTimes(parallelization: Int, f: => Unit): Unit = {
-      implicit val ec =
-        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(parallelization))
-      Await.result(Future.sequence(for (_ <- 0 until n.requiring(_ >= 0)) yield Future(f)), Inf)
     }
   }
   @tailrec def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)

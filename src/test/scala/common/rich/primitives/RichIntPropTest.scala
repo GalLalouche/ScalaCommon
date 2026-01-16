@@ -124,14 +124,4 @@ class RichIntPropTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks wi
         x shouldReturn k
       },
   )
-  nProp(
-    "parTimes n runs the functions n times",
-    n =>
-      whenever(n > 0) {
-        val k = n % 1000
-        var x = 0
-        k.times(x += 1)
-        x shouldReturn k
-      },
-  )
 }
