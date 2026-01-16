@@ -22,6 +22,10 @@ object RichIterable {
     def lazyFoldl[B](b: B)(f: (A, B) => Option[B]): B = $.iterator.lazyFoldl(b)(f)
   }
 
+  def from[A](it: () => Iterator[A]): Iterable[A] = new Iterable[A] {
+    override def iterator: Iterator[A] = it()
+  }
+
   sealed trait CheckLengthResult
   case object Smaller extends CheckLengthResult
   case object Larger extends CheckLengthResult
