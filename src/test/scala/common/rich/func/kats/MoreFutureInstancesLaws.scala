@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 import common.rich.func.kats.MoreFutureInstances.futureIsCommutativeMonad
 
-import common.rich.RichFuture.richFuture
+import common.rich.RichFuture.richFutureBlocking
 
 @Slow
 class MoreFutureInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with Configuration {

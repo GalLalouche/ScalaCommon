@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 import common.rich.func.kats.ToMoreMonadErrorOps._
 
-import common.rich.RichFuture.richFuture
+import common.rich.RichFuture.richFutureBlocking
 import common.rich.RichT.lazyT
 import common.test.AuxSpecs
 
@@ -168,7 +168,7 @@ class ToMoreMonadErrorOpsTest extends AnyFreeSpec with AuxSpecs {
       "failure" in {
         val sb = new StringBuilder
         val future = Future {
-          semaphore.acquire();
+          semaphore.acquire()
           throw new Exception("Whoops")
         }.listenAny(sb.append("test"))
         sb.toString shouldBe empty

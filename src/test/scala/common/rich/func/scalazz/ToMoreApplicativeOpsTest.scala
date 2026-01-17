@@ -11,7 +11,7 @@ import common.rich.func.scalazz.ToMoreApplicativeOps._
 import scalaz.WriterT.tell
 import scalaz.std.string.stringInstance
 
-import common.rich.RichFuture.richFuture
+import common.rich.RichFuture.richFutureBlocking
 import common.test.AuxSpecs
 
 class ToMoreApplicativeOpsTest extends AnyFreeSpec with AuxSpecs {
@@ -28,10 +28,7 @@ class ToMoreApplicativeOpsTest extends AnyFreeSpec with AuxSpecs {
       import BetterFutureInstances._
       implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
       def failing: Future[Int] = ???
-      def success(ai: AtomicInteger): Future[Int] =
-        Future {
-          ai.incrementAndGet()
-        }
+      def success(ai: AtomicInteger): Future[Int] = Future(ai.incrementAndGet())
       "false" in {
         failing.whenMLazy(false).get shouldReturn ()
       }

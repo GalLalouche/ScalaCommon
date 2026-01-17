@@ -9,10 +9,7 @@ import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 import common.rich.RichT._
 
 object RichFuture {
-  implicit class richFuture[A]($ : Future[A])(implicit ec: ExecutionContext) {
-    def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
-    def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isSuccess) f else ()))
-    def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isFailure) f else ()))
+  implicit class richFutureBlocking[A](private val $ : Future[A]) extends AnyVal {
     def get: A = Await.result($, Duration.Inf)
     def getFailure: Throwable = {
       Await.ready($, Duration.Inf)
@@ -26,6 +23,11 @@ object RichFuture {
           )
       }
     }
+  }
+  implicit class richFuture[A]($ : Future[A])(implicit ec: ExecutionContext) {
+    def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
+    def onSuccessful(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isSuccess) f else ()))
+    def onFailed(f: => Any): Future[A] = $ <| (_.onComplete(t => if (t.isFailure) f else ()))
 
     def consumeTry(c: Try[A] => Any): Future[A] = toTry.listen(c).flatMap {
       case Success(t) => Future.successful(t)

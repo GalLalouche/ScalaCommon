@@ -9,11 +9,9 @@ import org.scalatest.tags.Slow
 import org.typelevel.discipline.scalatest.FunSuiteDiscipline
 import rx.lang.scala.Observable
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
-
 import common.rich.func.kats.ObservableInstances.observableInstances
 
-import common.rich.RichFuture.richFuture
+import common.rich.RichFuture.richFutureBlocking
 import common.rx.RichObservable.richObservable
 
 @Slow
@@ -21,10 +19,8 @@ class ObservableInstancesLaws extends AnyFunSuite with FunSuiteDiscipline with C
   implicit def arbObservable[A: Arbitrary]: Arbitrary[Observable[A]] =
     Arbitrary(implicitly[Arbitrary[List[A]]].arbitrary.map(Observable.from(_)))
 
-  implicit def observableEq[A: Eq]: Eq[Observable[A]] = (xI, yI) => {
-    implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  implicit def observableEq[A: Eq]: Eq[Observable[A]] = (xI, yI) =>
     xI.to[List].firstFuture.get === yI.to[List].firstFuture.get
-  }
 
   checkAll("Observable.MonadLaws", MonadTests[Observable].monad[Int, Int, String])
 }
