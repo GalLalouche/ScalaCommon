@@ -3,14 +3,15 @@ package common.rx
 import java.util.concurrent.atomic.AtomicInteger
 
 import cats.data.OptionT
+import cats.syntax.functor.toFunctorOps
 import rx.lang.scala.{Observable, Observer, Subscriber}
 import rx.lang.scala.schedulers.ImmediateScheduler
-import rx.lang.scala.subjects.BehaviorSubject
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-import common.rich.RichT._
+import common.rich.func.kats.ObservableInstances.observableInstances
+
 import common.rich.primitives.RichBoolean.richBoolean
 
 object RichObservable {
@@ -75,11 +76,7 @@ object RichObservable {
 
     /** Note that if the future action fails, the returned Observable will fail as well. */
     def doOnNextAsync(f: A => Future[_])(implicit ec: ExecutionContext): Observable[A] =
-      $.flatMap(a =>
-        Observable
-          .from(f(a))
-          .map(_ => a),
-      )
+      $.flatMap(a => Observable.from(f(a)).map(_ => a))
 
     def filterFuture(p: A => Future[Boolean])(implicit ec: ExecutionContext): Observable[A] =
       $.flatMap(a => Observable.from(p(a)).filter(identity).map(_ => a))
@@ -94,33 +91,33 @@ object RichObservable {
      * Emits an observable which groups successive elements together according to some key function.
      * Unlike groupBy, only successive elements can be in the same group.
      */
-    def groupByBuffer[B](f: A => B): Observable[(B, Seq[A])] = Observable { s =>
-      val lastSubject = BehaviorSubject[(B, Seq[A])]()
-      def publish(e: (B, Seq[A])): Unit = s.onNext(e._1 -> e._2.toVector.reverse)
-      $.map(e => f(e) -> e)
-        .scan[Option[(B, List[A])]](None) { case (agg, x) =>
-          Some((agg match {
-            case Some(agg @ (key, values)) =>
-              if (key == x._1)
-                key -> (x._2 :: values)
-              else {
-                publish(agg)
-                x._1 -> List(x._2)
-              }
-            case None =>
-              x._1 -> List(x._2)
-          }) <| lastSubject.onNext)
-        }
-        .takeUntil(s.isSubscribed.isFalse.const)
-        .subscribe(new Subscriber[Option[(B, List[A])]]() {
-          override def onCompleted(): Unit = {
-            lastSubject.subscribe(publish _)
-            lastSubject.onCompleted()
-            s.onCompleted()
+    def groupByBuffer[B](f: A => B): Observable[(B, Seq[A])] =
+      $.fproductLeft(f).lift[(B, Seq[A])](out =>
+        new Subscriber[(B, A)] {
+          private val buffer = Vector.newBuilder[A]
+          private def flush(key: Option[B]): Unit = key.foreach { value =>
+            out.onNext(value, buffer.result().ensuring(_.nonEmpty))
+            buffer.clear()
           }
-          override def onError(error: Throwable): Unit = s.onError(error)
-        })
-    }
+          private var lastKey: Option[B] = None
+          override def onNext(elem: (B, A)): Unit = {
+            if (out.isUnsubscribed) {
+              unsubscribe()
+              return
+            }
+            flush(lastKey.filter(_ != elem._1))
+            lastKey = Some(elem._1)
+            buffer += elem._2
+          }
+
+          override def onError(ex: Throwable): Unit = out.onError(ex)
+
+          override def onCompleted(): Unit = {
+            flush(lastKey)
+            out.onCompleted()
+          }
+        },
+      )
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
