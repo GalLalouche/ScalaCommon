@@ -5,6 +5,8 @@ import java.util
 import cats.{Foldable, Semigroup, SemigroupK}
 import cats.implicits.{catsSyntaxSemigroup, toUnorderedFoldableOps}
 
+import scala.collection.mutable
+
 import common.rich.func.kats.ToMoreFoldableOps.toMoreFoldableOps
 
 import common.rich.RichT._
@@ -55,5 +57,9 @@ object RichMap {
   implicit class richTraversableMap[K, A](private val $ : Map[K, Traversable[A]]) extends AnyVal {
     /** Potentially faster for traversables whose size operation is O(1), e.g., Vector or Set. */
     def totalSize: Int = $.values.map(_.size).sum
+  }
+  implicit class richMutableMap[K, V](private val $ : mutable.Map[K, V]) extends AnyVal {
+    /** N.B. This returns an immutable [[Map]]. */
+    def properMapValues[V2](f: V => V2): Map[K, V2] = RichMapSpecVer.properMapValues($, f)
   }
 }

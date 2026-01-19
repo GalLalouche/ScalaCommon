@@ -224,6 +224,14 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
           .toFuture[Vector] shouldEventuallyReturn Vector(0 -> 0.to(9), 1 -> 10.to(19))
       }
     }
+    "toMultiMapBlocking" - {
+      "simple" in {
+        Observable.just(1, 2, 3, 4, 5, 6, 1, 6).toMultiMapBlocking(_ % 2)(_.toSet) shouldReturn Map(
+          0 -> Set(2, 4, 6),
+          1 -> Set(1, 3, 5),
+        )
+      }
+    }
 
     "Object methods" - {
       "register" - {

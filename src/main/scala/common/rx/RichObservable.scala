@@ -12,6 +12,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 
 import common.rich.func.kats.ObservableInstances.observableInstances
 
+import common.rich.collections.RichMap.richMutableMap
 import common.rich.primitives.RichBoolean.richBoolean
 
 object RichObservable {
@@ -118,6 +119,15 @@ object RichObservable {
           }
         },
       )
+
+    def toMultiMapBlocking[K, V](by: A => K)(downstream: Seq[A] => V): Map[K, V] = {
+      val map = mutable.HashMap[K, mutable.Builder[A, Seq[A]]]()
+      $.foreachBlocking { a =>
+        val k = by(a)
+        map.getOrElseUpdate(k, Vector.newBuilder[A]) += a
+      }
+      map.properMapValues(downstream compose (_.result()))
+    }
   }
 
   def register[A](callback: (A => Unit) => Unit, unsubscribe: () => Any = null): Observable[A] =
