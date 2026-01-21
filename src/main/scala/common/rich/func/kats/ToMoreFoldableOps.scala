@@ -3,8 +3,6 @@ package common.rich.func.kats
 import cats.{Eval, Foldable}
 import cats.syntax.foldable.toFoldableOps
 
-import scala.collection.mutable.ArrayBuffer
-
 trait ToMoreFoldableOps {
   implicit class toMoreFoldableOps[A, F[_]: Foldable]($ : F[A]) {
     def toVector: Vector[A] = $.toIterable.toVector
@@ -39,19 +37,21 @@ trait ToMoreFoldableOps {
   }
 
   // Can't use ev A =:= Either[B, C], since the compiler can't infer those apparently...
-  // TODO this can be slightly more efficient if we knew the size of $ beforehand, so we could preallocate the
-  //  array. For some collections, we get this for cheap, so it might make sense to implement this in RichSeq
-  //  and check the type there?
   /** Equivalent to partitionMap(identity) */
   implicit class EitherFoldableOps[B, C, F[_]: Foldable]($ : F[Either[B, C]]) {
-    def partitionEithers: (Seq[B], Seq[C]) = {
-      val bs = new ArrayBuffer[B]()
-      val cs = new ArrayBuffer[C]()
+    def partitionEithers: (Seq[B], Seq[C]) = partitionEithers(-1, -1)
+    def partitionEithers(leftSizeHint: Int, rightSizeHint: Int): (Seq[B], Seq[C]) = {
+      val bs = Vector.newBuilder[B]
+      val cs = Vector.newBuilder[C]
+      if (leftSizeHint >= 0)
+        bs.sizeHint(leftSizeHint)
+      if (rightSizeHint >= 0)
+        cs.sizeHint(rightSizeHint)
       $.foldMap[Unit] {
         case Left(b) => bs += b
         case Right(c) => cs += c
       }
-      (bs.toVector, cs.toVector)
+      (bs.result(), cs.result())
     }
   }
 }
