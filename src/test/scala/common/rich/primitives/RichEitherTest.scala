@@ -26,10 +26,27 @@ class RichEitherTest extends AnyFreeSpec with AuxSpecs {
         val e = the[IOException] thrownBy either.getOrThrow
         e shouldReturn t
       }
+      "Left with custom typeclass for class" in {
+        import RichEitherTest._
+        val either: Either[CustomErrorType, Int] = Left(CustomErrorType("custom error"))
+        val e = the[NoSuchElementException] thrownBy either.getOrThrow
+        e.getMessage shouldReturn "CustomErrorType(custom error)"
+      }
+      "Left with custom typeclass for object" in {
+        import RichEitherTest._
+        val either: Either[CustomErrorType, Int] = Left(CustomErrorType("custom error"))
+        val e = the[NoSuchElementException] thrownBy either.getOrThrow
+        e.getMessage shouldReturn "CustomErrorType(custom error)"
+      }
       "Right" in {
         val either: Either[IOException, Int] = Right(42)
         either.getOrThrow shouldReturn 42
       }
     }
   }
+}
+
+private object RichEitherTest {
+  private implicit val customError: ToError[CustomErrorType] = ToError.fromToString[CustomErrorType]
+  private case class CustomErrorType(msg: String) extends AnyVal
 }
