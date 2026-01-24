@@ -1,14 +1,15 @@
 package common.rich.collections
 
-import java.util.Spliterators
+import java.util
+import java.util.{Spliterator, Spliterators}
 import java.util.stream.StreamSupport
 
 import scala.annotation.tailrec
 import scala.collection.{mutable, AbstractIterator}
-import scala.jdk.CollectionConverters.IteratorHasAsJava
 import scala.util.Sorting
 
 import common.UtilsVersionSpecific
+import common.rich.ConvertersVersionSpecific
 import common.rich.RichT._
 import common.rich.primitives.RichBoolean._
 
@@ -145,8 +146,12 @@ object RichIterator {
       UtilsVersionSpecific.unsafeArray(
         $.toArray[Any].asInstanceOf[Array[A]].<|(Sorting.quickSort(_)(ord.on(f))),
       )
-    def toJavaStream: java.util.stream.Stream[A] = StreamSupport.stream(
-      Spliterators.spliteratorUnknownSize($.asJava, java.util.Spliterator.ORDERED),
+    def toJavaStream: util.stream.Stream[A] = ConvertersVersionSpecific.toJava($).toStream
+  }
+
+  implicit class richJavaIterator[A](private val $ : util.Iterator[A]) extends AnyVal {
+    def toStream: util.stream.Stream[A] = StreamSupport.stream(
+      Spliterators.spliteratorUnknownSize($, Spliterator.ORDERED),
       false,
     )
   }
