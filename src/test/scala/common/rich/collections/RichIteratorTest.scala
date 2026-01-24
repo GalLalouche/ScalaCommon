@@ -1,5 +1,7 @@
 package common.rich.collections
 
+import java.util
+
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.time.SpanSugar._
@@ -175,6 +177,18 @@ class RichIteratorTest extends AnyFreeSpec with AuxSpecs with TimeLimitedTests {
     }
     "infinite" in {
       checkSum(Iterator.iterate(1)(_ + 1)) shouldReturn 6
+    }
+  }
+
+  "toJavaStream" - {
+    "empty" in {
+      Iterator.empty.toJavaStream.toList shouldReturn util.List.of()
+    }
+    "finite" in {
+      Iterator(1, 2, 3).toJavaStream.toList shouldReturn util.List.of(1, 2, 3)
+    }
+    "infinite" in {
+      Iterator.iterate(1)(_ + 1).toJavaStream.limit(3).toList shouldReturn util.List.of(1, 2, 3)
     }
   }
 }

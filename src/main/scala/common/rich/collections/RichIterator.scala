@@ -1,7 +1,11 @@
 package common.rich.collections
 
+import java.util.Spliterators
+import java.util.stream.StreamSupport
+
 import scala.annotation.tailrec
 import scala.collection.{mutable, AbstractIterator}
+import scala.jdk.CollectionConverters.IteratorHasAsJava
 import scala.util.Sorting
 
 import common.UtilsVersionSpecific
@@ -141,6 +145,10 @@ object RichIterator {
       UtilsVersionSpecific.unsafeArray(
         $.toArray[Any].asInstanceOf[Array[A]].<|(Sorting.quickSort(_)(ord.on(f))),
       )
+    def toJavaStream: java.util.stream.Stream[A] = StreamSupport.stream(
+      Spliterators.spliteratorUnknownSize($.asJava, java.util.Spliterator.ORDERED),
+      false,
+    )
   }
 
   def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =
