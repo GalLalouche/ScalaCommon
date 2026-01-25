@@ -17,7 +17,7 @@ class RichPath protected (protected val f: File) {
     case otherF: RichPath => f.getCanonicalPath == otherF.f.getCanonicalPath
     case _ => false
   }
-  override def hashCode(): Int = f.hashCode()
+  override lazy val hashCode: Int = f.getCanonicalPath.hashCode()
 
   def path: String = f.getCanonicalPath.replaceAll("\\\\", "/")
   def name: String = f.getName // including its extension
