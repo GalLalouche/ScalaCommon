@@ -91,6 +91,9 @@ object RichString {
       go($, Nil).reverseIterator.filterNot(_.isEmpty).toVector
     }
 
+    def endsWithCaseInsensitive(suffix: String): Boolean =
+      $.regionMatches(true /* ignoreCase */, $.length - suffix.length, suffix, 0, suffix.length)
+
     def captureWith(regex: Regex): String = $ match { case regex(result) => result }
 
     /** If c isn't present in the string, returns the same string. */

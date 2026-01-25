@@ -54,6 +54,18 @@ class RichStringTest extends AnyFreeSpec with AuxSpecs {
     }
   }
 
+  "endsWithCaseInsensitive" - {
+    "false" in {
+      "foobar".endsWithCaseInsensitive("BARX") shouldReturn false
+    }
+    "true same case" in {
+      "foobar".endsWithCaseInsensitive("bar") shouldReturn true
+    }
+    "true different case" in {
+      "fOoBaR".endsWithCaseInsensitive("bAR") shouldReturn true
+    }
+  }
+
   "captureWith" - {
     "captures the first argument" in {
       "12345hello5769820".captureWith("""\d+([a-z]+)\d+""".r) shouldReturn "hello"
