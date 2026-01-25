@@ -4,11 +4,11 @@ import java.lang.Math._
 
 import common.rich.primitives.RichDouble._
 
-/** Like, an algebraic Vector over ℝ^n */
 object RichVector {
+  /** Like, an algebraic Vector over ℝ^n */
   type Vektor = Vector[Double]
 
-  implicit class richVector(private val $ : Vektor) extends AnyVal {
+  implicit class richVektor(private val $ : Vektor) extends AnyVal {
     def magnitude: Double = sqrt(dot($))
 
     private def operatorMap(other: Vektor, f: (Double, Double) => Double): Vektor = {
