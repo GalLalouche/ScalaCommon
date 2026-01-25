@@ -1,5 +1,6 @@
 package common.rich.collections
 
+import common.rich.ConvertersVersionSpecific
 import common.rich.collections.RichIterator.richIterator
 
 object RichIterable {
@@ -20,6 +21,12 @@ object RichIterable {
       if (res < 0) Smaller else if (res == 0) Equal else Larger
     }
     def lazyFoldl[B](b: B)(f: (A, B) => Option[B]): B = $.iterator.lazyFoldl(b)(f)
+  }
+
+  // In a separate class to avoid name clashes with existing distinct methods in [[Seq]] and [[Views]].
+  implicit class distinctIterable[A](private val $ : Iterable[A]) extends AnyVal {
+    def distinct: Iterable[A] = distinctBy(identity)
+    def distinctBy[B](f: A => B): Iterable[A] = ConvertersVersionSpecific.distinctBy($, f)
   }
 
   def from[A](it: () => Iterator[A]): Iterable[A] = new Iterable[A] {

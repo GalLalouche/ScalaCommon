@@ -51,4 +51,12 @@ class RichIterableTest extends AnyFreeSpec with AuxSpecs {
       inf.hasExactlySizeOf(5) shouldReturn false
     }
   }
+
+  "distinct" in {
+    Iterable(1, 2, 3, 1, 2, 2, 3).distinct.toVector shouldReturn Vector(1, 2, 3)
+  }
+  "distinctBy" in {
+    val vector = Iterable("ap", "ba", "ap", "bl", "bo").distinctBy(_.head).toVector
+    vector shouldReturn Vector("ap", "ba")
+  }
 }
