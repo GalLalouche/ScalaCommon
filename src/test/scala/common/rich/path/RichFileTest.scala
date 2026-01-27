@@ -6,6 +6,7 @@ import java.util.Scanner
 import org.scalatest._
 import org.scalatest.freespec.AnyFreeSpec
 
+import common.rich.path.RichFile.richFile
 import common.test.{AuxSpecs, DirectorySpecs}
 
 class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {

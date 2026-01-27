@@ -1,7 +1,7 @@
 package common.rich.path
 
 import java.io.File
-import java.nio.file._
+import java.nio.file.{Files, StandardCopyOption}
 
 import common.rich.path.RichFile._
 import common.rich.primitives.RichBoolean._

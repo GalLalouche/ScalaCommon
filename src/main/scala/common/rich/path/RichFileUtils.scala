@@ -19,7 +19,7 @@ object RichFileUtils {
    *   if a file (directory or actual) in the destination dir already exists with the same name as
    *   the src file.
    */
-  def move(src: File, dst: Directory): RichFile = move(src, dst, src.name)
+  def move(src: File, dst: Directory): File = move(src, dst, src.name)
 
   /**
    * Moves a file to another directory, giving it a new name.
@@ -27,7 +27,7 @@ object RichFileUtils {
    *   if a file (directory or actual) in the destination dir already exists with the same name as
    *   the requested new name for the file.
    */
-  def move(src: File, dst: Directory, newName: String): RichFile = {
+  def move(src: File, dst: Directory, newName: String): File = {
     require(
       src.isDirectory.isFalse,
       "Can't move directories pretending to be a File because java.nio is Stupid. Wrap with Directory first.",
@@ -41,7 +41,7 @@ object RichFileUtils {
    *   if a file (directory or actual) in the parent dir already exists with the same name as the
    *   requested new name for the file.
    */
-  def rename(src: File, newName: String): RichFile = move(src, src.parent, newName)
+  def rename(src: File, newName: String): File = move(src, src.parent, newName)
 
   /**
    * Moves a directory (including itself) to a parent directory, keeping its name, and returns the

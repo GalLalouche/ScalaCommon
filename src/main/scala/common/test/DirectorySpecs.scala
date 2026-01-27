@@ -1,5 +1,7 @@
 package common.test
 
+import java.io.File
+
 import org.scalatest.{BeforeAndAfter, Suite}
 
 import common.rich.RichT._
@@ -14,7 +16,7 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter { self: Suite =>
     if (tempDir.exists())
       tempDir.clear()
   }
-  protected lazy val tempFile: RichFile = tempDir.addFile("tempFile")
+  protected lazy val tempFile: File = tempDir.addFile("tempFile")
   protected lazy val filledDir: Directory = {
     val $ = tempDir.addSubDir("foobar")
     $.addFile("foobar").write("stuff")
@@ -33,7 +35,7 @@ trait DirectorySpecs extends AuxSpecs with BeforeAndAfter { self: Suite =>
     def mapByName[P <: RichPath](ps: TraversableOnce[P]): Map[String, P] =
       ps.mapBy(_.name)
     val dir1Files = dir1.files
-    val dir2Files = dir1.files.map(RichFile.apply).thrush(mapByName)
+    val dir2Files = dir1.files.map(RichFile.richFile).thrush(mapByName)
     assert(
       dir1Files.size == dir2Files.size,
       s"dir1 <$dir1> doesn't have the same number of files as <$dir2>",

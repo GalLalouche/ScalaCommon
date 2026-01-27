@@ -4,8 +4,6 @@ import java.io.File
 
 import scala.util.Random
 
-import common.rich.path.RichFile.poorFile
-
 /**
  * a directory that is deleted on exit. All subfiles and directories created for this directory are
  * also deleted on exit
@@ -21,7 +19,7 @@ class TempDirectory(f: File) extends Directory(f: File) {
     $
   }
 
-  def addFile(): RichFile = addFile(Random.nextLong().toString)
+  def addFile(): File = addFile(Random.nextLong().toString)
 
   override def toString = s"TempDirectory($dir)"
 }
