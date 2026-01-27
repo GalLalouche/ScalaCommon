@@ -2,12 +2,12 @@ package common.rich.path
 
 import java.nio.file.FileAlreadyExistsException
 
-import better.files.{File, FileExtensions}
+import better.files.{File => BFile, FileExtensions}
 import org.scalatest.OneInstancePerTest
 import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichT.richT
-import common.rich.path.RichFile._
+import common.rich.path.RichFile.richFile
 import common.rich.path.RichPath.poorPath
 import common.test.DirectorySpecs
 
@@ -18,7 +18,7 @@ class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstance
     val tempFileName = tempFile.name
     val otherFile = tempDir.addFile("other_file")
     otherFile.write("bazz")
-    def verifyFile(f: RichFile, name: String = tempFileName): Unit = {
+    def verifyFile(f: java.io.File, name: String = tempFileName): Unit = {
       f.exists shouldReturn true
       f.readAll shouldReturn "foobar"
       f.name shouldReturn name
@@ -77,7 +77,7 @@ class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstance
     val originalCopy =
       better.files
         .File(filledDir.dir.toPath)
-        .copyTo(File(filledDir.parent.dir.toScala, filledDir.name + "_clone"))
+        .copyTo(BFile(filledDir.parent.dir.toScala, filledDir.name + "_clone"))
         .|>(Directory apply _.toJava)
     val originalName = filledDir.name
     "move directory" - {

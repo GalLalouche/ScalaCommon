@@ -24,7 +24,7 @@ class RichPath protected (protected val f: File) {
 
   def /(s: String): RichPath = {
     val f = new File(path + "/" + s)
-    if (f.isDirectory) new Directory(f) else new RichFile(f)
+    if (f.isDirectory) new Directory(f) else new RichFile.richFile(f)
   }
   def \(s: String): File = new File(path + "/" + s)
   def \(): File = RichPath.this \ ""

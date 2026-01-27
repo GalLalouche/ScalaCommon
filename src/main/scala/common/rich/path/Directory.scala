@@ -14,7 +14,7 @@ class Directory private[path] (val dir: File) extends RichPath(dir) {
   def listFiles: Seq[File] = dir.listFiles
 
   /** Adds a new file under the directory if one doesn't exist, and returns it. */
-  def addFile(name: String): RichFile = {
+  def addFile(name: String): File = {
     val $ = new File(dir, name)
     $.createNewFile()
     $
