@@ -1,8 +1,8 @@
-package common.rich.path
+package common.path
 
 import java.io.File
 
-import common.rich.path.RichFile.richFile
+import common.rich.RichFile.richFile
 
 /** A special RichFile that supports appending lines in different levels of indentations. */
 class IndentableRichFile private (f: File, indentLevel: Int) {

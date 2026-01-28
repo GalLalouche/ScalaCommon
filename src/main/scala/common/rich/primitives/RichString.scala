@@ -7,9 +7,9 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
+import common.rich.RichFile.richFile
 import common.rich.RichT._
 import common.rich.RichTuple.richTuple2
-import common.rich.path.RichFile.richFile
 import common.rich.primitives.RichBoolean._
 
 object RichString {
