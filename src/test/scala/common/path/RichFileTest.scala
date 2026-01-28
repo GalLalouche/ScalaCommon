@@ -1,4 +1,4 @@
-package common.rich.path
+package common.path
 
 import java.io.{File, PrintStream}
 import java.util.Scanner
@@ -6,7 +6,7 @@ import java.util.Scanner
 import org.scalatest._
 import org.scalatest.freespec.AnyFreeSpec
 
-import common.rich.path.RichFile.richFile
+import common.rich.RichFile.richFile
 import common.test.{AuxSpecs, DirectorySpecs}
 
 class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
@@ -121,6 +121,6 @@ class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with On
   "path is canonical" in {
     val f1 = tempDir.addFile("f1")
     val f2 = tempDir / "./f1"
-    f1.path shouldReturn f2.path
+    f1.getPath shouldReturn f2.path
   }
 }

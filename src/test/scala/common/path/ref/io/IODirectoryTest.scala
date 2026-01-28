@@ -1,22 +1,25 @@
-package common.rich.path
+package common.path.ref.io
 
-import java.io.File
+import java.io.{File, IOException}
+import java.nio.file.FileAlreadyExistsException
 
 import org.scalatest.{BeforeAndAfter, OneInstancePerTest}
+import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.freespec.AnyFreeSpec
 
 import scala.language.postfixOps
 
-import common.rich.path.RichPath._
+import common.path.ref.PathRef
+import common.rich.RichFile.richFile
 import common.rx.RichObservable.richObservable
 import common.test.DirectorySpecs
 
-class DirectoryTest
+class IODirectoryTest
     extends AnyFreeSpec
     with DirectorySpecs
     with OneInstancePerTest
     with BeforeAndAfter {
-  private def setupDir(dir: Directory): Unit = {
+  private def setupDir(dir: IODirectory): Unit = {
     dir.addFile("file1.txt")
     dir.addFile("file2.txt")
 
@@ -28,35 +31,35 @@ class DirectoryTest
     dir2.addSubDir("subdir").addFile("file4.txt")
   }
 
-  private def testDeepFiles(dir: Directory, f: Directory => Seq[File]): Unit = {
+  private def testDeepFiles(dir: IODirectory, f: IODirectory => Seq[PathRef]): Unit = {
     setupDir(dir)
     f(dir).toSet shouldReturn Set(
-      new File(tempDir, "file1.txt"),
-      new File(tempDir, "file2.txt"),
-      new File(tempDir / "dir1" /, "file3.txt"),
-      new File(tempDir / "dir2" / "subdir" /, "file4.txt"),
+      tempDir / "file1.txt",
+      tempDir / "file2.txt",
+      tempDir / "dir1" / "file3.txt",
+      tempDir / "dir2" / "subdir" / "file4.txt",
     )
   }
 
-  private def testDeepDirs(dir: Directory, f: Directory => Seq[Directory]): Unit = {
+  private def testDeepDirs(dir: IODirectory, f: IODirectory => Seq[IODirectory]): Unit = {
     setupDir(dir)
     f(dir).toSet shouldReturn Set(
-      Directory(new File(tempDir, "dir1")),
-      Directory(new File(tempDir, "dir2")),
-      Directory(new File((tempDir / "dir2" / "subdir" /).path)),
+      IODirectory(new File(tempDir, "dir1")),
+      IODirectory(new File(tempDir, "dir2")),
+      IODirectory(tempDir / "dir2" / "subdir"),
     )
   }
 
-  private def testDeepPaths(dir: Directory, f: Directory => Seq[File]): Unit = {
+  private def testDeepPaths(dir: IODirectory, f: IODirectory => Seq[File]): Unit = {
     setupDir(dir)
     f(dir).toSet shouldReturn Set(
-      new File(tempDir, "file1.txt"),
-      new File(tempDir, "file2.txt"),
-      new File(tempDir, "dir1"),
-      new File((tempDir / "dir1" /).path, "file3.txt"),
-      new File(tempDir, "dir2"),
-      new File((tempDir / "dir2" / "subdir" /).path),
-      new File((tempDir / "dir2" / "subdir" /).path, "file4.txt"),
+      IOFile(new File(tempDir, "file1.txt")),
+      IOFile(new File(tempDir, "file2.txt")),
+      IODirectory(new File(tempDir, "dir1")),
+      IOFile(tempDir / "dir1" / "file3.txt"),
+      IODirectory(new File(tempDir, "dir2")),
+      IODirectory(tempDir / "dir2" / "subdir"),
+      IOFile(tempDir / "dir2" / "subdir" / "file4.txt"),
     )
   }
   // yeah yeah, it uses DirectorySpecs which uses Directory
@@ -64,15 +67,13 @@ class DirectoryTest
   "Ctor should" - {
     "throw exception" - {
       "if file does not exist" in {
-        an[IllegalArgumentException] should be thrownBy {
-          Directory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")
+        an[IOException] should be thrownBy {
+          IODirectory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")
         }
       }
       "if file isn't a directory" in {
-        val f = tempDir.addFile("file")
-        an[IllegalArgumentException] should be thrownBy {
-          Directory(f)
-        }
+        val f = tempDir.addFile("file").path
+        an[IOException] should be thrownBy IODirectory(f)
       }
     }
   }
@@ -82,11 +83,57 @@ class DirectoryTest
     "add" - {
       "file" in {
         $.addFile("foo.bar")
-        new File($.dir, "foo.bar") should exist
+        new File($, "foo.bar") should exist
+      }
+      "addFile throws if directory exists" in {
+        $.addSubDir("foo")
+        a[FileAlreadyExistsException] should be thrownBy $.addFile("foo")
       }
       "directory" in {
         $.addSubDir("foobar")
-        new File($.dir, "foobar").isDirectory shouldReturn true
+        new File($, "foobar").isDirectory shouldReturn true
+      }
+      "addSubDir if file exists" in {
+        $.addFile("bar.foo")
+        a[FileAlreadyExistsException] should be thrownBy $.addSubDir("bar.foo")
+      }
+      "case sensitivity is fine" in {
+        val file = $.addFile("FoO2.bAr")
+        val isCaseSensitiveOs = new File("FoO2.bAr").getCanonicalPath.equals(file.path)
+        if (isCaseSensitiveOs)
+          $.addFile("fOo2.BAR") shouldReturn file
+        else
+          noException shouldBe thrownBy($.addFile("fOo2.BAR"))
+
+        val dir = $.addSubDir("FoOBaR2")
+        if (isCaseSensitiveOs)
+          $.addSubDir("fOoBAr2") shouldReturn dir
+        else
+          noException shouldBe thrownBy($.addSubDir("fOoBAr2"))
+      }
+    }
+    "get" - {
+      "file" in {
+        val f = $.addFile("foo.bar")
+        $.getFile("foo.bar").value shouldReturn f
+      }
+      "none if file doesn't exist" in {
+        $.getFile("non_existent_file") shouldReturn None
+      }
+      "throws if directory" in {
+        $.addSubDir("foobar")
+        an[IOException] should be thrownBy $.getFile("foobar")
+      }
+      "directory" in {
+        val d = $.addSubDir("mydir")
+        $.getDir("mydir").value shouldReturn d
+      }
+      "none if directory doesn't exist" in {
+        $.getDir("non_existent_dir") shouldReturn None
+      }
+      "throws if file" in {
+        $.addFile("myfile")
+        an[IOException] should be thrownBy $.getDir("myfile")
       }
     }
     "list files" - {
@@ -111,11 +158,11 @@ class DirectoryTest
         $.addSubDir("foobar")
         $.addSubDir("barfoo")
         $.dirs.toSet === Set(new File(tempDir, "foobar"), new File(tempDir, "barfoo"))
-          .map(Directory(_))
+          .map(IODirectory(_))
       }
       "not list deep dirs" in {
         $.addSubDir("foo").addSubDir("bar")
-        $.dirs === Vector(Directory(new File(tempDir, "foo")))
+        $.dirs === Vector(IODirectory(new File(tempDir, "foo")))
       }
     }
     "deep" - {
@@ -135,7 +182,7 @@ class DirectoryTest
         )
       }
       "deepPaths" in {
-        testDeepPaths($, _.deepPaths.toSeq)
+        testDeepPaths($, _.deepPaths.map(_.asInstanceOf[File]).toVector)
       }
       "deepPathsObservable" in {
         testDeepPaths($, _.deepPathsObservable.map(_._1).toVectorBlocking)
@@ -144,7 +191,7 @@ class DirectoryTest
     "clear" - {
       "not delete self" in {
         $.clear()
-        $.dir should exist
+        $ should exist
       }
       "delete all" - {
         "only files" in {
@@ -171,13 +218,13 @@ class DirectoryTest
       $.addFile("foo.bar")
       $.addSubDir("foobar").addFile("bar.foo")
       $.deleteAll()
-      $.dir should not(exist)
+      $ should not(exist)
     }
     "parent" - {
       "return all parent dirs" in {
         val c = tempDir.addSubDir("a").addSubDir("b").addSubDir("c")
-        c.parent === (tempDir / "a" / "b" /)
-        c.parent.parent === (tempDir / "a" /)
+        c.parent === tempDir / "a" / "b"
+        c.parent.parent === tempDir / "a"
         c.parent.parent.parent === tempDir
       }
       "throw exception on root" in {
