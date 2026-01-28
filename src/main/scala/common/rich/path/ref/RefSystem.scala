@@ -20,11 +20,10 @@ trait PathRef {
   /** Returns the canonical path. */
   def path: String
   final override lazy val hashCode: Int = path.hashCode
-  final override def equals(obj: Any): Boolean =
-    obj.getClass == this.getClass && {
-      val that = obj.asInstanceOf[PathRef]
-      this.path == that.path
-    }
+  final override def equals(obj: Any): Boolean = obj match {
+    case that: PathRef => this.path == that.path
+    case _ => false
+  }
   final def normalizedPath: String = path.replace(File.separatorChar, '/')
   def name: String
   override def toString: String = s"${this.simpleName}: $path"
@@ -32,6 +31,7 @@ trait PathRef {
   def parent: S#D
   def parents: Seq[S#D]
   def hasParent: Boolean
+  def /(path: String): PathRef with File
 }
 
 trait PathRefFactory {

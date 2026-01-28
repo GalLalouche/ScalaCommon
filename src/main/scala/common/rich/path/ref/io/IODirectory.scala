@@ -1,7 +1,7 @@
 package common.rich.path.ref.io
 
-import java.io.{File, IOException}
-import java.nio.file.{DirectoryStream, Files, FileVisitResult, Path, SimpleFileVisitor}
+import java.io.{File, FileNotFoundException, IOException}
+import java.nio.file.{DirectoryStream, FileAlreadyExistsException, Files, FileVisitResult, Path, SimpleFileVisitor}
 import java.nio.file.attribute.BasicFileAttributes
 
 import rx.lang.scala.{Observable, Subscriber}
@@ -20,16 +20,20 @@ class IODirectory private[io] (override val path: String)
   /** Adds a new file under the directory if one doesn't exist, and returns it. */
   def addFile(name: String): IOFile = {
     // TODO figure out if we can skip the canonicalization here.
-    val $ = IOFile(new File(this, name))
-    $.createNewFile()
-    $
+    val f = new File(this, name)
+    if (f.isDirectory)
+      throw new FileAlreadyExistsException(
+        s"Could not create file <$name> under <$path>: a directory with the same name exists",
+      )
+    f.createNewFile
+    IOFile(f)
   }
   /** Adds a new sub-directory under this directory if one doesn't exist, and returns it. */
   def addSubDir(name: String): IODirectory = {
     val file = new File(this, name)
     if (file.exists && file.isDirectory.isFalse)
-      throw new IOException(
-        s"Could not create directory $name under $path: a file with the same name exists",
+      throw new FileAlreadyExistsException(
+        s"Could not create directory <$name> under <$path>: a file with the same name exists",
       )
     // TODO figure out if we can skip the canonicalization here.
     if (file.exists.isFalse)
@@ -76,7 +80,8 @@ class IODirectory private[io] (override val path: String)
     sub =>
       new EvenSimplerVisitor[IODirectory](sub) {
         protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
-          sub.onNext((IODirectory.unsafe(dir.toFile), attrs))
+          // TODO avoid canonicalization here if possible
+          sub.onNext((IODirectory(dir.toFile), attrs))
       }
   }
 
@@ -92,9 +97,9 @@ class IODirectory private[io] (override val path: String)
   def deepPathsObservable: Observable[(File, BasicFileAttributes)] = observable(sub =>
     new EvenSimplerVisitor[Path](sub) {
       protected override def onFile(file: Path, attrs: BasicFileAttributes): Unit =
-        sub.onNext((file.toFile, attrs))
+        sub.onNext((IOFile(file.toFile), attrs))
       protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
-        sub.onNext((dir.toFile, attrs))
+        sub.onNext((IODirectory.unsafe(dir.toFile), attrs))
     },
   )
 
@@ -109,7 +114,7 @@ class IODirectory private[io] (override val path: String)
     }
   }
 
-  override def toString = s"Directory($path)"
+  override def toString = s"IODirectory($path)"
 
   private abstract class EvenSimplerVisitor[A](sub: Subscriber[_]) extends SimpleFileVisitor[Path] {
     protected def onFile(file: Path, attrs: BasicFileAttributes): Unit = {}
@@ -131,8 +136,22 @@ class IODirectory private[io] (override val path: String)
     private def result: FileVisitResult =
       if (sub.isUnsubscribed) FileVisitResult.TERMINATE else FileVisitResult.CONTINUE
   }
-  override def getFile(name: String): Option[IOFile] = ???
-  override def getDir(name: String): Option[IODirectory] = ???
+  override def getFile(name: String): Option[IOFile] = {
+    val f = new File(this, name)
+    if (f.exists.isFalse)
+      return None
+    if (f.isDirectory)
+      throw new IOException(s"Expected a file but got a directory: <${f.getPath}>")
+    // TODO avoid canonicalization here if possibl
+    Some(IOFile(f))
+  }
+  override def getDir(name: String): Option[IODirectory] = {
+    val file = new File(this, name)
+    if (file.exists && file.isDirectory.isFalse)
+      throw new IOException(s"Expected a directory but got a file: <${file.getPath}>")
+    val d = IODirectory.unsafe(file)
+    if (d.exists && d.isDirectory) Some(d) else None
+  }
   override def hasParent: Boolean = getParent != null
   override def parent: IODirectory = {
     val p = getParentFile
@@ -152,7 +171,10 @@ class IODirectory private[io] (override val path: String)
 
 object IODirectory {
   def apply(f: File): IODirectory = {
-    require(f.exists && f.isDirectory, s"${f.getAbsolutePath} is not a directory")
+    if (f.exists.isFalse)
+      throw new FileNotFoundException(s"File does not exist: <${f.getPath}>")
+    if (f.isDirectory.isFalse)
+      throw new IOException(s"Expected a file but got a directory: <${f.getPath}>")
     new IODirectory(f.getCanonicalPath)
   }
   def apply(s: String): IODirectory = apply(new File(s))

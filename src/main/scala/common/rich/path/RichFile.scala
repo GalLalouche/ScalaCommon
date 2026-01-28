@@ -10,6 +10,7 @@ import scala.language.implicitConversions
 
 import common.rich.RichT._
 import common.rich.path.ref.io.IODirectory
+import common.rich.primitives.RichOption.richOption
 import common.rich.primitives.RichString.richString
 
 // Not an implicit class since it is returned from some methods and it would be annoying if it was nested.
@@ -23,7 +24,10 @@ object RichFile {
     def nameWithoutExtension: String = $.getName.dropAfterLast('.')
 
     // TODO avoid this, since if we implement this in FileRef, we can avoid the canonicalization.
-    def parent: IODirectory = IODirectory($.getParentFile)
+    def parent: IODirectory =
+      Option($.getParentFile)
+        .map(IODirectory(_))
+        .getOrThrow(new UnsupportedOperationException("Root directories have no parent"))
 
     /** Appends a line to the end of the file */
     def appendLine(s: String): File = {
@@ -78,7 +82,6 @@ object RichFile {
 
     /** Returns a backup file of this file */
     def backup = new BackupFile($)
-    def /(path: String): File = new File($, path)
 
     def creationTime: LocalDateTime = fromFileTime(_.creationTime)
     def lastAccessTime: LocalDateTime = fromFileTime(_.lastAccessTime)

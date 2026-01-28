@@ -32,8 +32,9 @@ object ObservableRichFileUtils extends PlainSeqInstances {
       newName: String,
       obs: Obs[IODirectory],
   ): Unit = {
-    if (parentDirectory.getFile(newName).isDefined)
-      throw new FileAlreadyExistsException(parentDirectory.path + "/" + newName)
+    val target = new File(parentDirectory, newName)
+    if (target.exists)
+      throw new FileAlreadyExistsException(target.getCanonicalPath)
     val targetDir = parentDirectory.addSubDir(newName)
     moveContents(
       src,

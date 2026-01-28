@@ -15,4 +15,9 @@ trait IOPath extends PathRef { self: File =>
   override def name: String = getName
   override def path: String = getPath
   override def parent: IODirectory
+  override def /(path: String): File with PathRef = {
+    val file = new File(self, path)
+    if (file.isDirectory) IODirectory(file) else IOFile(file)
+  }
+
 }

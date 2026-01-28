@@ -8,9 +8,13 @@ import rx.lang.scala.Observable
 /** Must exist. */
 trait DirectoryRef extends PathRef { self =>
   type S <: RefSystem
+  /** Throws if the name belongs to an existing directory. */
   def addFile(name: String): S#F
+  /** Throws if the name is that of an existing directory. */
   def getFile(name: String): Option[S#F]
+  /** Throws if the name belongs to an existing file (not a directory). */
   def addSubDir(name: String): S#D
+  /** Throws if the name is that of an existing file (not a directory). */
   def getDir(name: String): Option[S#D]
   def dirs: Iterator[S#D]
   def files: Iterator[S#F]

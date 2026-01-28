@@ -1,18 +1,19 @@
-package common.rich.path
+package common.rich.path.ref.io
 
-import java.io.File
+import java.io.{File, FileNotFoundException, IOException}
+import java.nio.file.FileAlreadyExistsException
 
 import org.scalatest.{BeforeAndAfter, OneInstancePerTest}
+import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.freespec.AnyFreeSpec
 
 import scala.language.postfixOps
 
 import common.rich.path.RichFile.richFile
-import common.rich.path.ref.io.IODirectory
 import common.rx.RichObservable.richObservable
 import common.test.DirectorySpecs
 
-class DirectoryTest
+class IODirectoryTest
     extends AnyFreeSpec
     with DirectorySpecs
     with OneInstancePerTest
@@ -51,13 +52,13 @@ class DirectoryTest
   private def testDeepPaths(dir: IODirectory, f: IODirectory => Seq[File]): Unit = {
     setupDir(dir)
     f(dir).toSet shouldReturn Set(
-      new File(tempDir, "file1.txt"),
-      new File(tempDir, "file2.txt"),
-      new File(tempDir, "dir1"),
-      tempDir / "dir1" / "file3.txt",
-      new File(tempDir, "dir2"),
-      tempDir / "dir2" / "subdir",
-      tempDir / "dir2" / "subdir" / "file4.txt",
+      IOFile(new File(tempDir, "file1.txt")),
+      IOFile(new File(tempDir, "file2.txt")),
+      IODirectory(new File(tempDir, "dir1")),
+      IOFile(tempDir / "dir1" / "file3.txt"),
+      IODirectory(new File(tempDir, "dir2")),
+      IODirectory(tempDir / "dir2" / "subdir"),
+      IOFile(tempDir / "dir2" / "subdir" / "file4.txt"),
     )
   }
   // yeah yeah, it uses DirectorySpecs which uses Directory
@@ -65,15 +66,13 @@ class DirectoryTest
   "Ctor should" - {
     "throw exception" - {
       "if file does not exist" in {
-        an[IllegalArgumentException] should be thrownBy {
+        a[FileNotFoundException] should be thrownBy {
           IODirectory("C:/__this_should_not_Ever_EXIST_!@#!@#!13123123")
         }
       }
       "if file isn't a directory" in {
         val f = tempDir.addFile("file")
-        an[IllegalArgumentException] should be thrownBy {
-          IODirectory(f)
-        }
+        an[IOException] should be thrownBy IODirectory(f)
       }
     }
   }
@@ -85,9 +84,41 @@ class DirectoryTest
         $.addFile("foo.bar")
         new File($, "foo.bar") should exist
       }
+      "addFile throws if directory exists" in {
+        $.addSubDir("foo")
+        a[FileAlreadyExistsException] should be thrownBy $.addFile("foo")
+      }
       "directory" in {
         $.addSubDir("foobar")
         new File($, "foobar").isDirectory shouldReturn true
+      }
+      "addSubDir if file exists" in {
+        $.addFile("bar.foo")
+        a[FileAlreadyExistsException] should be thrownBy $.addSubDir("bar.foo")
+      }
+    }
+    "get" - {
+      "file" in {
+        val f = $.addFile("foo.bar")
+        $.getFile("foo.bar").value shouldReturn f
+      }
+      "none if file doesn't exist" in {
+        $.getFile("non_existent_file") shouldReturn None
+      }
+      "throws if directory" in {
+        $.addSubDir("foobar")
+        an[IOException] should be thrownBy $.getFile("foobar")
+      }
+      "directory" in {
+        val d = $.addSubDir("mydir")
+        $.getDir("mydir").value shouldReturn d
+      }
+      "none if directory doesn't exist" in {
+        $.getDir("non_existent_dir") shouldReturn None
+      }
+      "throws if file" in {
+        $.addFile("myfile")
+        an[IOException] should be thrownBy $.getDir("myfile")
       }
     }
     "list files" - {
