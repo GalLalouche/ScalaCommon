@@ -121,6 +121,6 @@ class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with On
   "path is canonical" in {
     val f1 = tempDir.addFile("f1")
     val f2 = tempDir / "./f1"
-    f1.path shouldReturn f2.path
+    f1.getPath shouldReturn f2.getPath
   }
 }

@@ -8,20 +8,20 @@ import org.scalatest.freespec.AnyFreeSpec
 
 import common.rich.RichT.richT
 import common.rich.path.RichFile.richFile
-import common.rich.path.RichPath.poorPath
+import common.rich.path.ref.io.{IODirectory, TempDirectory}
 import common.test.DirectorySpecs
 
 class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstancePerTest {
   private lazy val dir2 = TempDirectory()
   "move file" - {
     tempFile.write("foobar")
-    val tempFileName = tempFile.name
+    val tempFileName = tempFile.getName
     val otherFile = tempDir.addFile("other_file")
     otherFile.write("bazz")
     def verifyFile(f: java.io.File, name: String = tempFileName): Unit = {
       f.exists shouldReturn true
       f.readAll shouldReturn "foobar"
-      f.name shouldReturn name
+      f.getName shouldReturn name
     }
     def verifyNoChange(): Unit = {
       verifyFile(tempFile, tempFileName)
@@ -69,16 +69,16 @@ class RichFileUtilsTest extends AnyFreeSpec with DirectorySpecs with OneInstance
     }
   }
   "directory movers" - {
-    def assertEmptyDir(d: Directory) = {
+    def assertEmptyDir(d: IODirectory) = {
       d.dirs shouldBe empty
       d.files shouldBe empty
     }
     val targetDir = dir2
     val originalCopy =
       better.files
-        .File(filledDir.dir.toPath)
-        .copyTo(BFile(filledDir.parent.dir.toScala, filledDir.name + "_clone"))
-        .|>(Directory apply _.toJava)
+        .File(filledDir.toPath)
+        .copyTo(BFile(filledDir.parent.toScala, filledDir.name + "_clone"))
+        .|>(IODirectory apply _.toJava)
     val originalName = filledDir.name
     "move directory" - {
       "happy path" in {

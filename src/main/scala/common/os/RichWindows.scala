@@ -5,8 +5,8 @@ import java.io.File
 import scala.sys.process._
 
 import common.rich.RichT._
-import common.rich.path.Directory
 import common.rich.path.RichFile._
+import common.rich.path.ref.io.IODirectory
 import common.rich.primitives.RichString._
 
 object RichWindows extends RichOs {
@@ -50,6 +50,6 @@ object RichWindows extends RichOs {
   }
   override def kill(pid: Int): Unit =
     Runtime.getRuntime.exec("taskkill /F /PID " + pid)
-  override def unzip(file: File, dir: Directory): Unit =
-    Vector("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.path).!!
+  override def unzip(file: File, dir: IODirectory): Unit =
+    Vector("""c:\Program Files\7-Zip\7z.exe""", "x", s"-o${dir.path}", "-y", file.getPath).!!
 }

@@ -2,15 +2,15 @@ package common.os
 
 import java.io.File
 
-import common.rich.path.Directory
-import common.rich.path.RichFile._
+import common.rich.path.RichFile.richFile
+import common.rich.path.ref.io.IODirectory
 
 trait RichOs {
   def getAssociation(file: File): String
   def getRunningProcesses: Seq[ProcessInfo]
   def kill(pid: Int): Unit
   def unzip(file: File): Unit = unzip(file, outputDir = file.parent)
-  def unzip(file: File, outputDir: Directory): Unit
+  def unzip(file: File, outputDir: IODirectory): Unit
 }
 
 object RichOs {

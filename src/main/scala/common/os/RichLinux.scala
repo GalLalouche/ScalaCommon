@@ -4,7 +4,7 @@ import java.io.File
 
 import scala.sys.process.Process
 
-import common.rich.path.Directory
+import common.rich.path.ref.io.IODirectory
 
 object RichLinux extends RichOs {
   override def getAssociation(file: File): String = {
@@ -42,5 +42,5 @@ object RichLinux extends RichOs {
   }
 
   override def kill(pid: Int): Unit = Process("kill " + pid)
-  override def unzip(file: File, dir: Directory): Unit = ???
+  override def unzip(file: File, dir: IODirectory): Unit = ???
 }

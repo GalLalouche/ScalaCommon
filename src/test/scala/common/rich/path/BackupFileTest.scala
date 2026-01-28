@@ -1,5 +1,7 @@
 package common.rich.path
 
+import java.io.File
+
 import org.scalatest._
 import org.scalatest.freespec.AnyFreeSpec
 
@@ -7,7 +9,7 @@ import common.rich.path.RichFile.richFile
 import common.test.{AuxSpecs, DirectorySpecs}
 
 class BackupFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with OneInstancePerTest {
-  private val f = tempFile.appendLine("Foobar")
+  private val f: File = tempFile.appendLine("Foobar")
   private val backup = f.backup
   "restore" - {
     "overrides any changes" in {
