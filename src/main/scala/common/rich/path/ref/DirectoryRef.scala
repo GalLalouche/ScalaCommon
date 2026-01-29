@@ -5,6 +5,8 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import rx.lang.scala.Observable
 
+import common.UtilsVersionSpecific
+
 /** Must exist. */
 trait DirectoryRef extends PathRef { self =>
   type S <: RefSystem
@@ -27,8 +29,8 @@ trait DirectoryRef extends PathRef { self =>
   def deepFiles: Iterator[S#F]
   // TODO freaking unfoldables already
   override def parents =
-    LazyList
-      .iterate(Option(parent))(p =>
+    UtilsVersionSpecific
+      .lazySeqIterate(Option(parent))(p =>
         if (p.get.hasParent) Some(p.get.parent.asInstanceOf[S#D]) else None,
       )
       .takeWhile(_.isDefined)

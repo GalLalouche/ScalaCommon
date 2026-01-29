@@ -19,5 +19,4 @@ trait IOPath extends PathRef { self: File =>
     val file = new File(self, path)
     if (file.isDirectory) IODirectory(file) else IOFile(file)
   }
-
 }

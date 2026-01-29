@@ -6,8 +6,8 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import rx.lang.scala.{Observable, Subscriber}
 
-import scala.util.Using
-
+import common.TestAsserts.testAssert
+import common.UtilsVersionSpecific
 import common.rich.path.ref.DirectoryRef
 import common.rich.primitives.RichBoolean._
 import common.rich.primitives.RichString.richString
@@ -17,41 +17,40 @@ class IODirectory private[io] (override val path: String)
     extends File(path)
     with DirectoryRef
     with IOPath {
+  testAssert(new File(path).getCanonicalPath == path)
   /** Adds a new file under the directory if one doesn't exist, and returns it. */
   def addFile(name: String): IOFile = {
-    // TODO figure out if we can skip the canonicalization here.
     val f = new File(this, name)
     if (f.isDirectory)
       throw new FileAlreadyExistsException(
         s"Could not create file <$name> under <$path>: a directory with the same name exists",
       )
     f.createNewFile
-    IOFile(f)
+    IOFile.unsafe(f)
   }
   /** Adds a new sub-directory under this directory if one doesn't exist, and returns it. */
   def addSubDir(name: String): IODirectory = {
     val file = new File(this, name)
-    if (file.exists && file.isDirectory.isFalse)
-      throw new FileAlreadyExistsException(
-        s"Could not create directory <$name> under <$path>: a file with the same name exists",
-      )
-    // TODO figure out if we can skip the canonicalization here.
-    if (file.exists.isFalse)
+    if (file.exists) {
+      if (file.isDirectory.isFalse)
+        throw new FileAlreadyExistsException(
+          s"Could not create directory <$name> under <$path>: a file with the same name exists",
+        )
+    } else
       file.mkdirs()
-    IODirectory(file)
+    IODirectory.unsafe(file)
   }
 
-  // TODO replace these with DirectoryStream
-  // TODO avoid the canonicalization cost if possible
   /** Returns all direct sub-directory of this directory. */
-  def dirs: Iterator[IODirectory] = listFiles.iterator.filter(_.isDirectory).map(IODirectory(_))
+  def dirs: Iterator[IODirectory] =
+    listFiles.iterator.filter(_.isDirectory).map(IODirectory.unsafe)
 
   /** All direct files of this directory, that are *not* directories */
-  def files: Iterator[IOFile] = listFiles.iterator.filterNot(_.isDirectory).map(IOFile(_))
+  def files: Iterator[IOFile] = listFiles.iterator.filterNot(_.isDirectory).map(IOFile.unsafe)
 
   /** Deletes all files and directories in this dir recursively including itself. */
-  def deleteAll() {
-    def go(d: IODirectory) {
+  def deleteAll(): Unit = {
+    def go(d: IODirectory): Unit = {
       d.dirs.foreach(go)
       d.files.foreach(x => if (x.exists && x.delete.isFalse) println("could not delete: " + x))
       if (d.exists && d.delete.isFalse)
@@ -67,10 +66,10 @@ class IODirectory private[io] (override val path: String)
   }
   override def deepFiles: Iterator[IOFile] = deepPaths.collect { case f: IOFile => f }
   /** Significantly faster than the above iterator (at least on Windows). */
-  def deepFilesObservable: Observable[(File, BasicFileAttributes)] = observable { sub =>
+  def deepFilesObservable: Observable[(IOFile, BasicFileAttributes)] = observable { sub =>
     new EvenSimplerVisitor[Path](sub) {
       protected override def onFile(file: Path, attrs: BasicFileAttributes): Unit =
-        sub.onNext((file.toFile, attrs))
+        sub.onNext((IOFile.unsafe(file.toString), attrs))
     }
   }
   /** Returns all directories nested inside this directory (in any given depth). */
@@ -80,26 +79,25 @@ class IODirectory private[io] (override val path: String)
     sub =>
       new EvenSimplerVisitor[IODirectory](sub) {
         protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
-          // TODO avoid canonicalization here if possible
-          sub.onNext((IODirectory(dir.toFile), attrs))
+          sub.onNext((IODirectory.unsafe(dir.toString), attrs))
       }
   }
 
   /** Returns all files and directories nested inside this directory (in any given depth). */
   def deepPaths: Iterator[IOPath] = listFiles.iterator.flatMap { f =>
     if (f.isDirectory) {
-      val dir = IODirectory(f)
+      val dir = IODirectory.unsafe(f)
       Iterator(dir) ++ dir.deepPaths
     } else
-      Iterator(IOFile(f))
+      Iterator(IOFile.unsafe(f))
   }
   /** Significantly faster than the above iterator (at least on Windows). */
   def deepPathsObservable: Observable[(File, BasicFileAttributes)] = observable(sub =>
     new EvenSimplerVisitor[Path](sub) {
       protected override def onFile(file: Path, attrs: BasicFileAttributes): Unit =
-        sub.onNext((IOFile(file.toFile), attrs))
+        sub.onNext((IOFile.unsafe(file.toString), attrs))
       protected override def onDirectory(dir: Path, attrs: BasicFileAttributes): Unit =
-        sub.onNext((IODirectory.unsafe(dir.toFile), attrs))
+        sub.onNext((IODirectory.unsafe(dir.toString), attrs))
     },
   )
 
@@ -142,8 +140,7 @@ class IODirectory private[io] (override val path: String)
       return None
     if (f.isDirectory)
       throw new IOException(s"Expected a file but got a directory: <${f.getPath}>")
-    // TODO avoid canonicalization here if possibl
-    Some(IOFile(f))
+    Some(IOFile.unsafe(f))
   }
   override def getDir(name: String): Option[IODirectory] = {
     val file = new File(this, name)
@@ -156,8 +153,7 @@ class IODirectory private[io] (override val path: String)
   override def parent: IODirectory = {
     val p = getParentFile
     require(p != null, s"Directory $path does not have a parent")
-    // TODO skip canonicalization if possible
-    IODirectory(p)
+    IODirectory.unsafe(p)
   }
   private[io] override def witness: PackageWitness = PackageWitness
   override def containsFileWithExtension(extensions: Iterable[String]): Boolean = {
@@ -165,7 +161,7 @@ class IODirectory private[io] (override val path: String)
       val name = entry.getFileName.toString
       extensions.exists(name.endsWithCaseInsensitive)
     }
-    Using.resource(Files.newDirectoryStream(toPath, filter))(_.iterator.hasNext)
+    UtilsVersionSpecific.using(Files.newDirectoryStream(toPath, filter))(_.iterator.hasNext)
   }
 }
 
@@ -178,9 +174,9 @@ object IODirectory {
     new IODirectory(f.getCanonicalPath)
   }
   def apply(s: String): IODirectory = apply(new File(s))
-  /** Does not check for existence or that the file is a directory. */
-  @inline private[io] def unsafe(s: String): IODirectory = unsafe(new File(s))
-  @inline private[io] def unsafe(f: File): IODirectory = new IODirectory(f.getCanonicalPath)
+  /** Does not check for existence or that the file is a directory, nor perform canonicalization. */
+  @inline private[io] def unsafe(s: String): IODirectory = new IODirectory(s)
+  @inline private[io] def unsafe(f: File): IODirectory = unsafe(f.getPath)
   /** Creates all directories along the path as needed */
   def makeDir(f: File): IODirectory = {
     if (f.isDirectory.isFalse)
