@@ -1,5 +1,6 @@
 package common.rich
 
+import java.nio.file.attribute.FileTime
 import java.time._
 
 import scala.math.Ordered.orderingToOrdered
@@ -26,5 +27,8 @@ object RichTime {
     def age(c: Clock): Duration = Duration.between($, c.getLocalDateTime)
     def isNewerThan(d: Duration, c: Clock): Boolean = age(c) < d
     def isOlderThan(d: Duration, c: Clock): Boolean = isNewerThan(d, c).isFalse
+  }
+  implicit class RichFileTime(private val $ : FileTime) extends AnyVal {
+    def toLocalDateTime: LocalDateTime = $.toInstant.toLocalDateTime
   }
 }
