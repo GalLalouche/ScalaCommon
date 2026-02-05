@@ -232,6 +232,13 @@ class RichObservableTest extends AsyncFreeSpec with AsyncAuxSpecs {
         )
       }
     }
+    "frequenciesBlocking" in {
+      Observable.just(1, 2, 3, 2, 1, 2, 1, 1).frequenciesBlocking shouldReturn Map(
+        1 -> 4,
+        2 -> 3,
+        3 -> 1,
+      )
+    }
 
     "Object methods" - {
       "register" - {
