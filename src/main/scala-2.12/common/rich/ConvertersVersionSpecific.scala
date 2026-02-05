@@ -2,10 +2,11 @@ package common.rich
 
 import java.util
 
-import scala.collection.JavaConverters.{asJavaIteratorConverter, mapAsScalaMap}
+import scala.collection.JavaConverters.{asJavaIteratorConverter, asScalaIteratorConverter, mapAsScalaMap}
 
 private[common] object ConvertersVersionSpecific {
   def toJava[A](i: Iterator[A]): util.Iterator[A] = asJavaIteratorConverter(i).asJava
+  def toScala[A](i: util.Iterator[A]): Iterator[A] = asScalaIteratorConverter(i).asScala
   def toScala[K, V](m: util.Map[K, V]): scala.collection.mutable.Map[K, V] =
     mapAsScalaMap(m)
   def distinctBy[A, B](i: Iterable[A], f: A => B): Iterable[A] = new Iterable[A] {

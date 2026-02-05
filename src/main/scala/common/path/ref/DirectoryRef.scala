@@ -21,6 +21,7 @@ trait DirectoryRef extends PathRef {
   def dirs: Iterator[S#D]
   def files: Iterator[S#F]
   def containsFileWithExtension(extensions: Iterable[String]): Boolean
+  // TODO this is just painfully inefficient :\
   def paths: Iterator[S#P] = dirs.++(files).asInstanceOf[Iterator[S#P]]
   def isDescendant(path: String): Boolean =
     Paths.get(path).normalize().startsWith(Paths.get(this.path).normalize())

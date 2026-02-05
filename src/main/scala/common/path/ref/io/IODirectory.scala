@@ -9,6 +9,8 @@ import rx.lang.scala.{Observable, Subscriber}
 import common.TestAsserts.testAssert
 import common.UtilsVersionSpecific
 import common.path.ref.DirectoryRef
+import common.rich.ConvertersVersionSpecific
+import common.rich.RichT.richT
 import common.rich.primitives.RichBoolean._
 import common.rich.primitives.RichString.richString
 
@@ -51,11 +53,18 @@ class IODirectory private[io] (override val path: String)
   }
 
   /** Returns all direct sub-directory of this directory. */
-  def dirs: Iterator[IODirectory] =
-    listFiles.iterator.filter(_.isDirectory).map(IODirectory.unsafe)
+  override def dirs: Iterator[IODirectory] =
+    // Files.find includes the root dir itself, so we drop(1).
+    fileIterator(_.isDirectory).drop(1).map(IODirectory unsafe _.toString)
 
   /** All direct files of this directory, that are *not* directories */
-  def files: Iterator[IOFile] = listFiles.iterator.filterNot(_.isDirectory).map(IOFile.unsafe)
+  override def files: Iterator[IOFile] = fileIterator(_.isRegularFile).map(IOFile unsafe _.toString)
+
+  private def fileIterator(predicate: BasicFileAttributes => Boolean): Iterator[Path] =
+    Files // Using Files.find to avoid fetching the file attributes multiple times.
+      .find(this.toPath, 1, (_, attrs) => predicate(attrs))
+      .iterator
+      .|>(ConvertersVersionSpecific.toScala(_))
 
   /** Deletes all files and directories in this dir recursively including itself. */
   def deleteAll(): Unit = {
