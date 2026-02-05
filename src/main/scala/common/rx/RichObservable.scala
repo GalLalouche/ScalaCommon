@@ -12,6 +12,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 
 import common.rich.func.kats.ObservableInstances.observableInstances
 
+import common.rich.ConvertersVersionSpecific
 import common.rich.collections.RichMap.richMutableMap
 import common.rich.primitives.RichBoolean.richBoolean
 
@@ -127,6 +128,14 @@ object RichObservable {
         map.getOrElseUpdate(k, Vector.newBuilder[A]) += a
       }
       map.properMapValues(downstream compose (_.result()))
+    }
+
+    def frequenciesBlocking: Map[A, Int] = {
+      val freqMap = new java.util.HashMap[A, java.lang.Integer]()
+      $.foreachBlocking { a =>
+        freqMap.compute(a, (_, count) => if (count != null) count + 1 else 1)
+      }
+      ConvertersVersionSpecific.toScala(freqMap).properMapValues(_.toInt)
     }
   }
 
