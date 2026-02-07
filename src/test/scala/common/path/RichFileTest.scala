@@ -22,12 +22,24 @@ class RichFileTest extends AnyFreeSpec with AuxSpecs with DirectorySpecs with On
     require(f.delete())
   }
 
-  "Extension" - {
+  "extension" - {
     "has extension" in {
       tempDir.addFile("foo.bar").extension shouldBe "bar"
     }
     "has no extension should return an empty string" in {
       tempDir.addFile("foobar").extension shouldBe ""
+    }
+  }
+
+  "hasExtension" - {
+    "no extension returns false" in {
+      tempDir.addFile("foobar").hasExtension("bar") shouldReturn false
+    }
+    "is just extension returns false and doesn't throw" in {
+      tempDir.addFile("bar").hasExtension("bar") shouldReturn false
+    }
+    "has extension returns true" in {
+      tempDir.addFile("foo.BaR").hasExtension("bar") shouldReturn true
     }
   }
 
