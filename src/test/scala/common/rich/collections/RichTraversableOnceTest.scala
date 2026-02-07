@@ -199,6 +199,14 @@ class RichTraversableOnceTest extends AnyFreeSpec with AuxSpecs {
     }
   }
 
+  "frequencies" in {
+    Vector(1, 2, 3, 2, 1, 2, 1, 1).frequencies shouldReturn Map(
+      1 -> 4,
+      2 -> 3,
+      3 -> 1,
+    )
+  }
+
   "aggregateMap" in {
     implicit val concatStrings: Semigroup[String] = Semigroup.instance(_ + _)
     Vector("one", "two", "three").aggregateMap(_.length, _.toUpperCase) shouldReturn Map(
