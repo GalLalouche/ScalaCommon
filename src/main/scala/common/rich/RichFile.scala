@@ -29,6 +29,17 @@ object RichFile {
       Option($.getParentFile)
         .map(IODirectory(_))
         .getOrThrow(new UnsupportedOperationException("Root directories have no parent"))
+    /** Case-insensitive. */
+    def hasExtension(ext: String): Boolean = {
+      val path = $.getPath
+      path.length > ext.length + 1 &&
+      path.charAt(path.length - ext.length - 1) == '.' &&
+      path.endsWithCaseInsensitive(ext)
+    }
+
+    def extensionIsAnyOf(exts: Iterable[String]): Boolean = exts.exists(hasExtension)
+    def extensionIsAnyOf(str1: String, strs: String*): Boolean =
+      hasExtension(str1) || extensionIsAnyOf(strs)
 
     /** Appends a line to the end of the file */
     def appendLine(s: String): File = {

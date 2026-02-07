@@ -48,10 +48,8 @@ sealed abstract class MemoryDir(val path: String) extends DirectoryRef with Memo
     this
   }
   def deepDirs: Iterator[S#D] = deepDirsObservable.map(_._1).toVectorBlocking.iterator
-  def containsFileWithExtension(extensions: Iterable[String]): Boolean = {
-    val set = extensions.toSet
-    files.exists(set contains _.extension)
-  }
+  def containsFileWithExtension(extensions: Iterable[String]): Boolean =
+    files.exists(extensions exists _.hasExtension)
   def deepDirsObservable: Observable[(S#D, BasicFileAttributes)] =
     Observable.from(dirsByName.values).fproduct(_.basicFileAttributes).flatMap { d =>
       Observable.just(d) ++ d._1.deepDirsObservable

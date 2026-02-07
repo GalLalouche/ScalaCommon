@@ -30,7 +30,12 @@ trait FileRef extends PathRef {
 
   @inline private def asRichFile: RichFile.richFile = RichFile.richFile(new File(path))
   final def extension: String = asRichFile.extension
-  final def nameWithoutExtension: String = asRichFile.nameWithoutExtension
+  @inline final def hasExtension(ext: String): Boolean = asRichFile.hasExtension(ext)
+  @inline final def extensionIsAnyOf(exts: Iterable[String]): Boolean =
+    asRichFile.extensionIsAnyOf(exts)
+  @inline final def extensionIsAnyOf(str1: String, strs: String*): Boolean =
+    asRichFile.extensionIsAnyOf(str1, strs: _*)
+  @inline final def nameWithoutExtension: String = asRichFile.nameWithoutExtension
 
   def lastAccessTime: LocalDateTime
 
