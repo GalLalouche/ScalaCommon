@@ -8,6 +8,7 @@ import scala.language.higherKinds
 import scala.math.log10
 
 import common.TopKBuilder
+import common.rich.ConvertersVersionSpecific
 import common.rich.RichT._
 import common.rich.RichTuple._
 import common.rich.collections.RichIterator._
@@ -80,7 +81,13 @@ object RichTraversableOnce {
       aggregateMap(toKey, toValue(_) :: Nil)
 
     /** The number of occurrences of each element */
-    def frequencies: Map[A, Int] = aggregateMap(e => e, 1.const)
+    def frequencies: Map[A, Int] = {
+      val freqMap = new java.util.HashMap[A, java.lang.Integer]()
+      $.foreach { a =>
+        freqMap.compute(a, (_, count) => if (count != null) count + 1 else 1)
+      }
+      ConvertersVersionSpecific.toScala(freqMap).properMapValues(_.toInt)
+    }
 
     /** The entropy value of this traversable */
     def entropy: Double = {
