@@ -6,6 +6,7 @@ import common.path.ref.io.IODirectory
 import common.rich.RichFile.richFile
 
 trait RichOs {
+  def isUnixLike: Boolean
   def getAssociation(file: File): String
   def getRunningProcesses: Seq[ProcessInfo]
   def kill(pid: Int): Unit
