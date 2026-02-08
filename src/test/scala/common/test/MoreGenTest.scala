@@ -36,4 +36,9 @@ class MoreGenTest extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with A
   property("nonEmptyString default is alpha numeric") {
     forAll(MoreGen.nonEmptyAlphaNumString)(s => s.nonEmpty && s.forall(_.isLetterOrDigit))
   }
+  property("containerOfN creates a container of the required size") {
+    forAll(MoreGen.containerOfN[Vector, String](Gen.choose(0, 10))) { xs =>
+      xs.size >= 0 && xs.size <= 10
+    }
+  }
 }
