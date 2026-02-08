@@ -4,6 +4,7 @@ import java.util.SplittableRandom
 
 import com.google.inject.{Binder, Provider, Provides, TypeLiteral}
 import com.google.inject.assistedinject.FactoryModuleBuilder
+import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.spi.{InjectionListener, TypeEncounter, TypeListener}
 import net.codingwell.scalaguice.{typeLiteral, InternalModule, ScalaModule}
 
@@ -42,6 +43,12 @@ trait ModuleUtils { self: InternalModule[_ <: Binder] =>
           encounter.register(this.asInstanceOf[InjectionListener[I]])
       override def afterInjection(injectee: A) = f(injectee)
     }
+
+  implicit class BindingBuilderOps[A: Manifest](private val $ : LinkedBindingBuilder[A]) {
+    def toLazyInstance(instance: => A): Unit = $.toProvider(new Provider[A] {
+      override def get(): A = instance
+    }).in(com.google.inject.Scopes.SINGLETON)
+  }
 }
 
 private object ModuleUtils {
