@@ -7,6 +7,7 @@ import scala.sys.process.Process
 import common.path.ref.io.IODirectory
 
 object RichLinux extends RichOs {
+  override def isUnixLike = true
   override def getAssociation(file: File): String = {
     val mimeType = Process("file --mime-type -b " + file.getCanonicalPath).!!
     Process("xdg-mime query default " + mimeType).!!.takeWhile(_ != '.')

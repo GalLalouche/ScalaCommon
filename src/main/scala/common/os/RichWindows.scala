@@ -10,6 +10,7 @@ import common.rich.RichT._
 import common.rich.primitives.RichString._
 
 object RichWindows extends RichOs {
+  override def isUnixLike = false
   override def getAssociation(file: File): String = {
     val extension = file.extension
     val assoc = Process("cmd /c assoc ." + extension).!!.split("=")(1)
