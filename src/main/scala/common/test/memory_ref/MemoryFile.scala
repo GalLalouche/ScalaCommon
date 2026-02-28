@@ -1,6 +1,6 @@
 package common.test.memory_ref
 
-import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
+import java.io.{InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
@@ -29,10 +29,20 @@ case class MemoryFile(parent: MemoryDir, name: String) extends FileRef with Memo
 
   override val creationTime: LocalDateTime = LocalDateTime.now()
   override def lastAccessTime: LocalDateTime = lastUpdatedTime
-  override def outputStream: OutputStream = new ByteArrayOutputStream {
-    override def write(b: Array[Byte], off: Int, len: Int): Unit = {
-      MemoryFile.this.content ++= b.slice(off, off + len)
-      touch()
+  override def outputStream: OutputStream = {
+    // Matches FileOutputStream's default behavior of truncating the file on open.
+    content = new Array[Byte](0)
+    new OutputStream {
+      override def write(b: Int): Unit = {
+        MemoryFile.this.content :+= b.toByte
+        touch()
+      }
+      // Overridden for performance: the default implementation calls write(int) in a loop, which
+      // would be O(n^2) due to array copying on each byte.
+      override def write(b: Array[Byte], off: Int, len: Int): Unit = {
+        MemoryFile.this.content ++= b.slice(off, off + len)
+        touch()
+      }
     }
   }
 
