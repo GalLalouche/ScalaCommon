@@ -71,6 +71,7 @@ private case class SubDir(
   override def hasParent = true
 }
 class MemoryRoot extends MemoryDir("/") {
+  override def exists: Boolean = true
   override def name: String = "/"
   override def parent = throw new UnsupportedOperationException("MemoryRoot has no parent")
   override def hasParent = false
