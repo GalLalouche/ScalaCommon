@@ -13,7 +13,8 @@ trait MemoryPath extends PathRef {
       .asInstanceOf[MemoryDir]
       .getSubPath(name)
       .getOrThrow(s"No such subpath <$name> in parent <$this>")
-  override def exists: Boolean = parent.files.exists(_.name == this.name)
+  override def exists: Boolean =
+    parent.files.exists(_.name == this.name) || parent.dirs.exists(_.name == this.name)
   private[memory_ref] def basicFileAttributes: BasicFileAttributes = new BasicFileAttributes {
     override def isRegularFile: Boolean = false
     override def isOther: Boolean = false
