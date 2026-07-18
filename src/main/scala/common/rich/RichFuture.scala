@@ -1,5 +1,7 @@
 package common.rich
 
+import java.util.concurrent.{ThreadFactory, TimeoutException}
+
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
@@ -7,22 +9,24 @@ import scala.util.{Failure, Success, Try}
 import common.rich.func.kats.ToMoreFunctorOps.toMoreFunctorOps
 
 import common.rich.RichT._
+import common.rich.primitives.RichBoolean.richBoolean
 
 object RichFuture {
   implicit class richFutureBlocking[A](private val $ : Future[A]) extends AnyVal {
-    def get: A = Await.result($, Duration.Inf)
-    def getFailure: Throwable = {
-      Await.ready($, Duration.Inf)
-      val triedT: Try[A] = $.value.get
-      try
-        triedT.failed.get
-      catch {
-        case _: UnsupportedOperationException =>
-          throw new UnsupportedOperationException(
-            s"Expected failure but was success <${triedT.get}>",
-          )
+    def get: A = get(Duration.Inf)
+    /** Throws [[TimeoutException]] if the future does not complete within the specified timeout. */
+    def get(timeout: Duration): A = Await.result($, timeout)
+    def getFailure: Throwable = getFailure(Duration.Inf)
+    /**
+     * Throws (not returns!) [[TimeoutException]] if the future does not complete within the
+     * specified timeout.
+     */
+    def getFailure(timeout: Duration): Throwable =
+      Await.ready($, timeout).value.get match {
+        case Success(_) =>
+          throw new NoSuchElementException(s"Expected failure but was success <${$.value.get.get}>")
+        case Failure(e) => e
       }
-    }
   }
   implicit class richFuture[A]($ : Future[A])(implicit ec: ExecutionContext) {
     def |<(f: => Any): Future[A] = $ <| (_.onComplete(f.const))
@@ -34,6 +38,30 @@ object RichFuture {
       case Failure(e) => Future.failed(e)
     }
     def toTry: Future[Try[A]] = RichFuture.fromCallback($.onComplete)
+    /** Future will fail after duration. Spawns a new thread to avoid starvation. */
+    def withTimeLimit(duration: Duration): Future[A] = withTimeLimit(duration, new Thread(_))
+    /** Future will fail after duration. Uses the provided thread factory to spawn a new thread. */
+    def withTimeLimit(duration: Duration, tf: ThreadFactory): Future[A] = {
+      if (duration.isFinite.isFalse || $.isCompleted)
+        return $
+      val res = Promise[A]()
+      @volatile var thread: Thread = null
+      $.onComplete { e =>
+        if (thread != null)
+          thread.interrupt()
+        res.tryComplete(e)
+      }
+      thread = tf.newThread(() =>
+        try {
+          Thread.sleep(duration.toMillis)
+          res.tryFailure(new TimeoutException(s"Future timed out after $duration"))
+        } catch {
+          case _: InterruptedException => /* Do nothing */
+        },
+      )
+      thread.start()
+      res.future
+    }
   }
 
   def fromCallback[A](f: (A => Any) => Any): Future[A] = {
