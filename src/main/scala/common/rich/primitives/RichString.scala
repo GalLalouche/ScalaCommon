@@ -21,16 +21,13 @@ object RichString {
     def isWhitespaceOrEmpty: Boolean = $.forall(_.isWhitespace)
     def appendTo(f: File): Unit = f.appendLine($)
 
-    private def parse(splitBy: String, expectedSize: Int): Array[String] = {
-      val split = $.split(splitBy)
-      require(split.length == expectedSize)
-      split
-    }
     type Parser[A] = String => A
     def splitParse[A, B](splitBy: String, fa: Parser[A], fb: Parser[B]): (A, B) = {
       val split = parse(splitBy, 2)
       (fa(split(0)), fb(split(1)))
     }
+    def osplitParse[A, B](splitBy: String, fa: Parser[A], fb: Parser[B]): Option[(A, B)] =
+      oparse(splitBy, 2).map(s => (fa(s(0)), fb(s(1))))
     def splitParse[A, B, C](
         splitBy: String,
         fa: Parser[A],
@@ -61,6 +58,14 @@ object RichString {
       val split = parse(splitBy, 5)
       (fa(split(0)), fb(split(1)), fc(split(2)), fd(split(3)), fe(split(4)))
     }
+    private def parse(splitBy: String, expectedSize: Int): Array[String] =
+      oparse(splitBy, expectedSize).getOrElse {
+        val msg =
+          s"Expected $expectedSize elements when splitting by '$splitBy', but got ${$.split(splitBy).length}"
+        throw new IllegalArgumentException(msg)
+      }
+    private def oparse(splitBy: String, expectedSize: Int): Option[Array[String]] =
+      $.split(splitBy).optFilter(_.length == expectedSize)
 
     /** Does not return a sequence of delimiters at the end. */
     /** Does not return a sequence of delimiters at the end. */
