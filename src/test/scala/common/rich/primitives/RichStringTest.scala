@@ -38,23 +38,43 @@ class RichStringTest extends AnyFreeSpec with AuxSpecs {
   }
 
   "splitWithDelimiters" - {
+    def splitWithDelimiters(s: String, pattern: String): Seq[String] =
+      s.splitWithDelimiters(Pattern.compile(pattern))
+    "empty" in {
+      splitWithDelimiters("", ",") shouldBe empty
+    }
     "returns the actual string when there are no delimiters" in {
-      "this is a normal string".splitWithDelimiters(",") shouldReturn Vector(
+      splitWithDelimiters("this is a normal string", ",") shouldReturn Vector(
         "this is a normal string",
       )
     }
     "returns the string with delimiters" in {
-      "this.is.a.test".splitWithDelimiters("\\.") shouldReturn
+      splitWithDelimiters("this.is.a.test", "\\.") shouldReturn
         Vector("this", ".", "is", ".", "a", ".", "test")
-      ",a,b,,".splitWithDelimiters(",") shouldReturn ",a,b,,".toVector.map(_.toString)
+      splitWithDelimiters("ddaddbbd", "dd") shouldReturn Vector("dd", "a", "dd", "bbd")
+      splitWithDelimiters(",a,b,,", ",") shouldReturn ",a,b,,".toVector.map(_.toString)
     }
     "returns delimiters as a single string" in {
-      "this.,is.:a.;test".splitWithDelimiters("[.,:;]+") shouldReturn
+      splitWithDelimiters("this.,is.:a.;test", "[.,:;]+") shouldReturn
         Vector("this", ".,", "is", ".:", "a", ".;", "test")
     }
   }
 
   "endsWithCaseInsensitive" - {
+    "edge cases" - {
+      "empty string" in {
+        "".endsWithCaseInsensitive("foobar") shouldReturn false
+      }
+      "empty suffix" in {
+        "foobar".endsWithCaseInsensitive("") shouldReturn true
+      }
+      "empty suffix and string" in {
+        "foobar".endsWithCaseInsensitive("") shouldReturn true
+      }
+      "suffix longer than string" in {
+        "foobar".endsWithCaseInsensitive("xfoobar") shouldReturn false
+      }
+    }
     "false" in {
       "foobar".endsWithCaseInsensitive("BARX") shouldReturn false
     }

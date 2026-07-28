@@ -4,6 +4,8 @@ import java.io.{ByteArrayInputStream, File, InputStream, PrintStream}
 import java.util.StringTokenizer
 import java.util.regex.Pattern
 
+import com.google.common.base.Charsets
+
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
@@ -15,8 +17,8 @@ import common.rich.primitives.RichBoolean._
 object RichString {
   implicit class richString(private val $ : String) extends AnyVal {
     def unquote: String = replaceAll(WrappingQuotes, "")
-    def quote: String = '"' + $ + '"'
-    def isWhitespaceOrEmpty: Boolean = $.trim.isEmpty
+    def quote: String = (new StringBuilder).append('"').append($).append('"').toString()
+    def isWhitespaceOrEmpty: Boolean = $.forall(_.isWhitespace)
     def appendTo(f: File): Unit = f.appendLine($)
 
     private def parse(splitBy: String, expectedSize: Int): Array[String] = {
@@ -61,21 +63,17 @@ object RichString {
     }
 
     /** Does not return a sequence of delimiters at the end. */
-    def smartSplit(regex: String): Seq[String] = $.split(regex)
-      .mapIf($.endsWith(regex).const)
-      .to(_ :+ "") // end in "" if ends with regex
     /** Does not return a sequence of delimiters at the end. */
-    def smartSplit(c: Char): Seq[String] = smartSplit(c.toString)
+    def smartSplit(c: Char): Seq[String] = $.split(c)
+      .mapIf($.nonEmpty && $.last == c)
+      .to(_ :+ "") // end in "" if ends with c
     /**
-     * Adds the delimiters to the returned sequence. The split regex will be returns as a single
+     * Adds the delimiters to the returned sequence. The split regex will be returned as a single
      * element in the returned sequence. For example:
      * {{{
      *   "foo ,;. bar".splitWithDelimiters("[, ;. ]+") == Seq("foo", " ,;. ", "bar")
      * }}}
      */
-    def splitWithDelimiters(pattern: String): Seq[String] = splitWithDelimiters(
-      Pattern.compile(pattern),
-    )
     def splitWithDelimiters(pattern: Pattern): Seq[String] = {
       @tailrec
       def go(input: String, result: List[String]): List[String] = {
@@ -114,7 +112,7 @@ object RichString {
     def removeAll(p: Pattern): String = replaceAll(p, "")
     def removeAll(regex: String): String = removeAll(Pattern.compile(regex))
 
-    def toInputStream: InputStream = new ByteArrayInputStream($.getBytes)
+    def toInputStream: InputStream = new ByteArrayInputStream($.getBytes(Charsets.UTF_8))
 
     /** Performs a literal string replace without compiling a regular expression. */
     def simpleReplace(search: String, replace: String): String =
@@ -151,5 +149,4 @@ object RichString {
     finally ps.close()
     new String(baos.toByteArray, StandardCharsets.UTF_8)
   }
-
 }
