@@ -25,6 +25,10 @@ class RichSeqTest extends AnyFreeSpec with AuxSpecs {
     "calculates the modulu shift" in {
       Vector(1, 2, 3).shift(3) shouldReturn Vector(1, 2, 3)
     }
+
+    "shift by negative" in {
+      Vector(1, 2, 3).shift(-1) shouldReturn Vector(3, 1, 2)
+    }
   }
 
   "shifts" - {

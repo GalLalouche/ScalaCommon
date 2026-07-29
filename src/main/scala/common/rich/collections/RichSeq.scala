@@ -63,7 +63,9 @@ object RichSeq {
      * @param shiftSize
      *   the number of elements to shift by. It can be either negative or positive.
      */
-    def shift(shiftSize: Int): Seq[T] = $.splitAt(shiftSize).thrush(e => e._2 ++ e._1)
+    def shift(shiftSize: Int): Seq[T] =
+      $.splitAt(if (shiftSize < 0) $.size + shiftSize else shiftSize)
+        .thrush(e => e._2 ++ e._1)
 
     /** All shifts iterators. */
     def shifts: Iterator[Seq[T]] = Iterator.range(0, $.size).map(shift)
