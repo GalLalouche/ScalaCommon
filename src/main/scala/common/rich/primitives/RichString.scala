@@ -96,6 +96,8 @@ object RichString {
 
     def endsWithCaseInsensitive(suffix: String): Boolean =
       $.regionMatches(true /* ignoreCase */, $.length - suffix.length, suffix, 0, suffix.length)
+    def startsWithCaseInsensitive(prefix: String): Boolean =
+      $.regionMatches(true /* ignoreCase */, 0, prefix, 0, prefix.length)
 
     def captureWith(regex: Regex): String = $ match { case regex(result) => result }
 

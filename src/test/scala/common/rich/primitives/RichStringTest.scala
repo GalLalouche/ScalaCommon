@@ -85,6 +85,31 @@ class RichStringTest extends AnyFreeSpec with AuxSpecs {
       "fOoBaR".endsWithCaseInsensitive("bAR") shouldReturn true
     }
   }
+  "startsWithCaseInsensitive" - {
+    "edge cases" - {
+      "empty string" in {
+        "".startsWithCaseInsensitive("foobar") shouldReturn false
+      }
+      "empty prefix" in {
+        "foobar".startsWithCaseInsensitive("") shouldReturn true
+      }
+      "empty prefix and string" in {
+        "".startsWithCaseInsensitive("") shouldReturn true
+      }
+      "prefix longer than string" in {
+        "foobar".startsWithCaseInsensitive("xfoobar") shouldReturn false
+      }
+    }
+    "false" in {
+      "foobar".startsWithCaseInsensitive("BARX") shouldReturn false
+    }
+    "true same case" in {
+      "foobar".startsWithCaseInsensitive("foo") shouldReturn true
+    }
+    "true different case" in {
+      "fOoBaR".startsWithCaseInsensitive("FoO") shouldReturn true
+    }
+  }
 
   "captureWith" - {
     "captures the first argument" in {
