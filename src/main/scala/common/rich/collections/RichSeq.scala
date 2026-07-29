@@ -18,21 +18,24 @@ object RichSeq {
     def before(index: Int): Seq[T] = at(index - 1)
   }
   implicit class richSeq[T](private val $ : Seq[T]) extends AnyVal {
-    /** Returns a random shuffle of this sequence in O(n), using the fisher-yates algorithm */
-    def shuffle(random: Random): Seq[T] = {
+    /** Returns a random shuffle of this sequence in O(n), using the Fisher-Yates algorithm */
+    def shuffle(random: Random): Seq[T] = shuffle(random, maxCount = -1).toVector
+    private def shuffle(random: Random, maxCount: Int): mutable.Seq[T] = {
       val array = $.toBuffer
-      for (n <- array.length - 1 to 0 by -1) {
+      val min = if (maxCount < 0) 0 else Math.max(0, array.length - maxCount)
+      for (n <- array.length - 1 to min by -1) {
         val k = random.nextInt(n + 1)
         val temp = array(k)
         array(k) = array(n)
         array(n) = temp
       }
-      array.toVector
+      array
     }
     def shuffle: Seq[T] = shuffle(Random)
 
     /** Returns a sample of uniformly random n elements */
-    def sample(n: Int, random: Random = Random): Seq[T] = shuffle(random).take(n)
+    def sample(n: Int, random: Random = Random): Seq[T] =
+      shuffle(random, n).view.takeRight(n).toVector
 
     def firstSome[S](f: T => Option[S]): Option[S] = $.iterator.flatMap(f(_)).headOption()
 
