@@ -156,4 +156,12 @@ object RichString {
     finally ps.close()
     new String(baos.toByteArray, StandardCharsets.UTF_8)
   }
+
+  /** Enables `ciMatch"someString"` syntax in pattern matching (see tests). */
+  implicit class CIOps(private val sc: StringContext) extends AnyVal {
+    def ciMatch = new CIExtractor(sc.parts.head)
+  }
+  class CIExtractor private[RichString] (private val expected: String) extends AnyVal {
+    def unapply(target: String): Boolean = target != null && target.equalsIgnoreCase(expected)
+  }
 }

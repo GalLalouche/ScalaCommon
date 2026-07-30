@@ -197,4 +197,18 @@ class RichStringTest extends AnyFreeSpec with AuxSpecs {
   "tokenize" in {
     "foo bar.bazz!moo".tokenize(".?! ").toVector shouldReturn Vector("foo", "bar", "bazz", "moo")
   }
+  "MatchCI" - {
+    "matches" in {
+      ("FoOBaR" match {
+        case ciMatch"FOobAr" => true
+        case _ => false
+      }) shouldReturn true
+    }
+    "does not match" in {
+      ("FoOBaR" match {
+        case ciMatch"bazqux" => true
+        case _ => false
+      }) shouldReturn false
+    }
+  }
 }
