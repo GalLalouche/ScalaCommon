@@ -1,6 +1,6 @@
 package common.storage
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Clock, LocalDate, LocalDateTime}
 
 import enumeratum.EnumEntry
 import slick.jdbc.{JdbcProfile, JdbcType}
@@ -16,8 +16,8 @@ class ColumnMappers(implicit d: JdbcProfile) {
     MappedColumnType.base[E, String](_.name, EnumUtils.valueOf[E])
   def enumeratumColumn[A <: EnumEntry: ClassTag](enum: enumeratum.Enum[A]): JdbcType[A] =
     MappedColumnType.base[A, String](_.entryName, enum.withName)
-  implicit val localDateTimeColumn: JdbcType[LocalDateTime] =
-    MappedColumnType.base[LocalDateTime, Long](_.toMillis, _.toLocalDateTime)
+  implicit def localDateTimeColumn(clock: Clock): JdbcType[LocalDateTime] =
+    MappedColumnType.base[LocalDateTime, Long](_.toMillis(clock), _.toLocalDateTime(clock))
   implicit val localDateColumn: JdbcType[LocalDate] =
     MappedColumnType.base[LocalDate, Long](_.toEpochDay, LocalDate.ofEpochDay)
 }

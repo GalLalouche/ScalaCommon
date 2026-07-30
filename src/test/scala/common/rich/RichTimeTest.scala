@@ -21,5 +21,11 @@ class RichTimeTest extends AnyFreeSpec with AuxSpecs {
       val t1 = LocalDateTime.ofInstant(Instant.ofEpochSecond(1000, 500), ZoneId.systemDefault())
       t1.isNewerThan(Duration.ofMillis(1000), clock) shouldReturn false
     }
+    "now + isOlderThan" in {
+      val now = clock.instant().toLocalDateTime(clock)
+      val clock1 = Clock.offset(clock, Duration.ofMillis(1000))
+      now.isOlderThan(Duration.ofMillis(1000), clock1) shouldReturn false
+      now.isOlderThan(Duration.ofMillis(999), clock1) shouldReturn true
+    }
   }
 }
