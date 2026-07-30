@@ -23,8 +23,8 @@ object RichFuture {
      */
     def getFailure(timeout: Duration): Throwable =
       Await.ready($, timeout).value.get match {
-        case Success(_) =>
-          throw new NoSuchElementException(s"Expected failure but was success <${$.value.get.get}>")
+        case Success(v) =>
+          throw new NoSuchElementException(s"Expected failure but was success <$v>")
         case Failure(e) => e
       }
   }

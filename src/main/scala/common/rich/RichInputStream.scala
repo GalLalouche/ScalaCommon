@@ -41,7 +41,7 @@ object RichInputStream {
     /** Closes the input stream. */
     def asString(): String = {
       // Not using Using for source backwards compatibility with Scala 2.12
-      val source = Source.fromInputStream($)
+      val source = Source.fromInputStream($, StandardCharsets.UTF_8.name())
       try source.mkString
       finally source.close()
     }

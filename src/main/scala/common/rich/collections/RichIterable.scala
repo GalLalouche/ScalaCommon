@@ -15,7 +15,7 @@ object RichIterable {
     def hasAtMostSizeOf(n: Int): Boolean = $.lengthCompare(n) <= 0
     def isSmallerThan(n: Int): Boolean = $.lengthCompare(n) < 0
     def hasExactlySizeOf(n: Int): Boolean = $.lengthCompare(n) == 0
-    /** Like lengthCompare, but nicer return value. */
+    /** Like [[lengthCompare]], but nicer return value. */
     def checkLength(n: Int): CheckLengthResult = {
       val res = $.lengthCompare(n)
       if (res < 0) Smaller else if (res == 0) Equal else Larger

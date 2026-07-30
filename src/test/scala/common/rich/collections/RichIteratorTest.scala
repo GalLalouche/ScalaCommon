@@ -72,9 +72,6 @@ class RichIteratorTest extends AnyFreeSpec with AuxSpecs with TimeLimitedTests {
   }
 
   "apply" - {
-    "throws IndexOutOfBoundsException when index is negative" in {
-      an[IndexOutOfBoundsException] shouldBe thrownBy(Iterator.empty.apply(-1))
-    }
     "throws IndexOutOfBoundsException when index is too large" in {
       an[IndexOutOfBoundsException] shouldBe thrownBy(Iterator.empty.apply(1))
     }

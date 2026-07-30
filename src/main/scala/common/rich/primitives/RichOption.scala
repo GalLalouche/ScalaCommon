@@ -12,7 +12,7 @@ object RichOption {
     def getOrThrow(errorMessage: => String): A = getOrThrow(
       new NoSuchElementException(errorMessage),
     )
-    def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = toTry(t).get
+    def getOrThrow(t: => Throwable)(implicit d: DummyImplicit): A = $.getOrElse(throw t)
     /** Unlike `orEmpty` in cats [[cats.syntax.OptionOps]], requires only [[Empty]] */
     def getOrEmpty(implicit E: Empty[A]): A = $.getOrElse(E.empty)
     def toEither[B](ifNone: => B): Either[B, A] = $.mapHeadOrElse(Right.apply, Left(ifNone))

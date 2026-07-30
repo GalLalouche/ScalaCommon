@@ -41,7 +41,6 @@ object RichFile {
     def extensionIsAnyOf(str1: String, strs: String*): Boolean =
       hasExtension(str1) || extensionIsAnyOf(strs)
 
-    /** Appends a line to the end of the file */
     def appendLine(s: String): File = {
       val fw = new FileWriter($, true)
       try fw.write(s + "\n")
@@ -72,7 +71,6 @@ object RichFile {
     /** Reads the entire content of the file as a single string */
     def readAll: String = lines.mkString("\n")
 
-    /** Returns the lines of the file */
     def lines: Seq[String] = {
       // only works for UTF-8... I'm so gonna pay for that some day :|
       def removeByteOrderMarkIfPresent(
@@ -81,15 +79,8 @@ object RichFile {
       Source.fromBytes(removeByteOrderMarkIfPresent(bytes)).getLines().toVector
     }
 
-    /** Gets all bytes in the file */
     def bytes: Array[Byte] = Files.readAllBytes($.toPath)
 
-    /**
-     * Checks if this file has the same contents as another file
-     *
-     * @param f
-     *   The file to compare with
-     */
     def hasSameContentAs(f: File): Boolean = f.bytes.sameElements(new richFile($).bytes)
 
     /** Returns a backup file of this file */

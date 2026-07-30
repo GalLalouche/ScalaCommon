@@ -63,7 +63,7 @@ object RichT {
     @inline def <-:[S](f: T => S): (S, T) = f($) -> $
 
     /** The simple class name, without $ and stuff. */
-    @inline def simpleName: String = $.getClass.getSimpleName.replaceAll("\\$", "")
+    @inline def simpleName: String = $.getClass.getSimpleName.replace("$", "")
 
     /** If this is of type C, returns Some(T), else None. */
     def safeCast[C <: T](implicit m: Manifest[C]): Option[C] = {

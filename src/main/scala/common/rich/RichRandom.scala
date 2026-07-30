@@ -15,10 +15,11 @@ object RichRandom {
       selectWAux[Int, A](xs, $.nextInt(_))
 
     private def selectWAux[N: Numeric, A](xs: Iterable[(N, A)], rGen: N => N): A = {
-      val total = xs.view.map(_._1).sum.ensuring(_ > implicitly[Numeric[N]].fromInt(0))
+      val zero = implicitly[Numeric[N]].fromInt(0)
+      val total = xs.view.map(_._1).sum.ensuring(_ > zero)
       val r = rGen(total)
       val iterator = xs.iterator
-      var sum = implicitly[Numeric[N]].fromInt(0)
+      var sum = zero
       while (true) {
         val (count, a) = iterator.next()
         sum += count

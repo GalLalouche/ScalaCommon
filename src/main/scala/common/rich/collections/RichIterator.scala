@@ -25,21 +25,23 @@ object RichIterator {
       )
 
     /**
-     * Returns an iterator that outputs to the console its iteration number
+     * Returns an iterator that outputs to the console its iteration number.
      *
      * @param frequency
      *   the frequency of the output, i.e., how often should the message be printed. Default is
      *   every time, i.e., at every step.
      */
-    def withCounter(frequency: Int = 1): Iterator[A] =
+    def withCounter(frequency: Int = 1): Iterator[A] = {
+      require(frequency > 0, s"Frequency must be positive, but got <$frequency>")
       withCounter(i => if (i % frequency == 0) Some(i.toString) else None)
+    }
 
     /**
-     * Returns an iterator that outputs to the console its progress
+     * Returns an iterator that outputs to the console its progress.
      *
      * @param f
-     *   A function from iteration number to an optional string. If the None, nothing will be
-     *   printed. Otherwise, f(e) will be printed, where e is the current element being processed.
+     *   A function from iteration number to an optional string. If the [[None]], nothing will be
+     *   printed. Otherwise, `f(i)` will be printed, where `i` is the current iteration number.
      */
     def withCounter(f: Int => Option[String]): Iterator[A] = new AbstractIterator[A] {
       private var i = 0
@@ -59,12 +61,13 @@ object RichIterator {
     }
 
     /**
-     * Returns an iterator that outputs to the console its progress in percentages
+     * Returns an iterator that outputs to the console its progress in percentages.
      *
      * @param size
      *   the total number of elements in the iterator
      */
     def withPercentage(size: Int): Iterator[A] = {
+      require(size > 0, s"Size must be positive, but got <$size>")
       var lastPercentage = 0
       withCounter { i =>
         val currentPercentage = i * 100 / size
@@ -88,7 +91,8 @@ object RichIterator {
       if ($.isEmpty) Iterator() else $.scanLeft($.next)(f)
 
     /**
-     * Similar to takeWhile, except the first element not satisfying the predicate is also included.
+     * Similar to `takeWhile`, except the first element not satisfying the predicate is also
+     * included.
      */
     def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A] {
       private var stopped: Boolean = false
@@ -108,6 +112,7 @@ object RichIterator {
     }
 
     def apply(n: Int): A = {
+      require(n >= 0, s"Index must be non-negative, but got <$n>")
       val dropped = $.drop(n)
       if (dropped.hasNext)
         dropped.next()
@@ -158,8 +163,9 @@ object RichIterator {
 
   def iterateOptionally[A](a: A)(f: A => Option[A]): Iterator[A] =
     Iterator.iterate(Option(a))(f apply _.get).takeWhile(_.isDefined).map(_.get)
-  @tailrec def farthest[A](a: A)(f: A => Option[A]): A = {
-    val $ = f(a)
-    if ($.isDefined) farthest($.get)(f) else a
+  /** Returns the last element in the chain of `f` which returns [[Some]], starting from `a`. */
+  @tailrec def farthest[A](a: A)(f: A => Option[A]): A = f(a) match {
+    case None => a
+    case Some(next) => farthest(next)(f)
   }
 }
