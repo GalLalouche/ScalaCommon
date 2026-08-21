@@ -1,8 +1,9 @@
 package common
 
+import common.rich.RichT.richT
+
 import scala.language.implicitConversions
 import scala.util.Random
-
 import common.rich.primitives.RichDouble._
 
 class Percentage private (val p: Double) extends AnyVal {
@@ -13,6 +14,9 @@ class Percentage private (val p: Double) extends AnyVal {
   def *(e: Long): Long = math.round(p * e)
   def *(e: Double): Double = p * e
   def *(e: Float): Double = p * e
+  def **(e: Double): Percentage = new Percentage(Math.pow(p, e.requiring(_ >= 0)))
+
+
   override def toString: String = p.withPrecision(2)
   /** Returns true with probability p. */
   def roll(r: Random): Boolean = r.nextDouble() <= p

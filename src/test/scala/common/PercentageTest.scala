@@ -24,6 +24,10 @@ class PercentageTest extends AnyFreeSpec with AuxSpecs {
     Percentage(0.25) * 0.75 shouldReturn 0.25 * 0.75
     Percentage(0.25) * 0.75f shouldReturn 0.25 * 0.75
   }
+  "exp" in {
+    Percentage(0.5) ** 2 shouldReturn 0.25
+    (Percentage(0.5) ** 0.5).p shouldBeApproximately (math.sqrt(2) / 2)
+  }
   "step" in {
     Percentage.step(0.1).map(_ * 10) shouldReturn 0.to(10)
   }
