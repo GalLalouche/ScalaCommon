@@ -1,27 +1,19 @@
 package common
 
-/**
- * A mutable wrapper of [[LazyMap]]. Since it is mutable, it is made thread-safe via the use of
- * (volatile & double-checked) synchronisation.
- *
- * While wrapping [[java.util.concurrent.ConcurrentHashMap]] would offer better locking performance,
- * it wouldn't guarantee a minimum number of applications of the memoized function.
- */
-class CacheMap[K, V] private (@volatile private var lazyMap: LazyMap[K, V]) extends Function[K, V] {
-  override def apply(k: K): V =
-    lazyMap.get(k).getOrElse(synchronized(lazyMap.get(k).getOrElse(force(k))))
+import java.util.concurrent.ConcurrentHashMap
 
-  /** Returns the value if it was already computed. */
-  def get(k: K): Option[V] = lazyMap.get(k)
+import common.rich.collections.RichMap.richJavaMap
 
+/** Ensures the value for a key is computed at most once. */
+class CacheMap[K, V](computation: K => V) extends Function[K, V] {
+  override def apply(k: K): V = computedValues.computeIfAbsent(k, computation(_))
+  def get(k: K): Option[V] = computedValues.getOpt(k)
   /** Forces the re-evaluation of the function. */
-  def force(k: K): V = synchronized {
-    val (value, newMap) = lazyMap.update(k)
-    this.lazyMap = newMap
-    value
-  }
+  def force(k: K): V = computedValues.compute(k, (k, _) => computation(k))
+
+  private val computedValues: ConcurrentHashMap[K, V] = new ConcurrentHashMap()
 }
 
 object CacheMap {
-  def apply[K, V](f: K => V) = new CacheMap[K, V](LazyMap(f))
+  def apply[K, V](f: K => V) = new CacheMap[K, V](f)
 }
