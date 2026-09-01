@@ -284,6 +284,10 @@ class RichTraversableOnceTest extends AnyFreeSpec with AuxSpecs {
     Vector("foo", "moo", "bar").bottomK(2) shouldReturn Vector("bar", "foo")
   }
 
+  "sortedIterator" in {
+    Iterable(3, 1, 4, 1, 5, 9).sortedIterator.take(4).toVector shouldReturn Vector(1, 1, 3, 4)
+  }
+
   "pairSliding" - {
     "empty" in { Iterator.empty.pairSliding shouldBe empty }
     "singleton" in { Iterator(1).pairSliding shouldBe empty }

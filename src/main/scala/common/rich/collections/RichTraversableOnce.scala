@@ -197,6 +197,16 @@ object RichTraversableOnce {
       q.result()
     }
     def bottomK(k: Int)(implicit ord: Ordering[A]): Seq[A] = topK(k)(ord.reverse)
+
+    /** Consumes the entire structure, and so does not work on infinite structures. */
+    def sortedIterator(implicit ord: Ordering[A]): Iterator[A] = {
+      val pq = scala.collection.mutable.PriorityQueue[A]()(ord.reverse)
+      pq ++= $ // Not using .from for source BWC.
+      new Iterator[A] {
+        override def hasNext: Boolean = pq.nonEmpty
+        override def next(): A = pq.dequeue()
+      }
+    }
     /** Returns empty if the iterator contains 1 or fewer elements. */
     def pairSliding: Iterator[(A, A)] =
       $.toIterator.sliding(2).withPartial(false).map(e => e(0) -> e(1))
