@@ -16,6 +16,10 @@ object RichFuture {
     def get: A = get(Duration.Inf)
     /** Throws [[TimeoutException]] if the future does not complete within the specified timeout. */
     def get(timeout: Duration): A = Await.result($, timeout)
+    /** Returns [[None]] on timeout. */
+    def getOpt(timeout: Duration): Option[A] =
+      try Some(Await.result($, timeout))
+      catch { case _: TimeoutException => None }
     def getFailure: Throwable = getFailure(Duration.Inf)
     /**
      * Throws (not returns!) [[TimeoutException]] if the future does not complete within the

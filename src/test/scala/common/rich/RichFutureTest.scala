@@ -41,6 +41,22 @@ class RichFutureTest extends AnyFreeSpec with AuxSpecs {
         a[TimeoutException] should be thrownBy success.get(1.millisecond)
       }
     }
+    "getOpt" - {
+      "success" in {
+        success.getOpt(1.second) shouldReturn Some(5)
+      }
+      "timeout on failure" in {
+        failure.getOpt(1.millisecond) shouldReturn None
+      }
+      "timeout on success" in {
+        success.getOpt(1.millisecond) shouldReturn None
+      }
+      "failure throws" in {
+        val e = new Exception("Derp2")
+        val actual = the[Exception] thrownBy Future.failed(e).getOpt(1.second)
+        actual shouldBe theSameInstanceAs(e)
+      }
+    }
   }
 
   "getFailure" - {
