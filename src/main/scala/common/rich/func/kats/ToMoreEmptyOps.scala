@@ -9,4 +9,8 @@ trait ToMoreEmptyOps {
   }
 }
 
-object ToMoreEmptyOps extends ToMoreEmptyOps
+object ToMoreEmptyOps extends ToMoreEmptyOps {
+  implicit def emptyOption[A]: Empty[Option[A]] = new Empty[Option[A]] {
+    override def empty: Option[Nothing] = None
+  }
+}

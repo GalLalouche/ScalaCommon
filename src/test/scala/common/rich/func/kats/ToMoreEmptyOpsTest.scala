@@ -3,7 +3,7 @@ package common.rich.func.kats
 import cats.instances.string.catsKernelStdMonoidForString
 import org.scalatest.freespec.AnyFreeSpec
 
-import common.rich.func.kats.ToMoreEmptyOps._
+import common.rich.func.kats.ToMoreEmptyOps.emptyFilter
 
 import common.test.AuxSpecs
 
@@ -29,5 +29,9 @@ class ToMoreEmptyOpsTest extends AnyFreeSpec with AuxSpecs {
         "foobar".emptyFilter(_.length == 6) shouldReturn "foobar"
       }
     }
+  }
+  "emptyOption" in {
+    import common.rich.func.kats.ToMoreEmptyOps.emptyOption
+    Option(null: Null).emptyFilter(false) shouldReturn None
   }
 }
