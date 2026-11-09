@@ -1,5 +1,6 @@
 package common.rich.primitives
 
+import alleycats.Empty
 import cats.implicits.toBifunctorOps
 
 import scala.util.{Failure, Success, Try}
@@ -10,6 +11,7 @@ object RichEither {
     def eitherStrengthenRight[C](c: C): Either[(C, A), (C, B)] = $.bimap(c -> _, c -> _)
     def fromRight(f: A => B): B = $.fold(f, identity)
     def getOrThrow(implicit ev: ToError[A]): B = $.fromRight(a => throw ev.toError(a))
+    def getOrEmpty(implicit E: Empty[B]): B = $.getOrElse(E.empty)
     def toErrorTry(implicit ev: ToError[A]): Try[B] = $ match {
       case Left(a) => Failure(ev.toError(a))
       case Right(b) => Success(b)
