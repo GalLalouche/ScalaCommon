@@ -3,30 +3,30 @@ package common.rich.func.kats
 import cats.instances.string.catsKernelStdMonoidForString
 import org.scalatest.freespec.AnyFreeSpec
 
-import common.rich.func.kats.ToMoreMonoidOps._
+import common.rich.func.kats.ToMoreEmptyOps._
 
 import common.test.AuxSpecs
 
-class ToMoreMonoidOpsTest extends AnyFreeSpec with AuxSpecs {
+class ToMoreEmptyOpsTest extends AnyFreeSpec with AuxSpecs {
   "monoidFilter" - {
     "monoidFilterConstant" - {
       "false" in {
-        "foobar".monoidFilter(false) shouldReturn ""
+        "foobar".emptyFilter(false) shouldReturn ""
       }
       "true" in {
-        "foobar".monoidFilter(true) shouldReturn "foobar"
+        "foobar".emptyFilter(true) shouldReturn "foobar"
       }
       "Is lazy" in {
         def nothing: String = ???
-        nothing.monoidFilter(false) shouldReturn ""
+        nothing.emptyFilter(false) shouldReturn ""
       }
     }
     "monoidFilterPredicate" - {
       "false" in {
-        "foobar".monoidFilter(_.length < 6) shouldReturn ""
+        "foobar".emptyFilter(_.length < 6) shouldReturn ""
       }
       "true" in {
-        "foobar".monoidFilter(_.length == 6) shouldReturn "foobar"
+        "foobar".emptyFilter(_.length == 6) shouldReturn "foobar"
       }
     }
   }

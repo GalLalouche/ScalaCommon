@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
-import common.rich.func.kats.ToMoreMonoidOps.monoidFilter
+import common.rich.func.kats.ToMoreEmptyOps.emptyFilter
 
 import common.rich.RichFuture.richFuture
 import common.rich.RichT.{lazyT, richT}
@@ -72,11 +72,11 @@ trait AuxSpecs extends Matchers { self: Suite =>
           val base =
             s"${simplify(actualFreqs)} isn't the same as ${simplify(otherFreqs)}."
           val missingStr =
-            s"\nIt is missing: ${"      ".monoidFilter(extra.nonEmpty)}${simplify(missing)}."
-              .monoidFilter(missing.nonEmpty)
+            s"\nIt is missing: ${"      ".emptyFilter(extra.nonEmpty)}${simplify(missing)}."
+              .emptyFilter(missing.nonEmpty)
           val extraStr =
             s"\n${if (missing.nonEmpty) "And" else "It"} has extra items: ${simplify(extra)}."
-              .monoidFilter(extra.nonEmpty)
+              .emptyFilter(extra.nonEmpty)
           // While it is missing a space, it only exists if missing is empty, so there's nothing to
           // horizontally-align anyway.
           base + missingStr + extraStr

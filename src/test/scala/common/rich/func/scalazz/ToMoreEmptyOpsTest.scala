@@ -2,12 +2,12 @@ package common.rich.func.scalazz
 
 import org.scalatest.freespec.AnyFreeSpec
 
-import common.rich.func.scalazz.ToMoreMonoidOps._
 import scalaz.std.string.stringInstance
+import common.rich.func.scalazz.ToMoreMonoidOps._
 
 import common.test.AuxSpecs
 
-class ToMoreMonoidOpsTest extends AnyFreeSpec with AuxSpecs {
+class ToMoreEmptyOpsTest extends AnyFreeSpec with AuxSpecs {
   "monoidFilter" - {
     "monoidFilterConstant" - {
       "false" in {
